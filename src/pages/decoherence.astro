@@ -266,41 +266,39 @@ const timelineItems = [
     </Card>
   </ContentSection>
 
-  <ContentSection title="Key Literature & References">
-    <ReferenceList theme="purple">
-      <li>
-        <a href="https://arxiv.org/abs/2012.06029" target="_blank">Wilen et al. (2021) - "Correlated charge noise and relaxation bursts in superconducting qubits"</a>
-        <p>Nature. Identifies background ionizing radiation and cosmic rays as key drivers of correlated error bursts across multiple qubits on a single chip, posing a significant challenge to error-correcting codes.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/cond-mat/0507314" target="_blank">Martinis et al. (2005) - "Decoherence in Josephson qubits from dielectric loss"</a>
-        <p>Physical Review Letters. A seminal paper identifying Two-Level System (TLS) defect absorption in the qubit capacitor and junction oxide as the dominant mechanism for transmon energy relaxation.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/1904.06560" target="_blank">Krantz et al. (2019) - "A quantum engineer's guide to superconducting qubits"</a>
-        <p>Applied Physics Reviews. A comprehensive review covering qubit design, fabrication, decoherence mechanisms (TLS, quasiparticles, flux noise), control, and readout—the standard reference for understanding how microscopic noise channels limit coherence.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/1705.01108" target="_blank">Müller et al. (2019) - "Towards understanding two-level-systems in amorphous solids: Insights from quantum circuits"</a>
-        <p>Reports on Progress in Physics. A deep dive into the microscopic physics of TLS defects in amorphous dielectrics, reviewing how superconducting qubits serve as sensitive probes of individual TLS and what this reveals about the atomic structure of amorphous solids.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/1905.13641" target="_blank">Kjaergaard et al. (2020) - "Superconducting qubits: Current state of play"</a>
-        <p>Annual Review of Condensed Matter Physics. Surveys the state of the art in superconducting qubit performance, benchmarking T1, T2, and gate fidelities across platforms and analyzing the gap remaining to fault-tolerant quantum computing.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/2003.00024" target="_blank">Place et al. (2021) - "New material platform for superconducting transmon qubits with coherence times exceeding 0.3 milliseconds"</a>
-        <p>Nature Communications. Supports the "Materials Co-Design" research agenda by demonstrating that replacing niobium with epitaxial tantalum dramatically reduces two-level system (TLS) losses, pushing T1 coherence times beyond 300 µs.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/2307.08737" target="_blank">Levine et al. (2024) - "Demonstrating a long-coherence dual-rail erasure qubit using tunable transmons"</a>
-        <p>Physical Review X. Validates the "Hardware-Efficient QEC" strategy by experimentally realizing a dual-rail qubit where dominant errors manifest as easily-detectable erasures rather than Pauli errors, significantly lowering overhead for fault tolerance.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/2312.01031" target="_blank">Odeh et al. (2025) - "Non-Markovian dynamics of a superconducting qubit in a phononic bandgap"</a>
-        <p>Nature Physics. Advances the "Cryogenic Microwave Routing" agenda by demonstrating the integration of superconducting qubits within phononic bandgap structures, successfully engineering isolation from phonon-mediated thermal noise and crosstalk.</p>
-      </li>
-    </ReferenceList>
-  </ContentSection>
+  <ReferenceList theme="purple">
+    <li>
+      <a href="https://arxiv.org/abs/2012.06029" target="_blank">Wilen et al. (2021) - "Correlated charge noise and relaxation bursts in superconducting qubits"</a>
+      <p>Nature. Identifies background ionizing radiation and cosmic rays as key drivers of correlated error bursts across multiple qubits on a single chip, posing a significant challenge to error-correcting codes.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/cond-mat/0507314" target="_blank">Martinis et al. (2005) - "Decoherence in Josephson qubits from dielectric loss"</a>
+      <p>Physical Review Letters. A seminal paper identifying Two-Level System (TLS) defect absorption in the qubit capacitor and junction oxide as the dominant mechanism for transmon energy relaxation.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1904.06560" target="_blank">Krantz et al. (2019) - "A quantum engineer's guide to superconducting qubits"</a>
+      <p>Applied Physics Reviews. A comprehensive review covering qubit design, fabrication, decoherence mechanisms (TLS, quasiparticles, flux noise), control, and readout—the standard reference for understanding how microscopic noise channels limit coherence.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1705.01108" target="_blank">Müller et al. (2019) - "Towards understanding two-level-systems in amorphous solids: Insights from quantum circuits"</a>
+      <p>Reports on Progress in Physics. A deep dive into the microscopic physics of TLS defects in amorphous dielectrics, reviewing how superconducting qubits serve as sensitive probes of individual TLS and what this reveals about the atomic structure of amorphous solids.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1905.13641" target="_blank">Kjaergaard et al. (2020) - "Superconducting qubits: Current state of play"</a>
+      <p>Annual Review of Condensed Matter Physics. Surveys the state of the art in superconducting qubit performance, benchmarking T1, T2, and gate fidelities across platforms and analyzing the gap remaining to fault-tolerant quantum computing.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2003.00024" target="_blank">Place et al. (2021) - "New material platform for superconducting transmon qubits with coherence times exceeding 0.3 milliseconds"</a>
+      <p>Nature Communications. Supports the "Materials Co-Design" research agenda by demonstrating that replacing niobium with epitaxial tantalum dramatically reduces two-level system (TLS) losses, pushing T1 coherence times beyond 300 µs.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2307.08737" target="_blank">Levine et al. (2024) - "Demonstrating a long-coherence dual-rail erasure qubit using tunable transmons"</a>
+      <p>Physical Review X. Validates the "Hardware-Efficient QEC" strategy by experimentally realizing a dual-rail qubit where dominant errors manifest as easily-detectable erasures rather than Pauli errors, significantly lowering overhead for fault tolerance.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2312.01031" target="_blank">Odeh et al. (2025) - "Non-Markovian dynamics of a superconducting qubit in a phononic bandgap"</a>
+      <p>Nature Physics. Advances the "Cryogenic Microwave Routing" agenda by demonstrating the integration of superconducting qubits within phononic bandgap structures, successfully engineering isolation from phonon-mediated thermal noise and crosstalk.</p>
+    </li>
+  </ReferenceList>
   </PageLayout>
 </Base>

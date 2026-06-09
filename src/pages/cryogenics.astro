@@ -276,41 +276,39 @@ const timelineItems = [
     </div>
   </ContentSection>
 
-  <ContentSection title="Key Literature & References">
-    <ReferenceList theme="purple">
-      <li>
-        <a href="https://doi.org/10.1098/rspa.1962.0199" target="_blank">London, Clarke, and Mendoza (1962) - "Osmotic pressure of 3He in liquid 4He, with proposals for a refrigerator to work below 1 K"</a>
-        <p>Proceedings of the Royal Society A. The foundational paper establishing the thermodynamic equations and practical proposals for isotopic dilution cooling.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/1806.01255" target="_blank">Krinner et al. (2019) - "Engineering cryogenic setups for 100-qubit scale superconducting quantum processors"</a>
-        <p>EPJ Quantum Technology. Provides a detailed engineering blueprint for routing high-density coaxial control lines, using attenuation cascades, and managing thermal budgets at 15mK.</p>
-      </li>
-      <li>
-        <a href="https://doi.org/10.1007/978-3-540-46360-3" target="_blank">Pobell (2007) - "Matter and Methods at Low Temperatures" (3rd Edition)</a>
-        <p>Springer. The standard textbook on low-temperature physics and cryogenic techniques, covering dilution refrigeration thermodynamics, heat exchangers, thermometry, and materials properties at milliKelvin temperatures.</p>
-      </li>
-      <li>
-        <a href="https://doi.org/10.1063/5.0042699" target="_blank">Simbierowicz et al. (2021) - "Microwave package design for superconducting quantum processors"</a>
-        <p>Applied Physics Letters. Addresses the engineering challenges of microwave packaging and signal routing for scaling toward 1,000-qubit superconducting quantum computers within cryogenic environments.</p>
-      </li>
-      <li>
-        <a href="https://doi.org/10.1109/MMM.2019.2958943" target="_blank">Rosenberg et al. (2020) - "Solid-state qubits: 3D integration and packaging"</a>
-        <p>IEEE Microwave Magazine. Reviews 3D integration and advanced packaging techniques for solid-state qubits, including through-silicon vias (TSVs) and multi-chip module approaches essential for scaling cryogenic quantum processors.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/2512.21199" target="_blank">Pan et al. (2025) - "All-optical control and multiplexed readout of multiple superconducting qubits"</a>
-        <p>arXiv preprint (arXiv:2512.21199). Directly addresses the skepticism surrounding massive coaxial wiring footprints and their heat load. The authors demonstrate an optical-to-microwave (O2M) architecture using traveling-wave Brillouin transducers and uni-traveling-carrier (UTC) photodiodes at the 3.3 K stage, achieving 99.5% single-qubit gate fidelity while vastly reducing thermal conductivity to the mixing chamber.</p>
-      </li>
-      <li>
-        <a href="https://doi.org/10.1109/esserc62670.2024.10719526" target="_blank">Underwood et al. (2024) - "A 12.8 mW/channel cryogenic RF-AWG in 14nm FinFET for transmon qubit control"</a>
-        <p>IEEE ESSERC. Confronts the heat dissipation bottleneck of integrating active control electronics inside the cryostat. By exploring sub-threshold 14nm FinFET device physics at deep cryogenic temperatures, this research demonstrates a functional RF arbitrary waveform generator dissipating only 12.8 mW per channel, crucial for scaling cryo-CMOS multiplexing without inducing thermal runaway.</p>
-      </li>
-      <li>
-        <a href="https://arxiv.org/abs/2312.01031" target="_blank">Odeh et al. (2023) - "Non-Markovian dynamics of a superconducting qubit in a phononic bandgap"</a>
-        <p>arXiv preprint (arXiv:2312.01031). Explores actionable research into phononic metamaterials to passively shield the quantum processor from mechanical vibrations (e.g., pulse-tube cooler noise). By engineering acoustic bandgaps, the periodic structural lattice suppresses phonon emission and coupling to lossy two-level systems (TLS defects), extending qubit relaxation times through structural isolation.</p>
-      </li>
-    </ReferenceList>
-  </ContentSection>
+  <ReferenceList theme="purple">
+    <li>
+      <a href="https://doi.org/10.1098/rspa.1962.0199" target="_blank">London, Clarke, and Mendoza (1962) - "Osmotic pressure of 3He in liquid 4He, with proposals for a refrigerator to work below 1 K"</a>
+      <p>Proceedings of the Royal Society A. The foundational paper establishing the thermodynamic equations and practical proposals for isotopic dilution cooling.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1806.01255" target="_blank">Krinner et al. (2019) - "Engineering cryogenic setups for 100-qubit scale superconducting quantum processors"</a>
+      <p>EPJ Quantum Technology. Provides a detailed engineering blueprint for routing high-density coaxial control lines, using attenuation cascades, and managing thermal budgets at 15mK.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1007/978-3-540-46360-3" target="_blank">Pobell (2007) - "Matter and Methods at Low Temperatures" (3rd Edition)</a>
+      <p>Springer. The standard textbook on low-temperature physics and cryogenic techniques, covering dilution refrigeration thermodynamics, heat exchangers, thermometry, and materials properties at milliKelvin temperatures.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1063/5.0042699" target="_blank">Simbierowicz et al. (2021) - "Microwave package design for superconducting quantum processors"</a>
+      <p>Applied Physics Letters. Addresses the engineering challenges of microwave packaging and signal routing for scaling toward 1,000-qubit superconducting quantum computers within cryogenic environments.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1109/MMM.2019.2958943" target="_blank">Rosenberg et al. (2020) - "Solid-state qubits: 3D integration and packaging"</a>
+      <p>IEEE Microwave Magazine. Reviews 3D integration and advanced packaging techniques for solid-state qubits, including through-silicon vias (TSVs) and multi-chip module approaches essential for scaling cryogenic quantum processors.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2512.21199" target="_blank">Pan et al. (2025) - "All-optical control and multiplexed readout of multiple superconducting qubits"</a>
+      <p>arXiv preprint (arXiv:2512.21199). Directly addresses the skepticism surrounding massive coaxial wiring footprints and their heat load. The authors demonstrate an optical-to-microwave (O2M) architecture using traveling-wave Brillouin transducers and uni-traveling-carrier (UTC) photodiodes at the 3.3 K stage, achieving 99.5% single-qubit gate fidelity while vastly reducing thermal conductivity to the mixing chamber.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1109/esserc62670.2024.10719526" target="_blank">Underwood et al. (2024) - "A 12.8 mW/channel cryogenic RF-AWG in 14nm FinFET for transmon qubit control"</a>
+      <p>IEEE ESSERC. Confronts the heat dissipation bottleneck of integrating active control electronics inside the cryostat. By exploring sub-threshold 14nm FinFET device physics at deep cryogenic temperatures, this research demonstrates a functional RF arbitrary waveform generator dissipating only 12.8 mW per channel, crucial for scaling cryo-CMOS multiplexing without inducing thermal runaway.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2312.01031" target="_blank">Odeh et al. (2023) - "Non-Markovian dynamics of a superconducting qubit in a phononic bandgap"</a>
+      <p>arXiv preprint (arXiv:2312.01031). Explores actionable research into phononic metamaterials to passively shield the quantum processor from mechanical vibrations (e.g., pulse-tube cooler noise). By engineering acoustic bandgaps, the periodic structural lattice suppresses phonon emission and coupling to lossy two-level systems (TLS defects), extending qubit relaxation times through structural isolation.</p>
+    </li>
+  </ReferenceList>
   </PageLayout>
 </Base>
