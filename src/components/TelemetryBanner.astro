@@ -1,0 +1,313 @@
+---
+// TelemetryBanner.astro
+// A standalone widget-like banner for live ecdsa.fail API metrics.
+
+let qubits = "1,285";
+let toffoli = "~1.38M";
+let score = "1,776,720,670";
+
+try {
+  // Use a short timeout to prevent blocking builds on slow/offline networks
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  
+  const res = await fetch('https://www.ecdsa.fail/api/benchmarks', {
+    signal: controller.signal
+  });
+  clearTimeout(timeoutId);
+  
+  if (res.ok) {
+    const data = await res.json();
+    const benchmark = data.benchmarks?.find((b: any) => b.name === 'gpsanant/ecdsafail-challenge');
+    if (benchmark && benchmark.currentBestMetrics) {
+      const q = benchmark.currentBestMetrics.qubits;
+      const t = benchmark.currentBestMetrics.toffoli;
+      const s = benchmark.currentBestScore;
+      
+      qubits = q.toLocaleString();
+      toffoli = '~' + (t / 1000000).toFixed(2) + 'M';
+      score = s ? s.toLocaleString() : 'N/A';
+    }
+  }
+} catch (err) {
+  console.warn('Failed to fetch benchmarks at build time, using defaults:', err);
+}
+---
+
+<div class="telemetry-banner-wrapper">
+  <div class="telemetry-glass-panel">
+    
+    <div class="telemetry-header">
+      <div class="telemetry-pulse">
+        <span class="pulse-dot"></span>
+        <span class="pulse-ring"></span>
+      </div>
+      <span class="telemetry-title">LIVE FEED: ECDSA.FAIL FRONTIER</span>
+    </div>
+
+    <div class="telemetry-grid">
+      <!-- Curve -->
+      <div class="telemetry-stat">
+        <div class="stat-label">CURVE</div>
+        <div class="stat-value">secp256k1</div>
+      </div>
+      
+      <!-- Divider -->
+      <div class="stat-divider"></div>
+      
+      <!-- Peak Qubits -->
+      <div class="telemetry-stat">
+        <div class="stat-label">PEAK QUBITS</div>
+        <div class="stat-value highlight" id="banner-qubits">{qubits}</div>
+      </div>
+      
+      <!-- Divider -->
+      <div class="stat-divider"></div>
+      
+      <!-- Toffoli / Add -->
+      <div class="telemetry-stat">
+        <div class="stat-label">TOFFOLI / ADD</div>
+        <div class="stat-value highlight" id="banner-toffoli">{toffoli}</div>
+      </div>
+      
+      <!-- Divider -->
+      <div class="stat-divider"></div>
+      
+      <!-- Current Score -->
+      <div class="telemetry-stat">
+        <div class="stat-label">BEST SCORE</div>
+        <div class="stat-value highlight" id="banner-score">{score}</div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<style>
+  .telemetry-banner-wrapper {
+    width: 100%;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  .telemetry-glass-panel {
+    background: rgba(11, 13, 16, 0.75);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .telemetry-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .telemetry-pulse {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pulse-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  .pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--accent);
+    opacity: 0.6;
+    animation: broadcastPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    z-index: 1;
+  }
+
+  @keyframes broadcastPulse {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  .telemetry-title {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .telemetry-grid {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .telemetry-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .stat-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+
+  .stat-value.highlight {
+    color: var(--text-main);
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-light);
+    opacity: 0.5;
+  }
+
+  /* Flash animation for live updates */
+  @keyframes updateFlash {
+    0% { color: #fff; text-shadow: 0 0 20px #fff; transform: scale(1); }
+    10% { color: var(--accent); text-shadow: 0 0 25px var(--accent); transform: scale(1.05); }
+    100% { color: var(--text-main); text-shadow: none; transform: scale(1); }
+  }
+
+  .just-updated {
+    animation: updateFlash 1.5s ease-out;
+  }
+
+  @media (max-width: 900px) {
+    .telemetry-glass-panel {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .stat-divider {
+      display: none;
+    }
+    .telemetry-grid {
+      width: 100%;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+  }
+</style>
+
+<script>
+  let bannerInterval;
+
+  async function fetchBannerTelemetry() {
+    try {
+      let res;
+      try {
+        // Try local dev proxy first to bypass CORS
+        res = await fetch('/api/benchmarks');
+        if (!res.ok) {
+          throw new Error('Local proxy returned non-OK status');
+        }
+      } catch (err) {
+        // Fallback to direct URL (e.g. if CORS allows or proxy rewrite handles it)
+        res = await fetch('https://www.ecdsa.fail/api/benchmarks');
+      }
+      
+      if (!res.ok) return;
+      const data = await res.json();
+      
+      const benchmark = data.benchmarks?.find((b: any) => b.name === 'gpsanant/ecdsafail-challenge');
+      if (benchmark && benchmark.currentBestMetrics) {
+        const { qubits, toffoli } = benchmark.currentBestMetrics;
+        const currentBestScore = benchmark.currentBestScore;
+        
+        const qEl = document.getElementById('banner-qubits');
+        const tEl = document.getElementById('banner-toffoli');
+        const sEl = document.getElementById('banner-score');
+        
+        if (!qEl || !tEl || !sEl) return;
+        
+        const newQubits = qubits.toLocaleString();
+        const newToffoli = '~' + (toffoli / 1000000).toFixed(2) + 'M';
+        const newScore = currentBestScore ? currentBestScore.toLocaleString() : 'N/A';
+
+        // Trigger flash animation if values changed from previous render
+        const oldQubits = qEl.textContent;
+        const oldToffoli = tEl.textContent;
+        const oldScore = sEl.textContent;
+
+        if (oldQubits !== newQubits) {
+          qEl.classList.remove('just-updated');
+          void qEl.offsetWidth; // trigger reflow
+          qEl.classList.add('just-updated');
+        }
+        if (oldToffoli !== newToffoli) {
+          tEl.classList.remove('just-updated');
+          void tEl.offsetWidth; // trigger reflow
+          tEl.classList.add('just-updated');
+        }
+        if (oldScore !== newScore) {
+          sEl.classList.remove('just-updated');
+          void sEl.offsetWidth; // trigger reflow
+          sEl.classList.add('just-updated');
+        }
+
+        qEl.textContent = newQubits;
+        tEl.textContent = newToffoli;
+        sEl.textContent = newScore;
+      }
+    } catch (err) {
+      console.error('Failed to fetch benchmarks for banner:', err);
+    }
+  }
+
+  // Run immediately on standard page load
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchBannerTelemetry();
+    if (!bannerInterval) {
+      bannerInterval = setInterval(fetchBannerTelemetry, 30000);
+    }
+  });
+
+  // Run on Astro view transition navigation
+  document.addEventListener('astro:page-load', () => {
+    fetchBannerTelemetry();
+    if (bannerInterval) clearInterval(bannerInterval);
+    bannerInterval = setInterval(fetchBannerTelemetry, 30000);
+  });
+  
+  // Fallback for immediate execution if DOM is already loaded
+  if (typeof window !== 'undefined') {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      fetchBannerTelemetry();
+      if (!bannerInterval) bannerInterval = setInterval(fetchBannerTelemetry, 30000);
+    }
+  }
+</script>

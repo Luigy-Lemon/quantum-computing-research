@@ -1,0 +1,199 @@
+---
+// InteractiveHero.astro
+---
+
+<div class="hero-wrapper">
+  <canvas id="quantum-wave-canvas"></canvas>
+  <div class="hero-content">
+    <div class="paper-meta">System Architecture & Threat Model Overview</div>
+    <h1 class="hero-title">Quantum Computing <span class="accent-text">Stack</span></h1>
+    <div class="paper-authors">Compiled for fault-tolerant cryptographic analysis</div>
+    
+    <div class="hero-slot-container">
+      <slot />
+    </div>
+    
+  </div>
+</div>
+
+<style>
+  .hero-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 550px;
+    display: flex;
+    align-items: center;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    background: var(--surface-alt);
+    overflow: hidden;
+    margin-bottom: 3rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    container-type: inline-size;
+    z-index: 0; /* Create strict stacking context */
+  }
+
+  #quantum-wave-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Push below text but above the wrapper background due to stacking context */
+    pointer-events: none;
+    opacity: 0.15;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: clamp(1.5rem, 6cqi, 4rem);
+    max-width: 1000px;
+  }
+
+  .paper-meta {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 8cqi, 4.5rem);
+    font-weight: 900;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(255, 176, 0, 0.1);
+  }
+
+  .hero-title .accent-text {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .paper-authors {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
+  }
+
+  .hero-slot-container {
+    position: relative;
+    z-index: 2;
+  }
+
+
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const canvas = document.getElementById('quantum-wave-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let width: number, height: number;
+    
+    function resize() {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Wave parameters
+    const waves = [];
+    for (let i = 0; i < 3; i++) {
+      waves.push({
+        yOffset: height / 2,
+        length: 0.005 + Math.random() * 0.005,
+        amplitude: 40 + Math.random() * 60,
+        speed: 0.01 + Math.random() * 0.02,
+        phase: Math.random() * Math.PI * 2,
+        opacity: 0.1 + Math.random() * 0.2
+      });
+    }
+
+    // Particles
+    const particles = [];
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        radius: Math.random() * 2,
+        baseOpacity: Math.random() * 0.5 + 0.1
+      });
+    }
+
+    let time = 0;
+    
+    // Get amber color from CSS variables, fallback to #ffb000
+    const styles = getComputedStyle(document.documentElement);
+    let accentColor = styles.getPropertyValue('--accent').trim();
+    if (!accentColor || accentColor.startsWith('var')) accentColor = '#ffb000';
+    
+    // Helper to convert hex to rgba
+    function hexToRgb(hex: string) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 176, 0';
+    }
+    const rgbAccent = hexToRgb(accentColor);
+
+    function animate() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, width, height);
+      
+      // Draw Waves
+      waves.forEach(wave => {
+        ctx.beginPath();
+        ctx.moveTo(0, wave.yOffset);
+        for (let i = 0; i < width; i += 5) {
+          const y = wave.yOffset + Math.sin(i * wave.length + time * wave.speed + wave.phase) * wave.amplitude * Math.sin(time * 0.5 + wave.phase);
+          ctx.lineTo(i, y);
+        }
+        ctx.strokeStyle = `rgba(${rgbAccent}, ${wave.opacity})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      // Draw Particles
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Connect to waves via gravity/magnetic pull occasionally
+        const centerWave = waves[0];
+        const targetY = centerWave.yOffset + Math.sin(p.x * centerWave.length + time * centerWave.speed + centerWave.phase) * centerWave.amplitude;
+        if (Math.abs(p.y - targetY) < 100) {
+          p.vy += (targetY - p.y) * 0.0005;
+        }
+
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        
+        // Twinkle
+        const twinkle = Math.sin(time * 2 + p.x) * 0.3 + 0.7;
+        ctx.fillStyle = `rgba(${rgbAccent}, ${p.baseOpacity * twinkle})`;
+        ctx.fill();
+      });
+
+      time += 1;
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  });
+</script>

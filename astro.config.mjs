@@ -7,6 +7,15 @@ export default defineConfig({
     format: 'file',
   },
   vite: {
+    server: {
+      proxy: {
+        '/api/benchmarks': {
+          target: 'https://www.ecdsa.fail',
+          changeOrigin: true,
+          secure: false
+        }
+      }
+    },
     build: {
       cssMinify: 'lightningcss', // or 'esbuild'
       minify: 'esbuild',

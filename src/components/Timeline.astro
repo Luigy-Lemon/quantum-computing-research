@@ -46,40 +46,42 @@ const { items } = Astro.props;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--border-light);
     padding-bottom: 0.5rem;
   }
   
   .timeline-tab {
-    background: transparent;
-    border: none;
+    background: transparent !important;
+    border: none !important;
     padding: 0.5rem 1rem;
-    font-family: 'Source Code Pro', monospace;
+    font-family: 'Source Code Pro', 'Fira Code', monospace;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted) !important;
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.2s ease;
   }
   
   .timeline-tab:hover {
-    background: #f1f5f9;
-    color: #334155;
+    background: var(--surface-alt) !important;
+    color: var(--text-main) !important;
   }
   
   .timeline-tab.active {
-    background: #e0f2fe;
-    color: #0369a1;
+    background: rgba(255, 176, 0, 0.1) !important;
+    color: var(--accent) !important;
     font-weight: 700;
+    border: 1px solid var(--accent) !important;
   }
   
   .timeline-content-area {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
     border-radius: 8px;
     padding: 1.5rem;
     min-height: 120px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
   }
   
   .timeline-panel {
@@ -94,13 +96,13 @@ const { items } = Astro.props;
   .timeline-title {
     margin: 0 0 1rem 0;
     font-size: 1.25rem;
-    color: #0f172a;
+    color: var(--text-main);
     font-weight: 700;
   }
   
   .timeline-description {
     margin: 0;
-    color: #334155;
+    color: var(--text-muted);
     line-height: 1.6;
     font-size: 1rem;
   }
