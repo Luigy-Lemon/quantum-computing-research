@@ -1,0 +1,413 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+
+<InteractiveBoard
+  className="qec-bypass-container"
+  title="Active QEC Loop vs. Topological Braid Tracking"
+  description="Compare the high-speed active hardware feedback loop required for transmon processors with the material-level passive protection of topological qubits."
+>
+
+  <div class="bypass-controls">
+    <button id="btn-bypass-transmon" class="bypass-tab-btn active">
+      <span class="pulse-indicator transmon-color"></span>
+      Superconducting Transmon Loop
+    </button>
+    <button id="btn-bypass-topological" class="bypass-tab-btn">
+      <span class="pulse-indicator topological-color"></span>
+      Topological Qubit (Majorana 2)
+    </button>
+  </div>
+
+  <div class="bypass-content">
+    
+    <!-- Active QEC Loop (Transmon) -->
+    <div id="flow-transmon" class="flow-view active">
+      <div class="flow-header">
+        <span class="badge red">Active Loop</span>
+        <span class="loop-timer">Cycle Time Budget: <strong>~1,000 ns</strong></span>
+      </div>
+      
+      <div class="flow-diagram">
+        <div class="flow-node" data-step="1">
+          <div class="node-num">1</div>
+          <div class="node-title">Physical Qubit</div>
+          <div class="node-desc">Transmon state in a superposition. Extremely fragile (T₂ ≈ 100 µs).</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node error-node" data-step="2">
+          <div class="node-num">2</div>
+          <div class="node-title">Environmental Noise</div>
+          <div class="node-desc">Stray thermal photon or cosmic ray causes localized bit/phase flip.</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node" data-step="3">
+          <div class="node-num">3</div>
+          <div class="node-title">Syndrome Readout</div>
+          <div class="node-desc">Microwave probe pulses routed through HEMT + TWPA and digitized at 8 GSPS.</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node" data-step="4">
+          <div class="node-num">4</div>
+          <div class="node-title">FPGA Decoder</div>
+          <div class="node-desc">Decoder runs MWPM algorithm to locate errors in &lt; 1 µs.</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node" data-step="5">
+          <div class="node-num">5</div>
+          <div class="node-title">Correction Pulse</div>
+          <div class="node-desc">RF generators synthesize microwave pulse to flip the qubit back.</div>
+        </div>
+      </div>
+      
+      <div class="loop-arrow-wrap">
+        <div class="loop-arrow-back"></div>
+        <div class="loop-label">Active Loop Repeats Indefinitely (Cryogenic Toll: Cabling & High Heat Load)</div>
+      </div>
+    </div>
+    
+    <!-- Passive Braid Tracking (Topological) -->
+    <div id="flow-topological" class="flow-view">
+      <div class="flow-header">
+        <span class="badge teal">Passive Tracking</span>
+        <span class="loop-timer">Qubit Coherence: <strong>20 - 60 seconds</strong></span>
+      </div>
+      
+      <div class="flow-diagram">
+        <div class="flow-node" data-step="1">
+          <div class="node-num">1</div>
+          <div class="node-title">Braided Anyons</div>
+          <div class="node-desc">Qubit state exists non-locally in the braid pattern of Majorana Zero Modes (MZM).</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node protected-node" data-step="2">
+          <div class="node-num">2</div>
+          <div class="node-title">Noise Deflected</div>
+          <div class="node-desc">Local perturbations cannot undo the non-local braid. Errors drop exponentially as e^(-L/ξ).</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node" data-step="3">
+          <div class="node-num">3</div>
+          <div class="node-title">Passive tracking</div>
+          <div class="node-desc">Software keeps a history of anyon braid pathways. No real-time hardware loop.</div>
+        </div>
+        
+        <div class="flow-arrow">➔</div>
+        
+        <div class="flow-node" data-step="4">
+          <div class="node-num">4</div>
+          <div class="node-title">Braiding Gate</div>
+          <div class="node-desc">Gates are executed purely by moving MZMs around each other. Highly stable.</div>
+        </div>
+      </div>
+      
+      <div class="feed-forward-banner">
+        <span>⚡ <strong>Hardware Bypass:</strong> Eliminates active syndrome readout FPGAs, fast coaxial wiring, and microsecond feedback.</span>
+      </div>
+    </div>
+    
+  </div>
+
+</InteractiveBoard>
+
+<style>
+  .qec-bypass-container {
+    width: 100%;
+    margin: 2rem 0;
+  }
+
+  .bypass-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .bypass-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .bypass-tab-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
+
+  .bypass-tab-btn.active {
+    background: var(--surface);
+    color: var(--text-main);
+    box-shadow: var(--shadow-md);
+  }
+
+  .bypass-tab-btn#btn-bypass-transmon.active {
+    border-color: var(--accent-red, #7a1f1f);
+  }
+
+  .bypass-tab-btn#btn-bypass-topological.active {
+    border-color: #0d9488;
+    color: #0d9488;
+  }
+
+  .pulse-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .transmon-color { background-color: var(--accent-red, #7a1f1f); }
+  .topological-color { background-color: #0d9488; }
+
+  .bypass-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    min-height: 320px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .flow-view {
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .flow-view.active {
+    display: flex;
+  }
+
+  .flow-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light, #e2e8f0);
+  }
+
+  .badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .badge.red {
+    background: rgba(122, 31, 31, 0.1);
+    color: var(--accent-red, #7a1f1f);
+  }
+
+  .badge.teal {
+    background: rgba(13, 148, 136, 0.1);
+    color: #0d9488;
+  }
+
+  .loop-timer {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-family: 'Source Code Pro', monospace;
+  }
+
+  .flow-diagram {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: center;
+    justify-items: center;
+  }
+
+  @media (min-width: 992px) {
+    .flow-diagram {
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+      justify-items: stretch;
+    }
+    #flow-topological .flow-diagram {
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    }
+  }
+
+  .flow-node {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .flow-node:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .node-num {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 24px;
+    height: 24px;
+    background: var(--text-muted);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .flow-node.error-node {
+    border-color: var(--accent-red, #7a1f1f);
+    background: rgba(122, 31, 31, 0.02);
+  }
+
+  .flow-node.error-node .node-num {
+    background: var(--accent-red, #7a1f1f);
+  }
+
+  .flow-node.protected-node {
+    border-color: #0d9488;
+    background: rgba(13, 148, 136, 0.02);
+  }
+
+  .flow-node.protected-node .node-num {
+    background: #0d9488;
+  }
+
+  .node-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .node-desc {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-light);
+  }
+
+  .flow-arrow {
+    font-size: 1.5rem;
+    color: var(--border);
+    transform: rotate(90deg);
+  }
+
+  @media (min-width: 992px) {
+    .flow-arrow {
+      transform: none;
+    }
+  }
+
+  .loop-arrow-wrap {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .loop-arrow-back {
+    width: 80%;
+    height: 30px;
+    border: 2px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    position: relative;
+  }
+
+  .loop-arrow-back::before {
+    content: '◀';
+    position: absolute;
+    top: -9px;
+    left: -2px;
+    color: var(--border);
+    font-size: 0.75rem;
+  }
+
+  .loop-label {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+  }
+
+  .feed-forward-banner {
+    margin-top: 2rem;
+    background: rgba(13, 148, 136, 0.05);
+    border: 1px dashed #0d9488;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  function initBypassFlow() {
+    const btnTransmon = document.getElementById('btn-bypass-transmon');
+    const btnTopological = document.getElementById('btn-bypass-topological');
+    const flowTransmon = document.getElementById('flow-transmon');
+    const flowTopological = document.getElementById('flow-topological');
+
+    if (btnTransmon && btnTopological && flowTransmon && flowTopological) {
+      btnTransmon.addEventListener('click', () => {
+        btnTransmon.classList.add('active');
+        btnTopological.classList.remove('active');
+        flowTransmon.classList.add('active');
+        flowTopological.classList.remove('active');
+      });
+
+      btnTopological.addEventListener('click', () => {
+        btnTopological.classList.add('active');
+        btnTransmon.classList.remove('active');
+        flowTopological.classList.add('active');
+        flowTransmon.classList.remove('active');
+      });
+    }
+  }
+
+  // Handle Astro page transitions and standard loading
+  document.addEventListener('DOMContentLoaded', initBypassFlow);
+  document.addEventListener('astro:after-swap', initBypassFlow);
+  
+  // Direct execution in case DOMContentLoaded has already fired
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initBypassFlow();
+  }
+</script>

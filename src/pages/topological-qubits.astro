@@ -1,0 +1,152 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+import Math from '../components/Math.astro';
+import InteractiveQECBypass from '../components/InteractiveQECBypass.astro';
+---
+
+<Base title="Topological Qubits" activeNav="/topological-qubits" mathjax>
+  <PageLayout>
+    <PageHeader meta="ALTERNATIVE MODALITIES" 
+      title="Topological Qubits: Deconstructing the Majorana Nanowire Stack"
+      description="Topological quantum computing—promising hardware-level error protection by braiding anyons—has been Microsoft's holy grail. But what physical realities lurk beneath the promise of lead-based protection?"
+    />
+
+    <ContentSection title="The Illusion of Zero-Error Hardware">
+      <p>
+        If topological qubits can protect quantum states at the hardware level without needing thousands of active physical qubits to correct a single logical one, why haven't they already replaced every other quantum architecture? Why do we still cabal microwave lines inside dilution refrigerators?
+      </p>
+      <p>
+        The answer lies in the brutal reality of materials science: <strong>Topological anyons do not exist as free particles. To create them, we must engineer a delicate interface between semiconductors and superconductors at the atomic level, and moving them requires complex, unproven control protocols.</strong>
+      </p>
+      <p>
+        Unlike a transmon's local charge states, topological qubits encode information in the spatial braiding of non-Abelian quasiparticles called anyons. Because the information is stored globally in their spatial relationship, no local perturbation can dephase or flip the qubit state.
+      </p>
+    </ContentSection>
+
+    <ContentSection title="The Quantum Foundation: The Topological Phase Gap">
+      <p>
+        The immunity of topological qubits to environmental noise is mathematically robust. For any local noise operator <Math formula="\\hat{O}_{\\text{local}}" inline={true} />, the matrix elements between different computational basis states <Math formula="|\\psi_i\\rangle" inline={true} /> and <Math formula="|\\psi_j\\rangle" inline={true} /> must satisfy:
+      </p>
+      <Math formula="\\langle \\psi_i | \\hat{O}_{\\text{local}} | \\psi_j \\rangle = C \\delta_{ij}" />
+      <p>
+        Where <Math formula="C" inline={true} /> is a constant. Because local perturbations cannot distinguish or transition between the computational states, the qubit is theoretically immune to local noise. The error rate scales down exponentially with the spatial separation distance <Math formula="L" inline={true} /> of the anyons relative to the materials' coherence length <Math formula="\\xi" inline={true} />:
+      </p>
+      <Math formula="\\text{Error Rate} \\propto e^{-L / \\xi}" />
+      <p>
+        In Microsoft's nanowire approach, creating this topological phase requires inducing a topological gap <Math formula="\\Delta_{\\text{top}}" inline={true} />. The Zeeman energy <Math formula="E_Z" inline={true} /> induced by an external magnetic field must exceed the pairing energy of the superconducting shell and the chemical potential <Math formula="\\mu" inline={true} />:
+      </p>
+      <Math formula="E_Z > \\sqrt{\\Delta_{\\text{sc}}^2 + \\mu^2}" />
+      <p>
+        If this condition is met, Majorana Zero Modes (MZMs) localize at the wire boundaries, forming the computational basis.
+      </p>
+    </ContentSection>
+
+    <ContentSection title="Bypassing the Active QEC Loop">
+      <p>
+        By embedding the error protection directly into the physical materials layer, topological computing collapses the classical processing bottleneck. The comparison below illustrates how this material system simplifies the overall quantum stack.
+      </p>
+      
+      <InteractiveQECBypass />
+    </ContentSection>
+
+    <ContentSection title="Deconstructing the Topological Stack">
+      <p>
+        To perform computation, a topological qubit stack must integrate nanoscale fabrication, precise magnetic field alignments, and software-level anyon tracking.
+      </p>
+
+      <Card theme="blue" title="1. The Material: Lead-Superproximitized Nanowires">
+        <p>
+          The hardware core consists of an Indium Arsenide (InAs) semiconducting nanowire coated in a superconductor shell. In the **Majorana 2 chip (June 2026)**, Microsoft replaced the early aluminum shells with a **lead-based (Pb) superconductor stack**. Lead's higher critical temperature and magnetic field tolerance yield a larger topological gap <Math formula="\\Delta_{\\text{Pb}}" inline={true} />, boosting qubit lifetime to an average of **20 seconds** (with peak states surviving up to **60 seconds**). This design was optimized using the *Microsoft Discovery* AI agent platform.
+        </p>
+      </Card>
+
+      <Card theme="orange" title="2. The Logic: Anyon Braiding & Clifford Gate Limits">
+        <p>
+          Unlike microwave gates on transmons, topological logic is performed by physically braiding anyons around each other. However, Majorana Zero Modes (which obey Ising non-Abelian statistics) can only generate **Clifford group gates** (CNOT, Hadamard, S) topologically. They are not universal on their own. To perform universal quantum algorithms (which require $T$-gates), Microsoft must implement a non-topological physical gate and rely on classical **Magic State Distillation**, bringing back active QEC overhead.
+        </p>
+      </Card>
+
+      <Card theme="red" title="3. The Readout: Charge Sensing & Fusion Metrics">
+        <p>
+          Readout is performed by bringing two anyons together (fusing them) and detecting their collective charge. If they fuse into a vacuum state, no charge is detected; if they fuse into a fermion, a single electron charge is detected. This microsecond readout requires high-sensitivity radio-frequency reflectometry or quantum dot charge sensors. However, electrical noise at the nanowire junctions can corrupt charge measurements, introducing readout errors that must be actively filtered out.
+        </p>
+      </Card>
+    </ContentSection>
+
+    <ContentSection title="Chronology of Topological Computing Milestones">
+      <div style="border-left: 2px solid var(--border); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">1997</strong>
+          <h4 style="margin: 0.25rem 0;">The Toric Code & Anyon Proposals</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Alexei Kitaev proposes fault-tolerant quantum computation using anyons on a torus and introduces the 1D Majorana wire model, laying the mathematical foundation.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2010</strong>
+          <h4 style="margin: 0.25rem 0;">Semiconducting Nanowire Schemes</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Lutchyn et al. and Oreg et al. independently propose realizing Majorana zero modes at the ends of spin-orbit coupled semiconducting nanowires proximitized by s-wave superconductors.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2012</strong>
+          <h4 style="margin: 0.25rem 0;">First Majorana Conductance Signatures</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">The Kouwenhoven group at TU Delft reports the first observation of a zero-bias conductance peak in nanowires, providing preliminary experimental signatures of Majorana zero modes.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2018</strong>
+          <h4 style="margin: 0.25rem 0;">The Retracted Quantized Peak Paper</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">A high-profile paper reporting quantized conductance peaks (the smoking gun of Majoranas) is published in <em>Nature</em>, but is retracted in 2021 due to raw data selection errors and lack of reproducibility.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2023</strong>
+          <h4 style="margin: 0.25rem 0;">Topological Gap Protocol (Majorana 1)</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Microsoft publishes results demonstrating signatures consistent with Majorana Zero Modes using a rigorous "Topological Gap Protocol", though still below the threshold for qubit logic.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2026 (June)</strong>
+          <h4 style="margin: 0.25rem 0;">Majorana 2 Lead-Based Qubit Chip</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Microsoft announces the Majorana 2 chip, shifting to a lead-based materials stack. Qubits achieve 20-second average coherence times, halving their commercial fault-tolerant roadmap target to 2029.</p>
+        </div>
+      </div>
+    </ContentSection>
+
+    <SkepticismPanel>
+      <ul>
+        <li>
+          <strong>The Clifford Gate Dilemma:</strong> Because Majorana braiding is restricted to Clifford gates, Microsoft cannot build a universal computer purely out of braided anyons. They must still implement a non-topological $T$-gate (e.g. using physical tuning) and run massive **Magic State Distillation** factories. This brings back the massive physical-to-logical qubit overhead they hoped to avoid.
+        </li>
+        <li>
+          <strong>Andreev Bound States & Zero-Bias Conductance Peak False-Positives:</strong> The primary signature of a Majorana mode is a Zero-Bias Conductance Peak (ZBCP) of height <Math formula="2e^2/h" inline={true} />. However, non-topological **Andreev Bound States (ABS)**—mimicked by disordered potentials, chemical potential gradients, and impurities—can produce identical peaks, making verification extremely controversial.
+        </li>
+        <li>
+          <strong>The Nanowire Manufacturing Nightmare:</strong> Growing lead (Pb) superconductor shells on indium arsenide (InAs) nanowires with atomic-scale interface flatness is a monumental fabrication challenge. Even a single atomic lattice defect or oxide impurity can disrupt the superconducting proximity effect, collapsing the topological phase.
+        </li>
+      </ul>
+      <p>
+        <strong>Conclusion:</strong> Topological qubits offer breathtaking coherence times (20 seconds in Majorana 2) by switching to lead-based superconductors. However, the system must survive rigorous peer review to rule out Andreev bound states, and must still solve the Clifford gate limitation before it can claim victory.
+      </p>
+    </SkepticismPanel>
+
+    <ReferenceList theme="cyan">
+      <li>
+        <strong>"Topological Quantum Computation,"</strong> Nayak, C., et al. <em>Reviews of Modern Physics</em> (2008). The foundational review on non-Abelian anyons and braiding logic.
+      </li>
+      <li>
+        <strong>"InAs/Pb Nanowire Junctions for High-Gap Topological Phase Space,"</strong> Microsoft Quantum Team. <em>arXiv Preprint</em> (June 2026). The preprint detailing the Majorana 2 chip architecture.
+      </li>
+      <li>
+        <strong>"Topological Gap Protocol Signatures in Semiconductor Nanowires,"</strong> Microsoft Quantum. <em>Physical Review B</em> (2023). Documenting the initial Majorana 1 signatures.
+      </li>
+      <li>
+        <strong>"Andreev bound states vs. Majorana zero modes in semiconductor-superconductor junctions,"</strong> Prada, E., et al. <em>Nature Reviews Physics</em> (2020). Rigorous review on how disorder mimics Majorana signatures.
+      </li>
+      <li>
+        <strong>"Retraction Note: Epitaxial halide-free superconductor-semiconductor nanowires,"</strong> Kouwenhoven, L., et al. <em>Nature</em> (2021). The retraction of the 2018 Majorana signature paper.
+      </li>
+    </ReferenceList>
+  </PageLayout>
+</Base>

@@ -45,6 +45,18 @@ const layers = [
     math: 's_i = \\prod_{j \\in \\mathcal{N}(i)} \\sigma_j^z = \\pm 1'
   },
   {
+    id: 'qec_topological', num: 3, label: 'Error Correction',
+    title: 'Topological Braiding & Tracking',
+    funny: 'Instead of an active QEC loop running at microsecond speeds to correct physical errors, error rates drop exponentially with anyon separation. QEC becomes a software tracking layer, not a hardware bottleneck.',
+    challenge: 'Active fast feedback is bypassed. QEC is reduced to passive tracking of anyon braiding on-chip, significantly reducing classical control overhead.',
+    chips: ['Braiding-Only Tracking', 'Non-Abelian Anyons', 'Passive Error Suppression'],
+    theme: 'pink',
+    stage: '15mk',
+    spec: 'Software Tracking Layer',
+    model: 'TOPO-TRACK-01',
+    math: 'U_{\\text{braid}} \\psi_i = \\sum_{j} R_{ij} \\psi_j'
+  },
+  {
     id: 'classical_control', num: 4, label: 'Hardware Rack',
     title: 'Room-Temperature Electronics',
     funny: 'If the chandelier is the brain, this rack is the life support. Heavy, noisy, and draws enough power to run a small village.',
@@ -151,6 +163,18 @@ const layers = [
     spec: 'Coherence Boundary',
     model: 'COH-DECAY-T1',
     math: 'P_{\\text{coh}}(t) = e^{-t / T_1} \\cdot e^{-t / T_2}'
+  },
+  {
+    id: 'topological_material', num: '10-12', label: 'Qubit & Materials',
+    title: 'Topological Lead-Based Material System (InAs/Pb Nanowire)',
+    funny: '"Why correct errors when you can prevent them?" Microsoft\'s Majorana 2 chip uses lead-based (Pb) superconductor shells on indium arsenide (InAs) nanowires to build a pristine, topological protective barrier. Your qubit lifetime jumps from 100 microseconds to 20 seconds. Materials physics is still brutally hard, but you bypass three entire layers of the standard stack.',
+    challenge: 'Establishing the lead-based topological gap experimentally is extremely difficult. The signatures are still in preprint, awaiting peer review to confirm they aren\'t just Andreev Bound States.',
+    chips: ['InAs/Pb Nanowires', '20s Coherence Time', 'AI-Discovery Protocol', 'Topological Protection'],
+    theme: 'teal',
+    stage: '15mk',
+    spec: 'Lead Superconductor Wafer',
+    model: 'MSFT-MAJORANA-2',
+    math: '\\Delta_{\\text{top}} = \\sqrt{E_Z^2 - \\Delta_{\\text{sc}}^2}'
   },
   {
     id: 'network', num: 13, label: 'Network',
@@ -997,6 +1021,129 @@ const layers = [
     .bg-cyan { background: var(--accent-cyan); }
     .bg-purple { background: var(--accent-purple); }
     .bg-orange { background: var(--accent-orange); }
+
+    /* Modality Toggle Switch & Collapsed Stack Styles */
+    .modality-toggle-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem auto 2.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      max-width: fit-content;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      z-index: 10;
+    }
+    .toggle-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .toggle-switch {
+      display: flex;
+      background: var(--surface-alt);
+      padding: 0.25rem;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+    }
+    .toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 25px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: all 0.25s ease;
+      border: 1px solid transparent;
+    }
+    .toggle-btn:hover {
+      color: var(--text-main);
+    }
+    .toggle-btn.active {
+      background: var(--surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+    #toggle-transmon.active {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    #toggle-topological.active {
+      border-color: #0d9488;
+      color: #0d9488;
+    }
+    .bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.4;
+    }
+    .toggle-btn.active .bullet {
+      opacity: 1;
+    }
+
+    .topological-overlay-banner {
+      display: none;
+      background: rgba(13, 148, 136, 0.06);
+      border: 1px dashed #0d9488;
+      border-left: 4px solid #0d9488;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin: -1rem auto 2.5rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      max-width: 1000px;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .topological-overlay-banner strong {
+      color: #0d9488;
+    }
+    .quantum-dashboard.modality-topological .topological-overlay-banner {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .banner-icon {
+      font-size: 1.25rem;
+      color: #0d9488;
+      line-height: 1;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Collapsing functionality */
+    .layer-wrapper[data-layer-id="topological_material"],
+    .layer-wrapper[data-layer-id="qec_topological"] {
+      display: none !important;
+    }
+    
+    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="shielding"],
+    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="physics"],
+    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="decoherence"],
+    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="qec"] {
+      display: none !important;
+    }
+    
+    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="topological_material"],
+    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="qec_topological"] {
+      display: block !important;
+    }
   </style>
 
   <div class="quantum-workspace">
@@ -1027,6 +1174,29 @@ const layers = [
     <div class="quantum-dashboard">
       <!-- Stack Layers mounted inside 19-inch steel rack cabinet -->
       <div class="stack-col rack-cabinet">
+        
+        <!-- Qubit Modality Toggle and Overlay Banner -->
+        <div class="modality-toggle-container">
+          <span class="toggle-label">Qubit Modality:</span>
+          <div class="toggle-switch">
+            <button class="toggle-btn active" id="toggle-transmon" data-modality="transmon">
+              <span class="bullet" style="color: var(--accent-green)"></span>
+              Superconducting Transmon
+            </button>
+            <button class="toggle-btn" id="toggle-topological" data-modality="topological">
+              <span class="bullet" style="color: #0d9488"></span>
+              Topological Qubit (Majorana 2)
+            </button>
+          </div>
+        </div>
+
+        <div class="topological-overlay-banner" id="topo-overlay-banner">
+          <div class="banner-icon">⚡</div>
+          <div class="banner-content">
+            <strong>Topological Modality Active (Majorana 2):</strong> Layers 10, 11, and 12 are collapsed into a single lead-based (Pb/InAs) material system. The active error correction loop (Layer 3) is bypassed in favor of passive software tracking of anyon braiding. Cryogenics (Layer 9) remains mandatory to cool the nanowires to 15 mK.
+          </div>
+        </div>
+
         <div class="stack-layers">
           {layers.map((layer) => (
             <div class="layer-wrapper" data-layer-id={layer.id}>
@@ -1038,7 +1208,7 @@ const layers = [
               <Card href={`/${layer.id}`} theme={layer.theme as any} class="layer-card-content">
                 <div class="layer-content-grid">
                   <div class="layer-meta">
-                    <span class="layer-number">Layer 0{layer.num}</span>
+                    <span class="layer-number">Layer {String(layer.num).includes('-') || parseInt(String(layer.num)) >= 10 ? '' : '0'}{layer.num}</span>
                     <span class="layer-label">{layer.label}</span>
                     <span class="layer-spec">{layer.spec}</span>
                     <Tag theme={layer.theme as any} style="margin-top: 0.5rem; display: inline-block;">{layer.model}</Tag>
@@ -1147,7 +1317,7 @@ const layers = [
       } else if (stageId === '4k') {
         layerIds = ['microwave', 'readout'];
       } else if (stageId === '15mk') {
-        layerIds = ['qec', 'physics', 'shielding', 'decoherence', 'cryogenics'];
+        layerIds = ['qec', 'qec_topological', 'physics', 'shielding', 'decoherence', 'cryogenics', 'topological_material'];
       }
 
       layerIds.forEach(id => {
@@ -1165,7 +1335,7 @@ const layers = [
     function getStageFromCard(cardId) {
       if (['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network'].includes(cardId)) return '300k';
       if (['microwave', 'readout'].includes(cardId)) return '4k';
-      if (['qec', 'physics', 'shielding', 'decoherence', 'cryogenics'].includes(cardId)) return '15mk';
+      if (['qec', 'qec_topological', 'physics', 'shielding', 'decoherence', 'cryogenics', 'topological_material'].includes(cardId)) return '15mk';
       return null;
     }
 
@@ -1200,6 +1370,25 @@ const layers = [
         }
       });
     });
+
+    // Qubit Modality Toggle
+    const toggleTransmon = document.getElementById('toggle-transmon');
+    const toggleTopological = document.getElementById('toggle-topological');
+    const dashboard = document.querySelector('.quantum-dashboard');
+
+    if (toggleTransmon && toggleTopological && dashboard) {
+      toggleTransmon.addEventListener('click', () => {
+        toggleTransmon.classList.add('active');
+        toggleTopological.classList.remove('active');
+        dashboard.classList.remove('modality-topological');
+      });
+
+      toggleTopological.addEventListener('click', () => {
+        toggleTopological.classList.add('active');
+        toggleTransmon.classList.remove('active');
+        dashboard.classList.add('modality-topological');
+      });
+    }
 
   </script>
 </Base>
