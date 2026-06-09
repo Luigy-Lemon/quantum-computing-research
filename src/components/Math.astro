@@ -1,0 +1,16 @@
+---
+interface Props {
+  formula: string;
+  block?: boolean;
+}
+
+const { formula, block = false } = Astro.props;
+
+// For MathJax, inline formulas are wrapped in \( ... \) and block formulas in \[ ... \]
+const rendered = block ? `\\[ ${formula} \\]` : `\\( ${formula} \\)`;
+---
+{block ? (
+  <div class="math-box" set:html={rendered} />
+) : (
+  <span class="math-inline" set:html={rendered} />
+)}

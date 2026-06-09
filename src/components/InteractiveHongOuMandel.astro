@@ -1,0 +1,293 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+
+<InteractiveBoard 
+  className="hom-container" 
+  title="The Hong-Ou-Mandel (HOM) Effect" 
+  description="When two perfectly identical photons enter a 50:50 beam splitter simultaneously, quantum interference forces them to exit together from the same port. This is the foundation of optical entanglement."
+>
+  
+  <div class="board-controls">
+    <button id="btn-fire-photons" class="active">Fire Identical Photons</button>
+    <button id="btn-fire-distinguishable">Fire Distinguishable Photons (Delay)</button>
+  </div>
+
+  <div class="hom-graphic-container">
+    <canvas id="hom-canvas" class="hom-canvas"></canvas>
+  </div>
+  
+  <div class="hom-info">
+    <p id="hom-status">Status: <strong>Waiting to fire...</strong></p>
+  </div>
+
+</InteractiveBoard>
+
+<style>
+  .hom-graphic-container {
+    width: 100%;
+    height: 350px;
+    background: var(--surface); 
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: none;
+  }
+
+  .hom-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .board-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    justify-content: center;
+  }
+
+  .board-controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-weight: 600;
+  }
+
+  .board-controls button:hover {
+    background: var(--surface-hover);
+  }
+
+  .board-controls button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .hom-info {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    background: var(--surface-alt);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+  }
+
+  :global(.dark) .hom-info {
+    color: #cbd5e1;
+    background: var(--surface-alt);
+    border-color: var(--text-main);
+  }
+  
+  .hom-info p { margin: 0; }
+  .hom-info strong { color: #ec4899; transition: color 0.3s ease; }
+</style>
+
+<script>
+  function initHOM() {
+    const canvas = document.getElementById('hom-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const btnIdentical = document.getElementById('btn-fire-photons');
+    const btnDist = document.getElementById('btn-fire-distinguishable');
+    const statusText = document.getElementById('hom-status');
+
+    let animationFrameId: number;
+    let t = 0;
+    let isFiring = false;
+    let identical = true;
+    let outcome = 0; // 0: both up, 1: both down, 2: split (for distinguishable)
+
+    if (btnIdentical) {
+      btnIdentical.addEventListener('click', () => {
+        if(isFiring) return;
+        btnIdentical.classList.add('active');
+        btnDist?.classList.remove('active');
+        identical = true;
+        isFiring = true;
+        t = 0;
+        // 50/50 chance for which port they BOTH exit
+        outcome = Math.random() > 0.5 ? 0 : 1;
+        if (statusText) statusText.innerHTML = `Status: <strong>Photons approaching Beam Splitter...</strong>`;
+      });
+    }
+
+    if (btnDist) {
+      btnDist.addEventListener('click', () => {
+        if(isFiring) return;
+        btnDist.classList.add('active');
+        btnIdentical?.classList.remove('active');
+        identical = false;
+        isFiring = true;
+        t = 0;
+        outcome = 2; // independent
+        if (statusText) statusText.innerHTML = `Status: <strong>Distinguishable photons approaching...</strong>`;
+      });
+    }
+
+    function resize() {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      if (rect) {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx!.scale(dpr, dpr);
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+      }
+    }
+    
+    window.addEventListener('resize', resize);
+    resize();
+
+    function draw() {
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+      ctx!.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+
+      // Draw Beam Splitter
+      ctx!.save();
+      ctx!.translate(cx, cy);
+      ctx!.rotate(Math.PI / 4);
+      ctx!.fillStyle = 'rgba(14, 165, 233, 0.2)';
+      ctx!.strokeStyle = '#0ea5e9';
+      ctx!.lineWidth = 3;
+      ctx!.shadowBlur = 15;
+      ctx!.shadowColor = '#0ea5e9';
+      ctx!.fillRect(-5, -60, 10, 120);
+      ctx!.strokeRect(-5, -60, 10, 120);
+      ctx!.restore();
+
+      // Draw Waveguides
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx!.lineWidth = 2;
+      ctx!.beginPath();
+      // Input Top Left
+      ctx!.moveTo(0, cy - 80); ctx!.lineTo(cx, cy);
+      // Input Bottom Left
+      ctx!.moveTo(0, cy + 80); ctx!.lineTo(cx, cy);
+      // Output Top Right
+      ctx!.moveTo(cx, cy); ctx!.lineTo(width, cy - 80);
+      // Output Bottom Right
+      ctx!.moveTo(cx, cy); ctx!.lineTo(width, cy + 80);
+      ctx!.stroke();
+
+      // Labels
+      ctx!.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx!.font = '14px monospace';
+      ctx!.fillText('Input A', 20, cy - 90);
+      ctx!.fillText('Input B', 20, cy + 90);
+      ctx!.fillText('Detector C', width - 100, cy - 90);
+      ctx!.fillText('Detector D', width - 100, cy + 90);
+
+      if (isFiring) {
+        t += 0.015;
+        
+        let p1x, p1y, p2x, p2y;
+        
+        // Input phase (t from 0 to 1)
+        if (t < 1) {
+          // Photon 1 from Top Left
+          p1x = cx * t;
+          p1y = (cy - 80) + t * 80;
+          
+          // Photon 2 from Bottom Left (delayed if distinguishable)
+          let t2 = identical ? t : Math.max(0, t - 0.2);
+          p2x = cx * t2;
+          p2y = (cy + 80) - t2 * 80;
+        } 
+        // Output phase (t from 1 to 2)
+        else if (t < 2) {
+          let tOut = t - 1;
+          
+          if (identical) {
+            if (outcome === 0) {
+              // Both go Top Right
+              p1x = cx + tOut * cx; p1y = cy - tOut * 80;
+              p2x = cx + tOut * cx + 15; p2y = cy - tOut * 80 - 10; // offset slightly for visibility
+            } else {
+              // Both go Bottom Right
+              p1x = cx + tOut * cx; p1y = cy + tOut * 80;
+              p2x = cx + tOut * cx + 15; p2y = cy + tOut * 80 + 10;
+            }
+            if (statusText && t > 1.05 && t < 1.08) {
+              statusText.innerHTML = `Status: <strong style="color: #0ea5e9;">Quantum Bunching! Both exited together.</strong>`;
+            }
+          } else {
+            // Distinguishable: they act as independent particles (50/50 each). We chose split for visual clarity.
+            // Photon 1 goes Top
+            p1x = cx + tOut * cx; p1y = cy - tOut * 80;
+            // Photon 2 (delayed) goes Bottom
+            let t2Out = Math.max(0, tOut - 0.2);
+            p2x = cx + t2Out * cx; p2y = cy + t2Out * 80;
+            
+            if (statusText && t > 1.25 && t < 1.28) {
+              statusText.innerHTML = `Status: <strong style="color: #ec4899;">No interference. Photons exited randomly.</strong>`;
+            }
+          }
+        } 
+        else {
+          isFiring = false;
+          if (statusText) statusText.innerHTML = `Status: <strong>Ready.</strong>`;
+        }
+
+        // Draw Photon 1 (Red)
+        if (t < 2 && p1x !== undefined) {
+          ctx!.beginPath();
+          ctx!.arc(p1x, p1y, 8, 0, Math.PI*2);
+          ctx!.fillStyle = '#ef4444';
+          ctx!.shadowBlur = 15;
+          ctx!.shadowColor = '#ef4444';
+          ctx!.fill();
+        }
+
+        // Draw Photon 2 (Blue)
+        if (t < 2.2 && p2x !== undefined && p2x > 0) {
+          ctx!.beginPath();
+          ctx!.arc(p2x, p2y, 8, 0, Math.PI*2);
+          ctx!.fillStyle = '#3b82f6';
+          ctx!.shadowBlur = 15;
+          ctx!.shadowColor = '#3b82f6';
+          ctx!.fill();
+        }
+        ctx!.shadowBlur = 0;
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    }
+    
+    draw();
+
+    document.addEventListener('astro:before-swap', () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+    }, { once: true });
+  }
+
+  let homInitialized = false;
+  document.addEventListener('astro:page-load', () => {
+    if (!homInitialized) { initHOM(); homInitialized = true; }
+  });
+  if (document.readyState === 'complete') {
+    if (!homInitialized) { initHOM(); homInitialized = true; }
+  } else {
+    window.addEventListener('load', () => {
+      if (!homInitialized) { initHOM(); homInitialized = true; }
+    });
+  }
+</script>

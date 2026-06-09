@@ -1,0 +1,504 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard className="qft-container" title="Quantum Fourier Transform (3-Qubit)" description="Visualize the Quantum Fourier Transform algorithm in action. The canvas simulates the 8-dimensional state vector as phase disks. Play the animation to see how superposition and controlled phase rotations create interference to compute the QFT.">
+  <div class="board-controls">
+    <div class="control-group">
+      <label for="input-state" class="control-label">Input State:</label>
+      <select id="input-state" class="board-btn">
+        <option value="0">|000⟩ (0)</option>
+        <option value="1">|001⟩ (1)</option>
+        <option value="2">|010⟩ (2)</option>
+        <option value="3">|011⟩ (3)</option>
+        <option value="4">|100⟩ (4)</option>
+        <option value="5">|101⟩ (5)</option>
+        <option value="6">|110⟩ (6)</option>
+        <option value="7">|111⟩ (7)</option>
+        <option value="super">Equal Superposition</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <button id="btn-prev" class="board-btn">⏮ Prev Step</button>
+      <button id="btn-play" class="board-btn" style="color: var(--accent); border-color: var(--accent); font-weight: bold;">▶ Play</button>
+      <button id="btn-next" class="board-btn">Next Step ⏭</button>
+    </div>
+  </div>
+
+  <div class="qft-layout">
+    <div class="canvas-container">
+      <canvas id="qft-canvas" width="800" height="420"></canvas>
+    </div>
+    
+    <div class="qft-info-panel">
+      <h5 id="step-title">Initial State</h5>
+      <p id="step-desc">The system is prepared in the selected computational basis state.</p>
+    </div>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .qft-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .canvas-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    box-shadow: none;
+  }
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  .qft-info-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .qft-info-panel h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .qft-info-panel p {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .board-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    align-items: center;
+  }
+  .control-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .control-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .board-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+  }
+  .board-btn:hover {
+    background: var(--surface-alt);
+    border-color: var(--text-main);
+  }
+  select.board-btn {
+    appearance: none;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem top 50%;
+    background-size: 0.65rem auto;
+  }
+</style>
+
+<script>
+  class Complex {
+    r: number;
+    i: number;
+    constructor(r: number, i: number) { this.r = r; this.i = i; }
+    add(c: Complex) { return new Complex(this.r + c.r, this.i + c.i); }
+    sub(c: Complex) { return new Complex(this.r - c.r, this.i - c.i); }
+    mul(c: Complex) { return new Complex(this.r * c.r - this.i * c.i, this.r * c.i + this.i * c.r); }
+    scale(s: number) { return new Complex(this.r * s, this.i * s); }
+    mag() { return Math.sqrt(this.r * this.r + this.i * this.i); }
+    phase() { return Math.atan2(this.i, this.r); }
+  }
+
+  function applyH(state: Complex[], target: number) {
+    let next = Array(8).fill(0).map(() => new Complex(0, 0));
+    let bit = 1 << target;
+    let invSqrt2 = 1 / Math.sqrt(2);
+    for (let i = 0; i < 8; i++) {
+      if ((i & bit) === 0) {
+        let a = state[i];
+        let b = state[i | bit];
+        next[i] = a.add(b).scale(invSqrt2);
+        next[i | bit] = a.sub(b).scale(invSqrt2);
+      }
+    }
+    return next;
+  }
+
+  function applyCR(state: Complex[], ctrl: number, target: number, k: number) {
+    let next = state.map(c => new Complex(c.r, c.i));
+    let phase = Math.PI / Math.pow(2, k - 1); 
+    let rot = new Complex(Math.cos(phase), Math.sin(phase));
+    let ctrlBit = 1 << ctrl;
+    let targetBit = 1 << target;
+    for (let i = 0; i < 8; i++) {
+      if ((i & ctrlBit) && (i & targetBit)) {
+        next[i] = next[i].mul(rot);
+      }
+    }
+    return next;
+  }
+
+  function applySwap(state: Complex[], q1: number, q2: number) {
+    let next = state.map(c => new Complex(c.r, c.i));
+    let bit1 = 1 << q1;
+    let bit2 = 1 << q2;
+    for (let i = 0; i < 8; i++) {
+      let b1 = (i & bit1) ? 1 : 0;
+      let b2 = (i & bit2) ? 1 : 0;
+      if (b1 !== b2 && b1 === 1) { 
+        let swapped = (i & ~bit1) | bit2;
+        let temp = next[i];
+        next[i] = next[swapped];
+        next[swapped] = temp;
+      }
+    }
+    return next;
+  }
+
+  function interpolateComplex(c1: Complex, c2: Complex, t: number) {
+    let r1 = c1.mag(), p1 = c1.phase();
+    let r2 = c2.mag(), p2 = c2.phase();
+
+    if (r1 < 0.001) p1 = p2;
+    if (r2 < 0.001) p2 = p1;
+
+    let dp = p2 - p1;
+    while (dp > Math.PI) dp -= 2 * Math.PI;
+    while (dp < -Math.PI) dp += 2 * Math.PI;
+
+    let r = r1 + (r2 - r1) * t;
+    let p = p1 + dp * t;
+    return new Complex(r * Math.cos(p), r * Math.sin(p));
+  }
+
+  function phaseColor(phase: number) {
+    let hue = ((phase + Math.PI) / (2 * Math.PI)) * 360;
+    return `hsl(${hue}, 80%, 50%)`;
+  }
+
+  function initQFT() {
+    const canvas = document.getElementById('qft-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let history: Complex[][] = [];
+
+    function computeHistory(val: string) {
+      let state = Array(8).fill(0).map(() => new Complex(0, 0));
+      if (val === 'super') {
+        let invSqrt8 = 1 / Math.sqrt(8);
+        for(let i=0; i<8; i++) state[i] = new Complex(invSqrt8, 0);
+      } else {
+        state[parseInt(val)] = new Complex(1, 0);
+      }
+      
+      history = [];
+      history.push(state);
+      state = applyH(state, 2); history.push(state);
+      state = applyCR(state, 1, 2, 2); history.push(state);
+      state = applyCR(state, 0, 2, 3); history.push(state);
+      state = applyH(state, 1); history.push(state);
+      state = applyCR(state, 0, 1, 2); history.push(state);
+      state = applyH(state, 0); history.push(state);
+      state = applySwap(state, 0, 2); history.push(state);
+    }
+
+    computeHistory('0');
+
+    let animProgress = 0;
+    let targetProgress = 0;
+    let isPlaying = false;
+    let lastTime = performance.now();
+    let animationId: number;
+
+    type Gate = { type: string, target?: number, ctrl?: number, k?: number, q1?: number, q2?: number, x: number };
+    const gates: Gate[] = [
+      { type: 'H', target: 2, x: 120 },
+      { type: 'CR', ctrl: 1, target: 2, k: 2, x: 180 },
+      { type: 'CR', ctrl: 0, target: 2, k: 3, x: 240 },
+      { type: 'H', target: 1, x: 300 },
+      { type: 'CR', ctrl: 0, target: 1, k: 2, x: 360 },
+      { type: 'H', target: 0, x: 420 },
+      { type: 'SWAP', q1: 0, q2: 2, x: 480 }
+    ];
+
+    const yMap: Record<number, number> = { 2: 50, 1: 110, 0: 170 };
+    const labels = ['|000⟩', '|001⟩', '|010⟩', '|011⟩', '|100⟩', '|101⟩', '|110⟩', '|111⟩'];
+    
+    const stepDescriptions = [
+      { title: "Initial State", desc: "The system is prepared in the selected computational basis state. The magnitude is 100% for the selected state and 0% for all others." },
+      { title: "Hadamard on q₂", desc: "Creates a superposition on the most significant qubit. The amplitude is split, changing the magnitudes to ~71% for the active states." },
+      { title: "CR₂ on q₂ (ctrl q₁)", desc: "Applies a π/2 phase shift if both q₂ and q₁ are |1⟩. This adds a phase rotation to specific states in the superposition." },
+      { title: "CR₃ on q₂ (ctrl q₀)", desc: "Applies a π/4 phase shift if both q₂ and q₀ are |1⟩, completing the fine phase adjustments for q₂." },
+      { title: "Hadamard on q₁", desc: "Creates a superposition on q₁. Notice how the amplitudes are split again, making more basis states active." },
+      { title: "CR₂ on q₁ (ctrl q₀)", desc: "Applies a π/2 phase shift if both q₁ and q₀ are |1⟩." },
+      { title: "Hadamard on q₀", desc: "Creates a superposition on the final qubit, q₀. Now all 8 basis states have equal magnitude (~35%) but different phases." },
+      { title: "SWAP q₀ and q₂", desc: "Reverses the order of the qubits to match the standard QFT output. The final state encodes the Fourier transform of the input state in its phases." }
+    ];
+
+    function getStepX(step: number) {
+      if (step === 0) return 60;
+      if (step <= 7) return gates[step - 1].x;
+      return 540;
+    }
+
+    function draw(time: number) {
+      let dt = (time - lastTime) / 1000;
+      lastTime = time;
+      if (dt > 0.1) dt = 0.1;
+
+      if (isPlaying) {
+        animProgress += dt * 0.8;
+        if (animProgress >= 7) {
+          animProgress = 7;
+          isPlaying = false;
+          const btnPlay = document.getElementById('btn-play');
+          if (btnPlay) btnPlay.innerHTML = '▶ Play';
+        }
+        targetProgress = Math.round(animProgress);
+      } else {
+        let diff = targetProgress - animProgress;
+        if (Math.abs(diff) > 0.005) {
+          animProgress += diff * 8 * dt;
+        } else {
+          animProgress = targetProgress;
+        }
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Circuit
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 2;
+      for (let q = 0; q <= 2; q++) {
+        ctx.beginPath();
+        ctx.moveTo(60, yMap[q]);
+        ctx.lineTo(540, yMap[q]);
+        ctx.stroke();
+        
+        ctx.fillStyle = '#64748b';
+        ctx.font = '14px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`|x${q}⟩`, 45, yMap[q]);
+        
+        ctx.textAlign = 'left';
+        ctx.fillText(`|y${q}⟩`, 555, yMap[q]);
+      }
+
+      gates.forEach((gate, idx) => {
+        let isActive = (Math.round(animProgress) - 1 === idx);
+        ctx.shadowColor = isActive ? '#3b82f6' : 'transparent';
+        ctx.shadowBlur = isActive ? 12 : 0;
+        
+        if (gate.type === 'H') {
+          let y = yMap[gate.target!];
+          ctx.fillStyle = '#f8fafc';
+          ctx.strokeStyle = isActive ? '#2563eb' : '#3b82f6';
+          ctx.lineWidth = isActive ? 3 : 2;
+          ctx.beginPath();
+          ctx.roundRect(gate.x - 15, y - 15, 30, 30, 4);
+          ctx.fill();
+          ctx.stroke();
+          
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 14px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowBlur = 0;
+          ctx.fillText('H', gate.x, y);
+        } else if (gate.type === 'CR') {
+          let yC = yMap[gate.ctrl!];
+          let yT = yMap[gate.target!];
+          
+          ctx.strokeStyle = isActive ? '#9333ea' : '#a855f7';
+          ctx.lineWidth = isActive ? 3 : 2;
+          ctx.beginPath();
+          ctx.moveTo(gate.x, yC);
+          ctx.lineTo(gate.x, yT);
+          ctx.stroke();
+          
+          ctx.fillStyle = ctx.strokeStyle;
+          ctx.beginPath();
+          ctx.arc(gate.x, yC, 5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.roundRect(gate.x - 15, yT - 15, 30, 30, 4);
+          ctx.fill();
+          ctx.stroke();
+          
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 11px "Inter", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowBlur = 0;
+          ctx.fillText(`R${gate.k}`, gate.x, yT);
+        } else if (gate.type === 'SWAP') {
+          let y1 = yMap[gate.q1!];
+          let y2 = yMap[gate.q2!];
+          
+          ctx.strokeStyle = isActive ? '#059669' : '#10b981';
+          ctx.lineWidth = isActive ? 3 : 2;
+          ctx.beginPath();
+          ctx.moveTo(gate.x, y1);
+          ctx.lineTo(gate.x, y2);
+          ctx.stroke();
+          
+          ctx.beginPath();
+          ctx.moveTo(gate.x - 6, y1 - 6); ctx.lineTo(gate.x + 6, y1 + 6);
+          ctx.moveTo(gate.x - 6, y1 + 6); ctx.lineTo(gate.x + 6, y1 - 6);
+          ctx.stroke();
+          
+          ctx.beginPath();
+          ctx.moveTo(gate.x - 6, y2 - 6); ctx.lineTo(gate.x + 6, y2 + 6);
+          ctx.moveTo(gate.x - 6, y2 + 6); ctx.lineTo(gate.x + 6, y2 - 6);
+          ctx.stroke();
+          
+          ctx.shadowBlur = 0;
+        }
+      });
+
+      // Draw Playhead
+      let currentStep = Math.floor(animProgress);
+      let nextStep = Math.min(currentStep + 1, 7);
+      let tAnim = animProgress - currentStep;
+
+      let playheadX = getStepX(currentStep) + (getStepX(nextStep) - getStepX(currentStep)) * tAnim;
+
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(playheadX, 25);
+      ctx.lineTo(playheadX, 215);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Update Info Panel
+      let currentDesc = Math.round(animProgress);
+      const titleEl = document.getElementById('step-title');
+      const descEl = document.getElementById('step-desc');
+      if (titleEl && descEl) {
+        titleEl.textContent = stepDescriptions[currentDesc].title;
+        descEl.textContent = stepDescriptions[currentDesc].desc;
+      }
+
+      // Draw Phase Disks
+      let interpolatedState = [];
+      for (let i = 0; i < 8; i++) {
+        interpolatedState.push(interpolateComplex(history[currentStep][i], history[nextStep][i], tAnim));
+      }
+
+      let startY = 320;
+      let max_radius = 35;
+      
+      for (let i = 0; i < 8; i++) {
+        let cx = 85 + i * 90;
+        let cy = startY;
+        
+        let c = interpolatedState[i];
+        let r = c.mag();
+        let p = c.phase();
+        
+        ctx.beginPath();
+        ctx.arc(cx, cy, max_radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fill();
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        let drawR = max_radius * r;
+        if (drawR > 0.5) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, drawR, 0, Math.PI * 2);
+          ctx.fillStyle = phaseColor(p);
+          ctx.fill();
+          
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + drawR * Math.cos(p), cy + drawR * Math.sin(p));
+          ctx.strokeStyle = '#020617';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        
+        ctx.fillStyle = '#334155';
+        ctx.font = '14px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i], cx, cy + max_radius + 22);
+        
+        let prob = r * r;
+        ctx.font = 'bold 11px "Inter", sans-serif';
+        ctx.fillStyle = '#64748b';
+        let pct = (prob * 100).toFixed(0);
+        ctx.fillText(`${pct}%`, cx, cy - max_radius - 12);
+      }
+
+      animationId = requestAnimationFrame(draw);
+    }
+
+    animationId = requestAnimationFrame(draw);
+
+    document.getElementById('btn-play')?.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      if (isPlaying && animProgress >= 7) {
+        animProgress = 0;
+        targetProgress = 0;
+      }
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) {
+        btnPlay.innerHTML = isPlaying ? '⏸ Pause' : '▶ Play';
+      }
+    });
+
+    document.getElementById('btn-prev')?.addEventListener('click', () => {
+      targetProgress = Math.max(0, targetProgress - 1);
+      isPlaying = false;
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) btnPlay.innerHTML = '▶ Play';
+    });
+
+    document.getElementById('btn-next')?.addEventListener('click', () => {
+      targetProgress = Math.min(7, targetProgress + 1);
+      isPlaying = false;
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) btnPlay.innerHTML = '▶ Play';
+    });
+
+    document.getElementById('input-state')?.addEventListener('change', (e) => {
+      computeHistory((e.target as HTMLSelectElement).value);
+      animProgress = 0;
+      targetProgress = 0;
+      isPlaying = false;
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) btnPlay.innerHTML = '▶ Play';
+    });
+  }
+
+  initQFT();
+  document.addEventListener('astro:page-load', initQFT);
+</script>

@@ -1,0 +1,288 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+import Infographic from '../components/Infographic.astro';
+import Math from '../components/Math.astro';
+import Timeline from '../components/Timeline.astro';
+import CrossLayerMap from '../components/CrossLayerMap.astro';
+
+const timelineItems = [
+  {
+    year: '2004',
+    title: 'First Dispersive Readout (Circuit QED)',
+    description: 'Wallraff et al. demonstrate quantum non-demolition (QND) measurement of a superconducting qubit coupled to a cavity. <strong>Contribution:</strong> Replaced destructive measurement techniques with the dispersive Jaynes-Cummings interaction, allowing the qubit state to be inferred purely from the phase shift of a microwave photon, preserving the quantum state post-measurement.'
+  },
+  {
+    year: '2008',
+    title: 'Quantum-Limited Amplification (JPA)',
+    description: 'Castellanos-Beltran et al. invent the Josephson Parametric Amplifier. <strong>Contribution:</strong> Overcame the massive thermal noise floor of the 4K HEMT amplifiers. By adding 20dB of gain at the 15mK stage with almost zero added noise, it boosted the readout signal-to-noise ratio to the physical limits of quantum mechanics.'
+  },
+  {
+    year: '2014',
+    title: 'Frequency-Multiplexed Readout',
+    description: 'Chen et al. demonstrate reading out multiple transmons using a single microwave feedline. <strong>Contribution:</strong> Addressed the cryogenic wiring bottleneck. By coupling different readout cavities (at distinct frequencies) to a common bus, it allowed massive scaling of qubit architectures within a single cryostat.'
+  },
+  {
+    year: '2015',
+    title: 'Broadband TWPA Developed',
+    description: 'Macklin et al. at UC Berkeley develop the Traveling Wave Parametric Amplifier (TWPA). <strong>Contribution:</strong> Solved the narrow bandwidth limitation of the JPA. The TWPA provides broad 3 GHz amplification, enabling Frequency-Division Multiplexed (FDM) readout where dozens of qubits can be read simultaneously over a single coaxial line.'
+  },
+  {
+    year: '2017',
+    title: 'Purcell Filters Extend Coherence',
+    description: 'Walter et al. integrate on-chip bandpass Purcell filters into the readout resonators. <strong>Contribution:</strong> Prevented the transmon\'s energy from leaking out into the 50-ohm transmission line. Allowed engineers to strongly couple the resonator for ultra-fast (<100ns) readout without sacrificing the qubit\'s T1 lifetime.'
+  },
+  {
+    year: '2020',
+    title: 'FPGA Neural Network State Classifiers',
+    description: 'IBM implements shallow machine learning classifiers directly on FPGA hardware. <strong>Contribution:</strong> Replaced simple linear thresholding with non-linear decision boundaries. This enabled highly accurate, sub-300ns state discrimination in the complex IQ plane, successfully resolving the overlapping state blobs required for high-fidelity qudit readout.'
+  },
+  {
+    year: '2022',
+    title: 'High-Fidelity Shelved Readout',
+    description: 'Researchers demonstrate "shelving" populations into the |2⟩ or |3⟩ state right before measurement. <strong>Contribution:</strong> Because T1 relaxation strictly happens from |n⟩ to |n-1⟩, shelving a logical |1⟩ into |2⟩ protects the state from decaying to |0⟩ during the slow readout envelope, dramatically lowering measurement error.'
+  }
+];
+    import InteractiveJaynesCummings from '../components/InteractiveJaynesCummings.astro';
+    import InteractiveFDMReadout from '../components/InteractiveFDMReadout.astro';
+    import InteractiveReadoutFidelity from '../components/InteractiveReadoutFidelity.astro';
+---
+
+<Base title="Quantum Non-Demolition (QND) Readout" activeNav="/readout" mathjax>
+  <PageLayout>
+  <PageHeader title="Quantum Non-Demolition (QND) Readout" meta="4 · Readout" description={`How do you look at a quantum state without destroying it? In superconducting architectures, we use`} theme="cyan" />
+
+  <ContentSection title="1. The Jaynes-Cummings Model">
+    <p>We do not measure the Transmon directly. Instead, every qubit is capacitively coupled to its own personal microwave readout resonator. The interaction between the qubit (a two-level artificial atom) and the resonator (a quantized electromagnetic cavity) is described by the Jaynes-Cummings Hamiltonian:</p>
+    <Math formula="\\hat{H}_{JC} = \\frac{1}{2} \\hbar \\omega_q \\hat{\\sigma}_z + \\hbar \\omega_r \\hat{a}^\\dagger \\hat{a} + \\hbar g (\\hat{\\sigma}^+ \\hat{a} + \\hat{\\sigma}^- \\hat{a}^\\dagger)" />
+    <p>Here, <Math formula="\\omega_q"  /> and <Math formula="\\omega_r"  /> are the qubit and resonator frequencies, <Math formula="\\hat{a}^\\dagger"  /> and <Math formula="\\hat{a}"  /> create and annihilate cavity photons, and <Math formula="g"  /> is the transverse capacitive coupling strength. The operators <Math formula="\\hat{\\sigma}^+"  /> and <Math formula="\\hat{\\sigma}^-"  /> are the qubit raising and lowering operators, and <Math formula="\\hat{\\sigma}_z"  /> is the Pauli-Z operator.</p>
+    
+    <InteractiveJaynesCummings />
+
+    <Card theme="cyan" title="The Dispersive Shift & Schrieffer-Wolff Derivation">
+      <p>We operate in the <strong>dispersive regime</strong>, where the detuning between the qubit and the resonator is much larger than their coupling strength:</p>
+      <Math formula="\\Delta = \\omega_q - \\omega_r \\gg g" />
+      <p>Under this condition, the physical exchange of real excitations between the qubit and the cavity is blocked. However, they can still interact virtually. To find the effective Hamiltonian in this regime, we perform a <strong>Schrieffer-Wolff (SW) transformation</strong>—a canonical perturbation theory method that diagonalizes the Hamiltonian to first order in <Math formula="g/\\Delta"  />.</p>
+      <p>The transformation is defined by the unitary operator <Math formula="\\hat{U} = e^{\\hat{S}}"  />, where we choose the generator <Math formula="\\hat{S}"  /> to satisfy the condition <Math formula="[\\hat{H}_0, \\hat{S}] = -\\hat{H}_{\\text{int}}"  />, where <Math formula="\\hat{H}_0"  /> is the uncoupled Hamiltonian and <Math formula="\\hat{H}_{\\text{int}}"  /> is the interaction term. This yields:</p>
+      <Math formula="\\hat{S} = \\frac{g}{\\Delta} (\\hat{a} \\hat{\\sigma}^+ - \\hat{a}^\\dagger \\hat{\\sigma}^-)" />
+      <p>Applying the transformation <Math formula="\\hat{H}_{\\text{eff}} = e^{\\hat{S}} \\hat{H}_{JC} e^{-\\hat{S}} = \\hat{H}_{JC} + [\\hat{S}, \\hat{H}_{JC}] + \\frac{1}{2}[\\hat{S}, [\\hat{S}, \\hat{H}_{JC}]] + \\dots"  /> and expanding to order <Math formula="O(g^2/\\Delta)"  />, we get the dispersive Hamiltonian:</p>
+      <Math formula="\\hat{H}_{\\text{eff}} \\approx \\hbar \\left(\\omega_r + \\chi \\hat{\\sigma}_z\\right) \\hat{a}^\\dagger \\hat{a} + \\frac{1}{2} \\hbar \\left(\\omega_q + \\chi\\right) \\hat{\\sigma}_z" />
+      <p>where the <strong>dispersive shift</strong> <Math formula="\\chi"  /> is defined as:</p>
+      <Math formula="\\chi = \\frac{g^2}{\\Delta}" />
+      <p>This reveals that the resonator frequency is effectively shifted by <Math formula="+\\chi"  /> if the qubit is in state <Math formula="|0\\rangle"  /> (spin down) and by <Math formula="-\\chi"  /> if the qubit is in state <Math formula="|1\\rangle"  /> (spin up):</p>
+      <Math formula="\\omega_r' = \\omega_r + \\chi \\hat{\\sigma}_z" />
+      <p>To measure the qubit, we bounce a microwave tone off the resonator. The phase of the reflected microwave tone shifts depending on the cavity's new frequency, which directly correlates to the state of the qubit.</p>
+    </Card>
+
+    <Card theme="pink" style="margin-top: 1.5rem;" title="The Critical Photon Number Limit">
+      <p>The dispersive approximation relies on the assumption that the number of photons <Math formula="n = \\langle \\hat{a}^\\dagger \\hat{a} \\rangle"  /> in the cavity is small. If we drive the resonator too hard to increase the signal-to-noise ratio, the perturbation expansion breaks down. The boundary is defined by the <strong>critical photon number</strong>:</p>
+      <Math formula="n_{\\text{crit}} = \\frac{\\Delta^2}{4g^2}" />
+      <p>When the photon count in the resonator approaches or exceeds <Math formula="n_{\\text{crit}}"  />, the approximation <Math formula="\\chi \\hat{\\sigma}_z \\hat{a}^\\dagger \\hat{a}"  /> collapses. Multi-photon resonances occur, causing strong hybridization between the qubit and resonator, which triggers <strong>measurement-induced transmon ionization</strong> (promoting the transmon to high-energy non-computational states like <Math formula="|2\\rangle"  />, <Math formula="|3\\rangle"  /> or higher) and destroys the non-demolition (QND) nature of the measurement.</p>
+    </Card>
+  </ContentSection>
+
+  <ContentSection title="2. Amplification & The TWPA">
+    <p>The microwave signal returning from the readout resonator is incredibly weak—on the order of a few photons. If we send this signal straight to room temperature, it will be completely annihilated by the thermal noise of the cables.</p>
+
+    <Card theme="accent" style="margin-bottom: 2rem;" title="Traveling Wave Parametric Amplifiers (TWPAs)">
+      <p>Mounted at the 15mK stage of the dilution refrigerator, the TWPA is a quantum-limited amplifier made from a long chain of thousands of Josephson Junctions. As the weak readout signal travels through the TWPA alongside a strong "pump" tone, non-linear four-wave mixing amplifies the signal by ~20 dB (100x power) while adding almost zero noise.</p>
+      <p>After the TWPA, the signal travels up to the 4K stage where it hits a High Electron Mobility Transistor (HEMT) amplifier for another 40 dB of gain, before finally reaching the room-temperature RFSoC ADCs to be classified into IQ plane blobs.</p>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="3. Purcell Filters">
+    <p>Because the qubit is coupled to the readout resonator, and the resonator is coupled to the outside world (the transmission line), there is a risk that the qubit's energy simply leaks out into the environment, causing <Math formula="T_1"  /> decay (the Purcell effect).</p>
+    <p>To prevent this, engineers insert <strong>Purcell Filters</strong> between the resonator and the transmission line. These filters are engineered to allow the readout frequency (<Math formula="\\sim 7"  /> GHz) to pass through freely, while strongly reflecting the qubit's transition frequency (<Math formula="\\sim 5"  /> GHz), effectively trapping the qubit's energy inside the chip.</p>
+
+    <Timeline items={timelineItems} />
+
+  </ContentSection>
+
+  <ContentSection title="4. Frequency-Division Multiplexed (FDM) Readout">
+    <p>Scaling quantum processors beyond a handful of qubits demands the ability to read out many qubits simultaneously through a single coaxial cable. <strong>Frequency-Division Multiplexing (FDM)</strong> achieves this by assigning each qubit's readout resonator a unique frequency, then probing all resonators with a single composite microwave tone.</p>
+
+    <Card theme="cyan" title="FDM Architecture">
+      <p>Each readout resonator on the chip is lithographically designed to resonate at a distinct frequency, with neighboring resonators spaced <Math formula="\\sim 20\\text{–}50\\text{ MHz}"  /> apart. A room-temperature RFSoC DAC synthesizes a single waveform containing all <Math formula="N"  /> readout tones superimposed, which travels down the feedline and simultaneously excites every resonator.</p>
+      <p>The reflected signal—now carrying the dispersive phase shift of each qubit encoded at its resonator's frequency—is amplified by the TWPA and HEMT chain, then digitized by a single ADC. In the digital domain, an FFT-based channelizer demultiplexes the composite signal into individual IQ streams, one per qubit.</p>
+    </Card>
+
+    <InteractiveFDMReadout />
+
+    <Card theme="accent" style="margin-top: 1.5rem;" title="Bandwidth Budget & Qutrit Penalty">
+      <p><strong>Current state of the art:</strong> up to 10–20 qubits can be read out simultaneously per feedline, limited by the TWPA gain bandwidth of <Math formula="\\sim 3\\text{ GHz}"  />.</p>
+      <p>For binary (<Math formula="d = 2"  />) readout, each qubit requires only a single dispersive shift <Math formula="\\chi"  /> to distinguish <Math formula="|0\\rangle"  /> from <Math formula="|1\\rangle"  />, with resonators spaced <Math formula="\\sim 10\\text{ MHz}"  /> apart. This allows roughly <Math formula="3000 / 10 = 300"  /> channels within the TWPA bandwidth—far more than practical crosstalk limits allow.</p>
+      <p>For <strong>qutrit</strong> (<Math formula="d = 3"  />) readout, each qudit requires <Math formula="d"  /> distinguishable dispersive shifts (<Math formula="\\chi_{01}"  /> and <Math formula="\\chi_{12}"  />), consuming approximately <Math formula="\\sim 30\\text{ MHz}"  /> of bandwidth per qutrit—a <Math formula="3\\times"  /> penalty that reduces the multiplexing density by a factor of three.</p>
+      <Math formula="N_{\\text{max}} \\approx \\frac{\\text{BW}_{\\text{TWPA}}}{d \\cdot \\Delta f_{\\text{min}}}" />
+      <p>This bandwidth tax is a fundamental challenge for scaling qudit-based architectures, as it trades Hilbert-space efficiency against readout multiplexing density.</p>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="5. Interactive Lab: QND Measurement Sandbox">
+    <p>Simulate real-time dispersive readout signal classification. Tune integration time and noise temperature to balance measurement speed against signal overlap.</p>
+    <InteractiveReadoutFidelity />
+
+  </ContentSection>
+
+  <ContentSection title="Current Bottlenecks & Unlocking Potential">
+    <p>To measure multi-state quantum registers without collapse or information loss, the following readout bottlenecks must be resolved:</p>
+    <div>
+      <Card theme="cyan" title="1. Readout Resonator Purcell Decay">
+        <p><strong>The Bottleneck:</strong> The physical coupling between the readout resonator and the transmission line allows the qubit's energy to leak out into the environment, severely reducing the qubit's lifetime (<Math formula="T_1"  />).</p>
+        <p><strong>Unlocking Potential:</strong> Integrating custom bandpass Purcell filters on-chip reflects the qubit's transition frequency (<Math formula="\\sim 5\\text{ GHz}"  />) while passing the readout frequency (<Math formula="\\sim 7\\text{ GHz}"  />), suppressing the Purcell decay channel and extending <Math formula="T_1"  /> times.</p>
+      </Card>
+      <Card theme="cyan" title="2. Near-Quantum-Limited Amplification Bandwidth">
+        <p><strong>The Bottleneck:</strong> Multiplexing readout signals from hundreds of qubits over a single coaxial cable requires broad amplifier bandwidth. Traditional JPAs have narrow bandwidths and saturate easily.</p>
+        <p><strong>Unlocking Potential:</strong> Using Traveling Wave Parametric Amplifiers (TWPAs) provides <Math formula="> 20\\text{ dB}"  /> of gain across a broad bandwidth (<Math formula="\\sim 3\\text{ GHz}"  />), enabling frequency-division multiplexed readout of hundreds of qubits simultaneously.</p>
+      </Card>
+      <Card theme="cyan" title="3. Readout Power Tradeoff (Dephasing vs. SNR)">
+        <p><strong>The Bottleneck:</strong> Driving the readout resonator with more microwave photons (<Math formula="\\bar{n}"  />) improves the Signal-to-Noise Ratio (SNR). However, exceeding the critical photon number <Math formula="n_{crit} = \\Delta^2 / 4g^2"  /> drives the transmon out of the dispersive regime, triggering measurement-induced ionization and spurious state transitions.</p>
+        <p><strong>Unlocking Potential:</strong> Utilizing Josephson Bifurcation Amplifiers, squeezed microwave states, and shelving protocols enables high-SNR measurements at sub-critical photon levels, preventing readout-induced state corruption.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ContentSection title="Cross-Layer Dependencies">
+    <CrossLayerMap
+      currentLayer="Readout"
+      dependencies={[
+        {
+          layer: 'Qutrits & Qudits',
+          href: '/qudits',
+          relationship: 'Discriminating d qudit states requires resolving d distinct IQ blobs.',
+          direction: 'constrains',
+          impact: 'high',
+          status: 'bottleneck',
+          details: 'Higher d exponentially increases classification error from thermal noise and T1 decay during measurement. Shorter T1 times of elevated states cause classification smearing.'
+        },
+        {
+          layer: 'Pulse Control',
+          href: '/control',
+          relationship: 'Readout tones are generated by the same RFSoC DACs as control pulses.',
+          direction: 'requires',
+          impact: 'medium',
+          status: 'mature',
+          details: 'The readout waveform amplitude, duration, and frequency must be precisely calibrated to avoid measurement-induced state transitions and preserve QND properties.'
+        },
+        {
+          layer: 'Topological QEC',
+          href: '/qec',
+          relationship: 'Syndrome extraction depends entirely on high-speed, high-fidelity QND readout of measure qubits.',
+          direction: 'enables',
+          impact: 'critical',
+          status: 'mature',
+          details: 'A 1% readout error directly contributes to the effective physical error rate seen by the decoder. Faster, higher-fidelity readout directly raises the threshold of the surface code.'
+        },
+        {
+          layer: 'Transmon Physics',
+          href: '/physics',
+          relationship: 'The dispersive shift χ depends on the qubit-resonator coupling g and detuning Δ.',
+          direction: 'requires',
+          impact: 'high',
+          status: 'mature',
+          details: 'The physical parameters of the transmon and resonator set the achievable readout speed and signal-to-noise ratio. Stronger coupling enables faster readout but increases Purcell decay.'
+        },
+        {
+          layer: 'Decoherence',
+          href: '/decoherence',
+          relationship: 'T1 decay during the measurement window causes the qubit to relax mid-readout.',
+          direction: 'constrains',
+          impact: 'high',
+          status: 'active-research',
+          details: 'Relaxation smears the IQ signal and reduces classification accuracy. Faster readout requires stronger drive, but excess photon population induces dephasing and risks breaking the dispersive approximation.'
+        },
+        {
+          layer: 'Cryogenics',
+          href: '/cryogenics',
+          relationship: 'Parametric amplifiers (TWPAs and JPAs) must operate at 15mK to achieve quantum-limited noise.',
+          direction: 'requires',
+          impact: 'high',
+          status: 'bottleneck',
+          details: 'Their continuous microwave pump tones add a massive heat load to the mixing chamber, competing with the limited cooling power budget of the dilution refrigerator.'
+        }
+      ]}
+    />
+
+  </ContentSection>
+
+  <ContentSection title="Common Misconceptions">
+    <div>
+      <Card theme="cyan" title="The 'Magic' Collapse Myth">
+        <p>Many popular accounts portray measurement as an observer-induced magical collapse. In practice, dispersive readout is a continuous physical process (the Jaynes-Cummings interaction) where quantum information becomes correlated with a macroscopic microwave field over time, leading to decoherence rather than an instantaneous jump.</p>
+      </Card>
+      <Card theme="cyan" title="Infinite Scaling via FDM">
+        <p>Frequency-Division Multiplexing (FDM) is often touted as the ultimate solution for scaling readouts. In reality, microwave "spectral real estate" is strictly limited. Packing resonators too closely increases crosstalk, while TWPA amplifiers only support a finite ~3 GHz bandwidth.</p>
+      </Card>
+      <Card theme="cyan" title="Measurement-Induced Ionization">
+        <p>We often treat qubits as perfect two-level systems. However, transmons are multi-level anharmonic oscillators. Recent 2024-2025 studies demonstrate that driving the readout resonator with too many photons (high-power readout to maximize SNR) triggers multi-photon resonances. This causes "measurement-induced ionization," violently promoting the transmon into highly excited, unconfined states (far beyond |2⟩ or |3⟩), fundamentally breaking the Quantum Non-Demolition (QND) approximation and erasing the quantum information.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <SkepticismPanel>
+    <ul>
+      <li><strong>Is QND Truly 'Non-Demolition'?:</strong> While theoretically QND, experimental readouts often slightly demolish the state. Increasing measurement power to improve Signal-to-Noise Ratio (SNR) causes measurement-induced dephasing and can drive transitions to unwanted states, breaking the QND approximation.</li>
+      <li><strong>TWPA Saturation Limits & IMD:</strong> While Josephson TWPAs (JTWPAs) provide quantum-limited amplification, their 1 dB compression point is typically limited to the -100 dBm to -84 dBm range. Multiplexing 50+ qubits on a single line causes the combined signal power to approach this saturation threshold, triggering severe Intermodulation Distortion (IMD). This non-linear four-wave mixing between readout tones creates false signals, destroying SNR across all channels. New Kinetic Inductance TWPAs (KI-TWPAs) and dispersion engineering are active 2024–2025 research areas to mitigate this.</li>
+      <li><strong>The FPGA ML Classification Hype:</strong> Deploying Neural Networks on FPGAs for state classification yields excellent discrimination boundaries, but it adds latency to the measurement-to-control feedback loop. Real-time quantum error correction protocols demand sub-microsecond syndrome extraction, making overly complex ML classifiers a bottleneck.</li>
+    </ul>
+  </SkepticismPanel>
+
+  <ContentSection title="Actionable Research Matters">
+    <div>
+      <Card theme="cyan" title="Leakage-Aware Protocols">
+        <p>We need fast pulses and classifiers that do not merely distinguish |0⟩ from |1⟩, but actively detect and flag |2⟩ state leakage so that error correction decoders can handle them as erasure errors rather than standard Pauli errors.</p>
+      </Card>
+      <Card theme="cyan" title="High-Dynamic-Range Amplifiers">
+        <p>Research into new directional parametric amplifiers (e.g., utilizing Quarton couplers) that offer greater saturation power than current TWPAs without adding thermal noise is critical to expanding the FDM multiplexing limit.</p>
+      </Card>
+      <Card theme="cyan" title="Algorithmic Workarounds">
+        <p>Reducing the sheer volume of readouts required by developing "density-free" algorithms that extract expectation values without demanding explicit full-state data readout, thus relieving hardware bottlenecks entirely.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ReferenceList theme="cyan">
+    <li>
+      <a href="https://arxiv.org/abs/cond-mat/0407632" target="_blank">Wallraff et al. (2004) - "Strong coupling of a single photon to a superconducting qubit using circuit quantum electrodynamics"</a>
+      <p>Nature. The breakthrough paper demonstrating Circuit QED with a superconducting qubit coupled to a transmission line resonator, establishing quantum non-demolition (QND) measurement.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1504.04398" target="_blank">Macklin et al. (2015) - "A near–quantum-limited Josephson traveling-wave parametric amplifier"</a>
+      <p>Science. Presents the design and performance of the Traveling Wave Parametric Amplifier (TWPA), which provides broadband, high-fidelity readout amplification.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1801.07904" target="_blank">Heinsoo et al. (2018) - "Rapid high-fidelity multiplexed readout of superconducting qubits"</a>
+      <p>Physical Review Applied. Demonstrates frequency-multiplexed dispersive readout of multiple transmon qubits with high fidelity, establishing key techniques for scaling readout to multi-qubit processors.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1701.06933" target="_blank">Walter et al. (2017) - "Rapid high-fidelity single-shot dispersive readout of superconducting qubits"</a>
+      <p>Physical Review Applied. Achieves rapid single-shot dispersive readout with fidelities exceeding 99.2% in under 100 ns using optimized Purcell filters and parametric amplification.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2201.03032" target="_blank">Sunada et al. (2022) - "Fast readout and reset of a superconducting qubit coupled to a resonator with an intrinsic Purcell filter"</a>
+      <p>Physical Review Applied. Presents a resonator design with an intrinsic Purcell filter that enables both fast readout and unconditional qubit reset, simplifying the on-chip architecture.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1103/PhysRevX.14.041023" target="_blank">Dumas et al. (2024) - "Measurement-Induced Transmon Ionization"</a>
+      <p>Physical Review X. Directly addresses the skepticism regarding whether dispersive readout is truly 'Non-Demolition'. The authors demonstrate that pushing readout power to maximize SNR leads to multiphoton resonances that 'ionize' the transmon into highly excited states, fundamentally breaking the QND approximation.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1103/PhysRevApplied.20.034027" target="_blank">Remm et al. (2023) - "Intermodulation Distortion in a Josephson Traveling Wave Parametric Amplifier"</a>
+      <p>Physical Review Applied. Justifies the skepticism around TWPA saturation limits. This work rigorously characterizes how undesired wave mixing across multiplexed tones induces severe intermodulation distortion (IMD) as the amplifier approaches saturation, imposing a hard physics limit on the scaling of FDM readout.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1103/PhysRevX.14.011051" target="_blank">Levine et al. (2024) - "Demonstrating a long-coherence dual-rail erasure qubit using tunable transmons"</a>
+      <p>Physical Review X. Supports the 'Leakage-Aware Protocols' actionable research agenda. Demonstrates a dual-rail encoding scheme where dominant noise channels (like T1 decay) are converted into highly visible, heralded 'erasure' errors, allowing the error-correction decoder to handle them much more efficiently than standard Pauli errors.</p>
+    </li>
+  </ReferenceList>
+  </PageLayout>
+</Base>

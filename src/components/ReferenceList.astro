@@ -1,0 +1,145 @@
+---
+export interface Props {
+  theme?: string;
+}
+
+const { theme = "cyan" } = Astro.props;
+---
+<section class="reference-section" style={`--theme-color: var(--accent-${theme});`}>
+  <h2 class="reference-title">
+    <svg class="citation-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+      <path d="M6 6h10"></path>
+      <path d="M6 10h10"></path>
+    </svg>
+    Key Literature & References
+  </h2>
+  <ul class="reference-list">
+    <slot />
+  </ul>
+</section>
+
+<style>
+  .reference-section {
+    margin-top: 6rem;
+    padding-top: 4rem;
+    border-top: 1px solid var(--border-light);
+  }
+  .reference-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-transform: uppercase;
+  }
+  .citation-icon {
+    color: var(--accent);
+    opacity: 0.9;
+    flex-shrink: 0;
+  }
+  .reference-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.35;
+    margin-left: 0.5rem;
+  }
+  .reference-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* Reference Card Styles */
+  .reference-list :global(li) {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    background: var(--surface);
+    padding: 1.75rem 2rem;
+    border-radius: 0px;
+    border: 1px solid var(--border-light);
+    border-left: 4px solid var(--accent);
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .reference-list :global(li:hover) {
+    transform: translateY(-1px);
+    background: var(--surface-hover);
+    border-color: var(--accent);
+  }
+
+  /* Support for Anchor Titles */
+  .reference-list :global(li a) {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+    transition: color 0.15s ease;
+    line-height: 1.4;
+  }
+
+  .reference-list :global(li a::after) {
+    content: '↗';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    color: var(--accent);
+    transition: transform 0.15s ease;
+    opacity: 0.8;
+  }
+
+  .reference-list :global(li a:hover) {
+    color: var(--accent);
+  }
+
+  .reference-list :global(li a:hover::after) {
+    transform: translate(2px, -2px);
+    opacity: 1;
+  }
+
+  /* Support for bold titles in text-based references */
+  .reference-list :global(li strong) {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 1.05rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  /* Descriptions/Annotations */
+  .reference-list :global(li p) {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  /* Secondary metadata styling (like journal names) */
+  .reference-list :global(li em) {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 0.9em;
+  }
+</style>

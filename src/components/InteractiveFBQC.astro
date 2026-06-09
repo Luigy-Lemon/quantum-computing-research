@@ -1,0 +1,346 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+
+<InteractiveBoard 
+  className="fbqc-container" 
+  title="Fusion-Based Quantum Computing (FBQC)" 
+  description="In FBQC, small entangled 'Resource States' (e.g., 6-photon rings) are continuously generated. By performing destructive 'Fusion Measurements' on photons from adjacent rings, we weave a massive 3D fault-tolerant cluster state in spacetime."
+>
+  
+  <div class="board-controls">
+    <button id="btn-generate-rings" class="active">1. Generate Resource States</button>
+    <button id="btn-fuse-states">2. Perform Type-II Fusions</button>
+    <button id="btn-photon-loss">3. Simulate Photon Loss</button>
+  </div>
+
+  <div class="fbqc-graphic-container">
+    <canvas id="fbqc-canvas" class="fbqc-canvas"></canvas>
+  </div>
+  
+  <div class="fbqc-info">
+    <p id="fbqc-status">Status: <strong>Initializing SPDC Sources...</strong></p>
+  </div>
+
+</InteractiveBoard>
+
+<style>
+  .fbqc-graphic-container {
+    width: 100%;
+    height: 400px;
+    background: var(--surface); 
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: none;
+  }
+
+  .fbqc-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .board-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    justify-content: center;
+  }
+
+  .board-controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-weight: 600;
+  }
+
+  .board-controls button:hover {
+    background: var(--surface-hover);
+  }
+
+  .board-controls button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .fbqc-info {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    background: var(--surface-alt);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+  }
+
+  :global(.dark) .fbqc-info {
+    color: #cbd5e1;
+    background: var(--surface-alt);
+    border-color: var(--text-main);
+  }
+  
+  .fbqc-info p { margin: 0; }
+  .fbqc-info strong { color: #8b5cf6; transition: color 0.3s ease; }
+</style>
+
+<script>
+  function initFBQC() {
+    const canvas = document.getElementById('fbqc-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const btnGen = document.getElementById('btn-generate-rings');
+    const btnFuse = document.getElementById('btn-fuse-states');
+    const btnLoss = document.getElementById('btn-photon-loss');
+    const statusText = document.getElementById('fbqc-status');
+
+    let animationFrameId: number;
+    let autoPlayTimer: any;
+    let state = 0; // 0 = empty, 1 = generated, 2 = fusing, 3 = fused, 4 = loss
+    let t = 0;
+    
+    // Define 4 rings of 6 photons
+    const rings = [
+      { cx: 150, cy: 150, photons: [], color: '#38bdf8' },
+      { cx: 350, cy: 150, photons: [], color: '#34d399' },
+      { cx: 150, cy: 300, photons: [], color: '#f472b6' },
+      { cx: 350, cy: 300, photons: [], color: '#fbbf24' }
+    ];
+
+    const radius = 40;
+    rings.forEach(ring => {
+      for(let i=0; i<6; i++) {
+        const angle = (i * Math.PI * 2) / 6;
+        ring.photons.push({
+          x: Math.cos(angle) * radius,
+          y: Math.sin(angle) * radius,
+          active: true,
+          fused: false,
+          lost: false
+        });
+      }
+    });
+
+    function setBtnActive(btn) {
+      if(btnGen) btnGen.classList.remove('active');
+      if(btnFuse) btnFuse.classList.remove('active');
+      if(btnLoss) btnLoss.classList.remove('active');
+      if(btn) btn.classList.add('active');
+    }
+
+    function triggerGenerate(auto = false) {
+      if(!auto) clearTimeout(autoPlayTimer);
+      setBtnActive(btnGen);
+      state = 1;
+      t = 0;
+      rings.forEach(r => r.photons.forEach(p => { p.active = true; p.fused = false; p.lost = false; }));
+      if (statusText) statusText.innerHTML = `Status: <strong>Generating 6-photon Resource States via SPDC...</strong>`;
+      
+      // Auto advance to fuse
+      if(auto) autoPlayTimer = setTimeout(() => triggerFuse(true), 2500);
+    }
+
+    function triggerFuse(auto = false) {
+      if(!auto) clearTimeout(autoPlayTimer);
+      if(state === 0) return;
+      setBtnActive(btnFuse);
+      state = 2;
+      t = 0;
+      if (statusText) statusText.innerHTML = `Status: <strong style="color: #a855f7;">Performing Bell State Measurements (Fusions)...</strong>`;
+      
+      // Auto loop back to generate after showing fused state
+      if(auto) autoPlayTimer = setTimeout(() => triggerGenerate(true), 3500);
+    }
+
+    function triggerLoss() {
+      clearTimeout(autoPlayTimer);
+      if(state < 1) return;
+      setBtnActive(btnLoss);
+      state = 4;
+      t = 0;
+      rings.forEach(r => r.photons.forEach(p => { p.lost = false; }));
+      let lostCount = 0;
+      while(lostCount < 3) {
+        const rIdx = Math.floor(Math.random() * 4);
+        const pIdx = Math.floor(Math.random() * 6);
+        if(!rings[rIdx].photons[pIdx].lost) {
+          rings[rIdx].photons[pIdx].lost = true;
+          lostCount++;
+        }
+      }
+      if (statusText) statusText.innerHTML = `Status: <strong style="color: #ef4444;">Photon Loss Detected! Cluster state integrity compromised.</strong>`;
+    }
+
+    if (btnGen) btnGen.addEventListener('click', () => triggerGenerate(false));
+    if (btnFuse) btnFuse.addEventListener('click', () => triggerFuse(false));
+    if (btnLoss) btnLoss.addEventListener('click', () => triggerLoss());
+
+    // Auto-start the visualization cycle
+    setTimeout(() => triggerGenerate(true), 500);
+
+    function resize() {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      if (rect) {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx!.scale(dpr, dpr);
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+      }
+    }
+    
+    window.addEventListener('resize', resize);
+    resize();
+
+    function draw() {
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+      ctx!.clearRect(0, 0, width, height);
+      
+      const offsetX = width/2 - 250;
+      const offsetY = height/2 - 225;
+
+      ctx!.save();
+      ctx!.translate(offsetX, offsetY);
+
+      if (state >= 1) {
+        if (state === 1 && t < 1) t += 0.03; // Generation fade in
+        if (state >= 2 && state !== 4 && t < 1) t += 0.02; // Fusion animation
+        
+        if (state === 2 && t >= 1) {
+          state = 3;
+          if (statusText && statusText.innerText.includes("Performing")) {
+            statusText.innerHTML = `Status: <strong style="color: #10b981;">3D Logical Qubit Lattice Successfully Woven.</strong>`;
+          }
+        }
+        
+        // Draw fusion grid lines
+        if (state >= 2 && state !== 4) {
+          ctx!.beginPath();
+          ctx!.strokeStyle = `rgba(168, 85, 247, ${Math.min(t, 0.8)})`;
+          ctx!.lineWidth = 4;
+          ctx!.setLineDash([5, 5]);
+          ctx!.moveTo(rings[0].cx + radius, rings[0].cy);
+          ctx!.lineTo(rings[1].cx - radius, rings[1].cy);
+          ctx!.moveTo(rings[0].cx, rings[0].cy + radius);
+          ctx!.lineTo(rings[2].cx, rings[2].cy - radius);
+          ctx!.moveTo(rings[1].cx, rings[1].cy + radius);
+          ctx!.lineTo(rings[3].cx, rings[3].cy - radius);
+          ctx!.moveTo(rings[2].cx + radius, rings[2].cy);
+          ctx!.lineTo(rings[3].cx - radius, rings[3].cy);
+          ctx!.stroke();
+          ctx!.setLineDash([]);
+          
+          if (state === 2) {
+            const midpoints = [
+              {x: 250, y: 150}, {x: 150, y: 225}, {x: 350, y: 225}, {x: 250, y: 300}
+            ];
+            midpoints.forEach(m => {
+              ctx!.beginPath();
+              ctx!.arc(m.x, m.y, 15 * t, 0, Math.PI*2);
+              ctx!.fillStyle = `rgba(168, 85, 247, ${1 - t})`;
+              ctx!.fill();
+            });
+          }
+        }
+
+        rings.forEach((ring, rIdx) => {
+          let ringAlpha = (state === 1) ? t : 1.0;
+          ctx!.globalAlpha = ringAlpha;
+
+          // Draw graph state hexagon
+          ctx!.beginPath();
+          ctx!.strokeStyle = `rgba(255,255,255,0.15)`;
+          ctx!.lineWidth = 2;
+          for (let i = 0; i < 6; i++) {
+            const p1 = ring.photons[i];
+            const p2 = ring.photons[(i + 1) % 6];
+            ctx!.moveTo(ring.cx + p1.x, ring.cy + p1.y);
+            ctx!.lineTo(ring.cx + p2.x, ring.cy + p2.y);
+          }
+          ctx!.stroke();
+
+          ring.photons.forEach((p, pIdx) => {
+            let pAlpha = ringAlpha;
+            let pColor = ring.color;
+            
+            if (state >= 2 && state !== 4) {
+               if ((rIdx===0 && (pIdx===0 || pIdx===1)) || 
+                   (rIdx===1 && (pIdx===3 || pIdx===4)) ||
+                   (rIdx===2 && (pIdx===0 || pIdx===5)) ||
+                   (rIdx===3 && (pIdx===3 || pIdx===2))) {
+                  pAlpha = Math.max(0, 1 - t);
+                  p.fused = true;
+               }
+            }
+            
+            if (state === 4 && p.lost) {
+              pColor = '#ef4444';
+              pAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 100);
+              ctx!.beginPath();
+              ctx!.strokeStyle = '#ef4444';
+              ctx!.lineWidth = 2;
+              ctx!.moveTo(ring.cx + p.x - 10, ring.cy + p.y - 10);
+              ctx!.lineTo(ring.cx + p.x + 10, ring.cy + p.y + 10);
+              ctx!.moveTo(ring.cx + p.x + 10, ring.cy + p.y - 10);
+              ctx!.lineTo(ring.cx + p.x - 10, ring.cy + p.y + 10);
+              ctx!.stroke();
+            } else if (state === 4) {
+               pAlpha = p.fused ? 0 : 0.3;
+            }
+
+            if (pAlpha > 0) {
+              ctx!.beginPath();
+              ctx!.arc(ring.cx + p.x, ring.cy + p.y, 6, 0, Math.PI*2);
+              ctx!.fillStyle = pColor;
+              ctx!.globalAlpha = pAlpha;
+              ctx!.shadowBlur = 10;
+              ctx!.shadowColor = pColor;
+              ctx!.fill();
+            }
+          });
+          ctx!.globalAlpha = 1.0;
+        });
+      }
+
+      ctx!.restore();
+      animationFrameId = requestAnimationFrame(draw);
+    }
+    
+    draw();
+
+    document.addEventListener('astro:before-swap', () => {
+      cancelAnimationFrame(animationFrameId);
+      clearTimeout(autoPlayTimer);
+      window.removeEventListener('resize', resize);
+    }, { once: true });
+  }
+
+  let fbqcInitialized = false;
+  document.addEventListener('astro:page-load', () => {
+    if (!fbqcInitialized) {
+      initFBQC();
+      fbqcInitialized = true;
+    }
+  });
+  if (document.readyState === 'complete') {
+    if (!fbqcInitialized) { initFBQC(); fbqcInitialized = true; }
+  } else {
+    window.addEventListener('load', () => {
+      if (!fbqcInitialized) { initFBQC(); fbqcInitialized = true; }
+    });
+  }
+</script>

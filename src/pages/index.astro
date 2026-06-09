@@ -1,0 +1,1187 @@
+---
+import Base from '../layouts/Base.astro';
+import ChandelierSchematic from '../components/ChandelierSchematic.astro';
+import Card from '../components/Card.astro';
+import Tag from '../components/Tag.astro';
+import Math from '../components/Math.astro';
+
+const layers = [
+  {
+    id: 'compilation', num: 1, label: 'Algorithm',
+    title: 'Shor\'s Algorithm & Crypto Compilation',
+    funny: '"Just factor this 256-bit number" — famous last words. You need ~2,000 logical qubits, each costing ~1,000 physical ones. The math is elegant; the bill is not.',
+    challenge: '2,048 logical qubits × 1,000 physical each = a chip the size of a warehouse',
+    chips: ['ECDLP → period-finding', 'modular exponentiation', 'ripple-carry adders'],
+    theme: 'cyan',
+    stage: '300k',
+    spec: 'Classical Core Compiler',
+    model: 'SHOR-COMP-256',
+    math: 'f(x) = a^x \\pmod N'
+  },
+  {
+    id: 'qudits', num: 2, label: 'Optimization',
+    title: 'Qutrits, Qudits & Gate Squashing',
+    funny: 'What if your qubit could hold more than two values? Qutrits add a |2⟩ state, slashing Toffoli counts. Like discovering your apartment has a basement — free real estate, if the floor holds.',
+    challenge: 'Higher states decay faster, leak out of the error correction code, and need exquisitely calibrated pulses',
+    chips: ['|0⟩ |1⟩ |2⟩', 'Toffoli → 3-pulse CCZ', 'N² → N log N depth'],
+    theme: 'accent',
+    stage: '300k',
+    spec: 'Multi-level Compiler',
+    model: 'QUT-DECOMP-3',
+    math: '|\\psi\\rangle = \\alpha|0\\rangle + \\beta|1\\rangle + \\gamma|2\\rangle'
+  },
+  {
+    id: 'qec', num: 3, label: 'Error Correction',
+    title: 'Topological QEC & Leakage Reduction',
+    funny: '1,000 physical qubits per logical qubit. You\'re building a cathedral to protect one bit of information. The Surface Code is the cathedral. Leakage Reduction Units are the pest control.',
+    challenge: 'Syndrome extraction + MWPM decoding must finish in ~1 µs — software is too slow, need Cryo-ASICs',
+    chips: ['Surface Code d=27', 'syndrome extraction', 'LRC flush circuits'],
+    theme: 'pink',
+    stage: '15mk',
+    spec: 'FPGA Decoder Loop',
+    model: 'SURF-QEC-27',
+    math: 's_i = \\prod_{j \\in \\mathcal{N}(i)} \\sigma_j^z = \\pm 1'
+  },
+  {
+    id: 'classical_control', num: 4, label: 'Hardware Rack',
+    title: 'Room-Temperature Electronics',
+    funny: 'If the chandelier is the brain, this rack is the life support. Heavy, noisy, and draws enough power to run a small village.',
+    challenge: 'Cabling thousands of coax lines without creating ground loops or thermal leaks.',
+    chips: ['FPGA Arrays', 'RFSoC', 'AWG Synthesis', 'Power Supplies'],
+    theme: 'green',
+    stage: '300k',
+    spec: 'Rackmount Control',
+    model: '19-INCH-RACK',
+    math: '\\text{Data Rate} = N_q \\times f_s \\times B_r'
+  },
+  {
+    id: 'control', num: 5, label: 'Control',
+    title: 'Pulse Physics, RFSoC & FPGA Synthesis',
+    funny: 'Your gate is a sculpted microwave pulse. The FPGA generates it. The DAC converts it. The fridge delivers it. The qubit ignores half of it because of crosstalk. Quantum computing is basically arguing with a microwave.',
+    challenge: '8 GSPS DAC, GRAPE-optimized envelopes, parametric compilation — and still can\'t afford enough FPGA RAM',
+    chips: ['Cross-Resonance gates', 'GRAPE optimal control', 'RFSoC 8 GSPS'],
+    theme: 'orange',
+    stage: '300k',
+    spec: 'DAC/ADC RF synthesis',
+    model: 'FPGA-PULSE-DRAG',
+    math: '\\Omega_q(t) = \\Omega_x(t) - i \\frac{\\Omega_x\'(t)}{2\\Delta_{12}}'
+  },
+  {
+    id: 'microwave', num: 6, label: 'Microwave Wiring',
+    title: 'Signal Conditioning & Attenuation',
+    funny: 'To prevent room-temperature noise from melting your qubit, you must attenuate the signal by 50 dB. Yes, we throw away 99.999% of our own pulse. It\'s intentional.',
+    challenge: 'Johnson-Nyquist thermal noise cascades down the lines, requiring massive attenuators at every temperature stage.',
+    chips: ['60dB Attenuation', 'Microwave Isolators', 'Superconducting NbTi', 'IR Filters'],
+    theme: 'orange',
+    stage: '4k',
+    spec: 'Coaxial Infrastructure',
+    model: 'RF-COND-50DB',
+    math: 'T_{e} = T_0 + \\frac{T_{\\text{room}}}{10^{A/10}}'
+  },
+  {
+    id: 'readout', num: 7, label: 'Readout',
+    title: 'QND Measurement & State Discrimination',
+    funny: '"Measure without destroying." It\'s like checking if a soufflé has risen by staring through a tiny window. With microwaves. At 15 millikelvin. The soufflé is also quantum.',
+    challenge: 'Discriminate d states in <300 ns before T₁ decay smears IQ blobs into noise',
+    chips: ['dispersive shift χ', 'TWPA + HEMT chain', '~99.5% fidelity'],
+    theme: 'purple',
+    stage: '4k',
+    spec: 'TWPA + Digitizer',
+    model: 'TWPA-DISCR-04',
+    math: '\\chi = \\frac{g^2}{\\Delta}'
+  },
+  {
+    id: 'vacuum', num: 8, label: 'Vacuum Systems',
+    title: 'Ultra-High Vacuum & Turbo Pumps',
+    funny: 'At 15mK, air freezes solid onto your quantum chip, creating dielectric loss. So we pump out the air until the pressure is lower than deep space. Then we hope it doesn\'t leak.',
+    challenge: 'Maintaining < 10^-8 mbar vacuum with hundreds of wire feedthroughs.',
+    chips: ['Turbo-molecular pump', 'Rotary backing pump', 'Helium leak testing'],
+    theme: 'accent-secondary',
+    stage: '300k',
+    spec: 'Vacuum Environment',
+    model: 'UHV-TURBO-V',
+    math: 'P = P_0 e^{-(S/V)t}'
+  },
+  {
+    id: 'cryogenics', num: 9, label: 'Cryogenics',
+    title: 'Dilution Refrigerators & Thermodynamics',
+    funny: '15 millikelvin. Colder than the cosmic microwave background. Your dilution fridge costs $1M, weighs 500 kg, takes 3 days to cool down. The quantum computer runs inside a chandelier that costs more than a house.',
+    challenge: 'Each coax cable is a heat pipe — 50 dB attenuation cascade, superconducting NbTi wiring, He-3 scarcity',
+    chips: ['He-3/He-4 mixing', '15 mK base', '3-day cooldown'],
+    theme: 'orange',
+    stage: '15mk',
+    spec: 'Thermal Isolation',
+    model: 'DRY-FRIDGE-15M',
+    math: 'n_{\\text{thermal}} = \\frac{1}{e^{\\hbar\\omega / k_B T} - 1}'
+  },
+  {
+    id: 'shielding', num: 10, label: 'Shielding',
+    title: 'Magnetic & Radiation Isolation',
+    funny: 'A stray magnetic field from a passing bus or a cosmic ray from a dying star can flip your qubit. We wrap it in μ-metal, cryoperm, and pray.',
+    challenge: '1/f flux noise from magnetic impurities and phonon bursts from cosmic ray impacts.',
+    chips: ['μ-metal shields', 'Cryoperm', 'Infrared Eccosorb'],
+    theme: 'red',
+    stage: '15mk',
+    spec: 'Environmental Isolation',
+    model: 'M-SHIELD-X',
+    math: 'B_{\\text{in}} = \\frac{B_{\\text{out}}}{\\mu_r \\cdot t / R}'
+  },
+  {
+    id: 'physics', num: 11, label: 'Qubit',
+    title: 'Transmon Physics & Josephson Junctions',
+    funny: 'A transmon is a capacitor and a Josephson junction in a tug-of-war. The junction is two pieces of aluminum separated by oxide a few atoms thick. You build a quantum computer out of rusty aluminum. This is not a joke.',
+    challenge: 'EJ/EC sweet spot is narrow — too far either way and you lose coherence or addressability',
+    chips: ['anharmonic oscillator', 'EJ/EC ≈ 50', '~5 GHz frequency'],
+    theme: 'green',
+    stage: '15mk',
+    spec: 'Superconducting Wafer',
+    model: 'JJ-TRANSMON-5G',
+    math: '\\hat{H} = 4 E_C (\\hat{n} - n_g)^2 - E_J \\cos(\\hat{\\phi})'
+  },
+  {
+    id: 'decoherence', num: 12, label: 'Decoherence',
+    title: 'Microscopic Decoherence Mechanisms',
+    funny: 'Your qubit lives ~100 μs. In that window it must be initialized, entangled with 1,000 neighbors, measured, and corrected — thousands of times. A mayfly running a marathon, chased by cosmic rays.',
+    challenge: 'TLS defects, quasiparticle poisoning, 1/f flux noise — three independent killers, no cure',
+    chips: ['T₁ ~ 100 μs', 'T₂ ~ 150 μs', 'quasiparticle bursts'],
+    theme: 'cyan',
+    stage: '15mk',
+    spec: 'Coherence Boundary',
+    model: 'COH-DECAY-T1',
+    math: 'P_{\\text{coh}}(t) = e^{-t / T_1} \\cdot e^{-t / T_2}'
+  },
+  {
+    id: 'network', num: 13, label: 'Network',
+    title: 'Quantum Interconnects & Transduction',
+    funny: 'You ran out of space in the fridge. Now you need to entangle a qubit in this fridge with a qubit in the next fridge using a photon. Good luck converting microwaves to optical without adding noise.',
+    challenge: 'Electro-optic transduction efficiency is notoriously low (~10^-4). Need massive improvements to scale out.',
+    chips: ['Microwave-to-Optical', 'Entanglement Swapping', 'Optical Fibers'],
+    theme: 'purple',
+    stage: '300k',
+    spec: 'Transduction Link',
+    model: 'Q-NET-LINK',
+    math: '\\eta = \\frac{\\gamma_{\\text{em}} \\gamma_{\\text{opt}}}{(\\gamma_{\\text{em}} + \\kappa_{\\text{em}})(\\gamma_{\\text{opt}} + \\kappa_{\\text{opt}})}'
+  }
+];
+---
+
+<Base title="Quantum Computing Stack" activeNav="/" mathjax>
+  <!-- Page-specific fonts not in global.css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :global(body) {
+      font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif !important;
+    }
+
+    /* Outer Wrapper with dot grid backdrop */
+    .quantum-workspace {
+      position: relative;
+      width: 100%;
+      min-height: calc(100vh - 80px);
+      padding: 2.5rem 2rem 5rem;
+      max-width: 100%;
+      margin: 0 auto;
+      z-index: 1;
+      background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* Drifting background canvas */
+    #quantum-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.12;
+    }
+
+    /* Academic Journal Header Style */
+    .hero {
+      text-align: left;
+      padding: 1rem 0 2rem;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .paper-meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: var(--text-light);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--ink);
+      margin-bottom: 0.6rem;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+    .paper-authors {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    .hero-subtitle {
+      max-width: 950px;
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.05rem;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+      line-height: 1.65;
+      background: var(--surface-hover);
+      padding: 1.25rem 1.5rem;
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+    }
+    
+    /* Telemetry Panel (Oscilloscope CRT Display) */
+    .telemetry-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      background: var(--surface-hover);
+      border: 2px solid var(--accent-green);
+      border-radius: 4px;
+      padding: 0.75rem 1.25rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    /* CRT Scanline pattern */
+    .telemetry-row::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .telemetry-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 2;
+    }
+    .telemetry-item strong {
+      color: var(--accent-green);
+      text-shadow: none;
+    }
+    .telemetry-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: none;
+      display: inline-block;
+    }
+    .telemetry-indicator.pulsing {
+      animation: pulseIndicator 1.5s infinite alternate;
+    }
+
+    /* Dashboard Layout */
+    .quantum-dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    @media (min-width: 1200px) {
+      .quantum-dashboard {
+        display: flex;
+        flex-direction: column;
+        max-width: 1800px;
+        margin: 0 auto;
+        gap: 3rem;
+      }
+      .fridge-col {
+        position: relative;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 2rem;
+      }
+      .stack-layers {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+    }
+
+    /* Dilution Refrigerator Schematic Blueprint Panel */
+    .fridge-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .fridge-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+      padding-bottom: 0.5rem;
+      text-shadow: none;
+    }
+    .fridge-svg-container {
+      width: 100%;
+      max-height: 800px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* Interactive Fridge SVG Elements */
+    .fridge-stage {
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .fridge-stage-detector {
+      fill: transparent;
+      pointer-events: all;
+    }
+    .fridge-stage:hover .fridge-stage-detector,
+    .fridge-stage.active .fridge-stage-detector {
+      fill: rgba(37, 99, 235, 0.06);
+    }
+
+    .fridge-plate {
+      transition: fill 0.15s, filter 0.15s;
+    }
+    .fridge-stage:hover .fridge-plate,
+    .fridge-stage.active .fridge-plate {
+      filter: drop-shadow(0 0 6px var(--glow-color));
+    }
+
+    .fridge-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      fill: #4b5563;
+      transition: fill 0.15s;
+    }
+    .fridge-stage:hover .fridge-label,
+    .fridge-stage.active .fridge-label {
+      fill: var(--glow-color) !important;
+      font-weight: bold;
+    }
+
+    .fridge-temp {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      fill: #6b7085;
+      transition: fill 0.15s;
+    }
+    .fridge-stage:hover .fridge-temp,
+    .fridge-stage.active .fridge-temp {
+      fill: var(--ink) !important;
+    }
+
+    .coax-cable {
+      stroke-dasharray: 6 10;
+      animation: pulseCable 0.6s linear infinite;
+    }
+    @keyframes pulseCable {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -16; }
+    }
+
+    .fridge-hint {
+      margin-top: 1rem;
+      font-size: 0.73rem;
+      color: var(--text-light);
+      font-style: italic;
+    }
+
+    /* 19-inch Hardware Rack cabinet */
+    .rack-cabinet {
+      position: relative;
+    }
+
+    @media (min-width: 1200px) {
+      .rack-cabinet {
+        padding: 0 20px;
+      }
+      /* Left and Right Rack Rails with repeating mounting holes */
+      .rack-cabinet::before,
+      .rack-cabinet::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 12px;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        background-image: radial-gradient(circle, var(--border) 2.5px, transparent 3.5px);
+        background-size: 12px 40px;
+        z-index: 10;
+        box-shadow: inset 1px 0 3px rgba(0,0,0,0.08);
+      }
+      .rack-cabinet::before {
+        left: 0;
+        border-radius: 2px 0 0 2px;
+      }
+      .rack-cabinet::after {
+        right: 0;
+        border-radius: 0 2px 2px 0;
+      }
+    }
+
+    .stack-layers {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Card styled as a Rackmount Laboratory Module */
+    .layer-wrapper {
+      display: block;
+      position: relative;
+    }
+    .layer-wrapper.stage-highlight :global(.card) {
+      box-shadow: 0 4px 16px var(--card-accent);
+      border-color: var(--card-accent);
+      transform: translateY(-2px);
+    }
+
+    /* Metal Rack Ears for mounting simulation */
+    .rack-ear-left,
+    .rack-ear-right {
+      display: none;
+    }
+
+    @media (min-width: 1200px) {
+      .rack-ear-left,
+      .rack-ear-right {
+        display: flex;
+        position: absolute;
+        top: -2px;
+        bottom: -2px;
+        width: 20px;
+        background: var(--surface-alt);
+        border: 2px solid var(--border);
+        z-index: 9;
+        align-items: center;
+        justify-content: center;
+      }
+      .rack-ear-left {
+        left: -20px;
+        border-right: none;
+        box-shadow: inset 1px 1px 2px rgba(255,255,255,0.05);
+      }
+      .rack-ear-right {
+        right: -20px;
+        border-left: none;
+        box-shadow: inset -1px 1px 2px rgba(255,255,255,0.05);
+      }
+      
+      /* Metal mounting screws on ears */
+      .screw {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 3px 3px, var(--surface) 1px, var(--border) 6px);
+        border: 1px solid var(--border);
+        position: absolute;
+      }
+      .screw::after {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 1px;
+        background: var(--border);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      .rack-ear-left .screw { top: 12px; }
+      .rack-ear-right .screw { bottom: 12px; }
+    }
+
+    /* Content Link layout */
+    .layer-content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .layer-content-grid {
+        grid-template-columns: 140px 1fr;
+      }
+    }
+
+    .layer-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      border-right: 0px solid var(--border);
+    }
+    @media (min-width: 640px) {
+      .layer-meta {
+        border-right: 1px solid var(--border);
+        padding-right: 0.75rem;
+      }
+    }
+    .layer-number {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--layer-color);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+    .layer-label {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--ink);
+    }
+    .layer-spec {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      color: var(--text-light);
+      margin-top: 0.25rem;
+    }
+    
+
+
+    .layer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .layer-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .layer-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--ink);
+    }
+    
+
+    
+    .layer-funny {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .layer-challenge {
+      background: var(--surface-alt);
+      border-left: 2px solid var(--accent-red);
+      padding: 0.5rem 0.8rem;
+      font-size: 0.8rem;
+      color: var(--accent-red);
+      border-radius: 4px;
+      margin-top: 0.25rem;
+    }
+    
+    .layer-chips-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    
+    /* Interactive Lab Toggle Button */
+    .lab-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--layer-color);
+      color: var(--text-muted);
+      padding: 0.35rem 0.8rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border-radius: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+    .lab-toggle-btn:hover {
+      background: var(--layer-color);
+      box-shadow: 0 0 10px var(--layer-color);
+      color: #ffffff;
+    }
+
+    /* Lab Drawer */
+    .lab-drawer {
+      max-height: 0;
+      overflow: hidden;
+      background: var(--surface-alt);
+      border-top: 0px solid var(--border);
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s, border-width 0.1s;
+      padding: 0;
+      border-width: 0;
+    }
+    .layer-card.lab-open .lab-drawer {
+      border-top: 1px solid var(--border);
+      border-width: 1px 0 0 0;
+    }
+
+    /* Interactive Widgets styling */
+    .lab-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .widget-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .widget-row label {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      display: flex;
+      justify-content: space-between;
+    }
+    .widget-row label span {
+      color: var(--ink);
+      font-weight: bold;
+    }
+    .widget-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+    .widget-stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.6rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .stat-lbl {
+      font-size: 0.65rem;
+      color: var(--text-light);
+      margin-top: 0.15rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .widget-narrative {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      background: var(--surface-hover);
+      padding: 0.6rem 0.8rem;
+      border-radius: 0;
+      border-left: 2px solid var(--accent);
+    }
+    
+    /* Neon controls */
+    .neon-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      background: var(--border);
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+    .neon-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 6px var(--accent-muted);
+      transition: transform 0.1s;
+    }
+    .neon-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    .neon-btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .neon-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+      border-radius: 0;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 0.2s;
+    }
+    .neon-btn.active, .neon-btn:hover {
+      border-color: var(--accent);
+      color: var(--surface);
+      box-shadow: none;
+    }
+    .neon-btn.btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.7rem;
+    }
+    .neon-btn.btn-xs {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.65rem;
+      font-family: 'Fira Code', monospace;
+    }
+    .neon-btn.btn-warn:hover {
+      border-color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.1);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+    }
+
+    .buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Canvas styling */
+    .widget-canvas-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .lab-canvas {
+      display: block;
+      width: 100%;
+      background: var(--surface);
+    }
+
+    /* QEC Grid Styling */
+    .widget-grid-container {
+      display: flex;
+      justify-content: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1rem;
+    }
+    .qec-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      width: 180px;
+      height: 180px;
+    }
+    .qec-node {
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-family: 'Fira Code', monospace;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s;
+    }
+    .qec-data {
+      background: var(--surface-alt);
+      color: var(--text-muted);
+    }
+    .qec-data.error-x {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      color: var(--surface);
+      box-shadow: 0 0 8px var(--accent-red);
+    }
+    .qec-data.error-z {
+      background: var(--accent-orange);
+      border-color: var(--accent-orange);
+      color: var(--surface);
+      box-shadow: 0 0 8px var(--accent-orange);
+    }
+    .qec-stabilizer-x {
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px dashed var(--accent-purple);
+      color: var(--accent-purple);
+      border-radius: 4px;
+    }
+    .qec-stabilizer-x.triggered {
+      background: var(--accent-purple);
+      border-style: solid;
+      color: var(--surface);
+      box-shadow: 0 0 8px var(--accent-purple);
+    }
+    .qec-stabilizer-z {
+      background: rgba(217, 70, 239, 0.1);
+      border: 1px dashed var(--accent-pink);
+      color: var(--accent-pink);
+      border-radius: 4px;
+    }
+    .qec-stabilizer-z.triggered {
+      background: var(--accent-pink);
+      border-style: solid;
+      color: var(--surface);
+      box-shadow: 0 0 8px var(--accent-pink);
+    }
+
+    /* Bloch Sphere specific styling */
+    .bloch-sphere-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.5rem;
+    }
+    .bloch-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .bloch-math {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .math-eq {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    /* Progress bar */
+    .widget-progress-container {
+      height: 8px;
+      background: var(--border);
+      border-radius: 0;
+      overflow: hidden;
+    }
+    .widget-progress-bar {
+      height: 100%;
+      background: var(--accent-cyan);
+      box-shadow: none;
+      transition: width 0.1s linear;
+    }
+
+    /* Utility text colors */
+    .text-cyan { color: var(--accent-cyan); }
+    .text-magenta { color: var(--accent-pink); }
+    .text-amber { color: var(--accent-orange); }
+    .text-green { color: var(--accent-green); }
+
+    @keyframes pulseIndicator {
+      from { transform: scale(0.9); opacity: 0.8; }
+      to { transform: scale(1.1); opacity: 1; box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
+    }
+
+    @keyframes pulseBackgroundSymbol {
+      0% { opacity: 0.1; transform: translateY(0) rotate(0deg); }
+      50% { opacity: 0.3; }
+      100% { opacity: 0.1; transform: translateY(-100px) rotate(360deg); }
+    }
+
+    /* Blueprint visual decorations */
+    .fridge-svg-container line,
+    .fridge-svg-container path {
+      vector-effect: non-scaling-stroke;
+    }
+    .blueprint-grid-accent {
+      stroke: rgba(37, 99, 235, 0.04);
+      stroke-dasharray: 2 6;
+    }
+    .blueprint-dim line {
+      stroke: var(--border);
+    }
+    .blueprint-dim text {
+      font-weight: 600;
+    }
+  </style>
+
+  <div class="quantum-workspace">
+    <!-- Canvas for floating background symbols -->
+    <canvas id="quantum-bg"></canvas>
+
+    <!-- Stack overview header -->
+    <div class="hero">
+      <div class="paper-meta">
+        <span>ECDSA Fail</span> &bull; <span>secp256k1 Quantum Stack</span>
+      </div>
+      <h1>The Quantum Computing <span class="text-cyan">Stack</span></h1>
+      <p class="hero-subtitle">
+        Shor's algorithm doesn't just theorize the end of modern cryptography—it provides the exact mathematical blueprint to shatter <strong>secp256k1</strong> elliptic-curve encryption. By computing discrete logarithms in polynomial time, it reduces an impossibly hard classical task into a tractable quantum operation. However, the true quantum cost isn't dominated by the overall algorithm, but by a single, demanding primitive repeated roughly 2,300 times: <strong>reversible affine point addition</strong>. Below, we document the critical compilation and physical layers required to execute this circuit on a fault-tolerant transmon processor. We will trace this journey from the high-level Dialog-GCD inversion loop down to the stark, frozen reality of the 15 mK mixing chamber.
+      </p>
+
+      <div class="universal-challenge" style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(220, 38, 38, 0.05); border-left: 4px solid #ef4444; border-radius: 4px; font-family: 'Lora', Georgia, serif; line-height: 1.6; color: var(--text-main);">
+        <h3 style="color: #ef4444; margin-top: 0; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">The Foundational Challenge: The Cryogenic Toll</h3>
+        <p style="margin: 0; margin-bottom: 1rem;">
+          The universal truth of quantum computing is that coherence is fundamentally incompatible with entropy. To build a scalable quantum computer, you must brutally isolate the system from the environment. Whether you use <strong>Superconducting Microwaves</strong> (requiring 15mK dilution refrigerators to survive ambient thermal noise), <strong>Optical Photons</strong> (requiring 1K cryostats to detect single-photon signals), or <strong>Trapped Ions</strong> (requiring 4K to freeze out anomalous heating), the foundational block cannot be stripped away: <strong>You must pay the cryogenic toll.</strong>
+        </p>
+        <p style="margin: 0;">
+          <strong>Why is this toll theoretically impossible to bypass?</strong> Because temperature is just atomic motion. In a warm environment, vibrating atoms constantly radiate thermal photons and phonons. To a qubit, these stray thermal emissions act as unwanted "measurements," instantly collapsing fragile quantum superpositions (a process called <em>decoherence</em>) before any meaningful computation can finish. The laws of quantum mechanics dictate that coherent information cannot survive in a noisy, high-entropy environment. If there is heat, there is entropy; if there is entropy, your quantum state collapses. The engineering stack below deconstructs how we attempt to "bend" these uncompromising physical limitations.
+        </p>
+      </div>
+      
+      <!-- Stack summary bar -->
+      <div class="telemetry-row">
+        <div class="telemetry-item">
+          <span class="telemetry-indicator pulsing"></span>
+          <span>CURVE: <strong>secp256k1</strong></span>
+        </div>
+        <div class="telemetry-item">
+          <span>PEAK QUBITS: <strong id="live-qubits">1,297</strong></span>
+        </div>
+        <div class="telemetry-item">
+          <span>TOFFOLI / ADD: <strong id="live-toffoli">~1.39M</strong></span>
+        </div>
+        <div class="telemetry-item">
+          <span>POINT ADDS FOR ECDLP: <strong>~2,300</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="quantum-dashboard">
+      <!-- Left Panel: Dilution Refrigerator SVG Visualizer -->
+      <div class="fridge-col">
+        <div class="fridge-card">
+          <div class="fridge-card-title">Interactive Dilution Refrigerator Schematic</div>
+          <ChandelierSchematic />
+          <div class="fridge-hint">Hover stages of the chandelier to isolate coupled physical stack layers.</div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Stack Layers mounted inside 19-inch steel rack cabinet -->
+      <div class="stack-col rack-cabinet">
+        <div class="stack-layers">
+          {layers.map((layer) => (
+            <div class="layer-wrapper" data-layer-id={layer.id}>
+              
+              <!-- Virtual Rack ears for industrial hardware mounting -->
+              <div class="rack-ear-left"><div class="screw"></div></div>
+              <div class="rack-ear-right"><div class="screw"></div></div>
+
+              <Card href={`/${layer.id}`} theme={layer.theme as any} class="layer-card-content">
+                <div class="layer-content-grid">
+                  <div class="layer-meta">
+                    <span class="layer-number">Layer 0{layer.num}</span>
+                    <span class="layer-label">{layer.label}</span>
+                    <span class="layer-spec">{layer.spec}</span>
+                    <Tag theme={layer.theme as any} style="margin-top: 0.5rem; display: inline-block;">{layer.model}</Tag>
+                  </div>
+                  <div class="layer-info">
+                    <div class="layer-title-row">
+                      <div class="layer-title">{layer.title}</div>
+                      <Tag theme={layer.theme as any}>
+                        <Math formula={layer.math} />
+                      </Tag>
+                    </div>
+                    <div class="layer-funny">{layer.funny}</div>
+                    <div class="layer-challenge"><strong>Critical Bottleneck:</strong> {layer.challenge}</div>
+                    
+                    <div class="layer-chips-row">
+                      <div class="chips" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                        {layer.chips.map((chip) => (
+                          <Tag theme={layer.theme as any}>{chip}</Tag>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Client-side Scripts for Real-time telemetry, Chandelier interactions, and Interactive Labs -->
+  <script is:inline>
+    // -------------------------------------------------------------
+    // Background Drifting Particles Canvas
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('quantum-bg');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = canvas.parentElement.offsetWidth;
+      let height = canvas.height = canvas.parentElement.offsetHeight;
+
+      window.addEventListener('resize', () => {
+        if (canvas) {
+          width = canvas.width = canvas.parentElement.offsetWidth;
+          height = canvas.height = canvas.parentElement.offsetHeight;
+        }
+      });
+
+      const symbols = ['H', 'X', 'Z', 'S', 'T', 'CNOT', '|0⟩', '|1⟩', '|ψ⟩', '⊕'];
+      const particles = [];
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          text: symbols[Math.floor(Math.random() * symbols.length)],
+          size: Math.random() * 12 + 10,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: -Math.random() * 0.5 - 0.1,
+          alpha: Math.random() * 0.4 + 0.1
+        });
+      }
+
+      function drawBG() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-cyan').trim() || '#0891b2';
+          ctx.font = `${p.size}px "Fira Code", monospace`;
+          ctx.fillText(p.text, p.x, p.y);
+          ctx.restore();
+
+          // update position
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          // recycle particle
+          if (p.y < -30) {
+            p.y = height + 30;
+            p.x = Math.random() * width;
+          }
+        });
+        requestAnimationFrame(drawBG);
+      }
+      drawBG();
+    }
+
+    // -------------------------------------------------------------
+    // Bidirectional Fridge SVG & Card highlights
+    // -------------------------------------------------------------
+    const stages = document.querySelectorAll('.fridge-stage');
+    const cards = document.querySelectorAll('.layer-card');
+
+    function highlightCards(stageId, active) {
+      let layerIds = [];
+      if (stageId === '300k') {
+        layerIds = ['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network'];
+      } else if (stageId === '4k') {
+        layerIds = ['microwave', 'readout'];
+      } else if (stageId === '15mk') {
+        layerIds = ['qec', 'physics', 'shielding', 'decoherence', 'cryogenics'];
+      }
+
+      layerIds.forEach(id => {
+        const c = document.querySelector(`[data-layer-id="${id}"]`);
+        if (c) {
+          if (active) {
+            c.classList.add('stage-highlight');
+          } else {
+            c.classList.remove('stage-highlight');
+          }
+        }
+      });
+    }
+
+    function getStageFromCard(cardId) {
+      if (['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network'].includes(cardId)) return '300k';
+      if (['microwave', 'readout'].includes(cardId)) return '4k';
+      if (['qec', 'physics', 'shielding', 'decoherence', 'cryogenics'].includes(cardId)) return '15mk';
+      return null;
+    }
+
+    stages.forEach(st => {
+      st.addEventListener('mouseenter', () => {
+        const stageId = st.getAttribute('data-stage');
+        st.classList.add('active');
+        highlightCards(stageId, true);
+      });
+      st.addEventListener('mouseleave', () => {
+        const stageId = st.getAttribute('data-stage');
+        st.classList.remove('active');
+        highlightCards(stageId, false);
+      });
+    });
+
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const cardId = card.getAttribute('data-layer-id');
+        const stageId = getStageFromCard(cardId);
+        if (stageId) {
+          const correspondingStages = document.querySelectorAll(`.fridge-stage[data-stage="${stageId}"]`);
+          correspondingStages.forEach(s => s.classList.add('active'));
+        }
+      });
+      card.addEventListener('mouseleave', () => {
+        const cardId = card.getAttribute('data-layer-id');
+        const stageId = getStageFromCard(cardId);
+        if (stageId) {
+          const correspondingStages = document.querySelectorAll(`.fridge-stage[data-stage="${stageId}"]`);
+          correspondingStages.forEach(s => s.classList.remove('active'));
+        }
+      });
+    });
+
+    // -------------------------------------------------------------
+    // Live update telemetry from ecdsa.fail API
+    async function updateTelemetry() {
+      try {
+        const res = await fetch('https://www.ecdsa.fail/api/benchmarks');
+        if (!res.ok) return;
+        const data = await res.json();
+        const benchmark = data.benchmarks?.find((b) => b.name === 'gpsanant/ecdsafail-challenge');
+        if (benchmark && benchmark.currentBestMetrics) {
+          const { qubits, toffoli } = benchmark.currentBestMetrics;
+          const qEl = document.getElementById('live-qubits');
+          const tEl = document.getElementById('live-toffoli');
+          
+          if (qEl) qEl.textContent = qubits.toLocaleString();
+          if (tEl) tEl.textContent = '~' + (toffoli / 1000000).toFixed(2) + 'M';
+        }
+      } catch (err) {
+        console.error('Failed to fetch benchmarks:', err);
+      }
+    }
+    
+    updateTelemetry();
+    document.addEventListener('astro:page-load', updateTelemetry);
+  </script>
+</Base>

@@ -1,0 +1,232 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard title="Frequency-Division Multiplexed (FDM) Readout" description="Watch how a single broadband microwave pulse can simultaneously read out multiple qubits by querying different resonant frequencies.">
+  
+  <div class="fdm-visual">
+    <!-- Microwave Line -->
+    <div class="fdm-line">
+      <div class="wave composite-wave" id="fdm-wave"></div>
+    </div>
+    
+    <!-- Resonators -->
+    <div class="resonator-container">
+      <div class="resonator" data-freq="6.1">
+        <div class="res-cavity" style="height: 60px;"></div>
+        <div class="res-qubit state-0">|0⟩</div>
+        <div class="res-label">6.10 GHz</div>
+        <div class="res-phase shift-0">0°</div>
+      </div>
+      
+      <div class="resonator" data-freq="6.2">
+        <div class="res-cavity" style="height: 50px;"></div>
+        <div class="res-qubit state-1">|1⟩</div>
+        <div class="res-label">6.20 GHz</div>
+        <div class="res-phase shift-1">+180°</div>
+      </div>
+      
+      <div class="resonator" data-freq="6.3">
+        <div class="res-cavity" style="height: 40px;"></div>
+        <div class="res-qubit state-2">|2⟩</div>
+        <div class="res-label">6.30 GHz</div>
+        <div class="res-phase shift-2">+90°</div>
+      </div>
+      
+      <div class="resonator" data-freq="6.4">
+        <div class="res-cavity" style="height: 30px;"></div>
+        <div class="res-qubit state-0">|0⟩</div>
+        <div class="res-label">6.40 GHz</div>
+        <div class="res-phase shift-0">0°</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fdm-controls">
+    <button id="btn-pulse" class="fdm-btn active">Send Readout Pulse</button>
+  </div>
+
+  <div class="fdm-info">
+    <strong id="fdm-title" class="text-cyan">Composite Pulse:</strong>
+    <span id="fdm-desc">A single coaxial cable carries a composite wave containing tones at 6.1, 6.2, 6.3, and 6.4 GHz. Each resonator only absorbs and reflects its specific frequency, shifting the phase based on the qubit's state.</span>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .fdm-visual {
+    margin-top: 2rem;
+    position: relative;
+    padding: 2rem 1rem;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+  }
+  
+  .fdm-line {
+    width: 100%;
+    height: 4px;
+    background: #cbd5e1;
+    position: relative;
+    border-radius: 2px;
+  }
+  
+  .composite-wave {
+    position: absolute;
+    top: -18px;
+    left: -100px;
+    width: 80px;
+    height: 40px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 5px,
+      #0ea5e9 5px,
+      #0ea5e9 10px
+    );
+    opacity: 0;
+    border-radius: 20px;
+    filter: blur(1px);
+    transition: opacity 0.2s;
+  }
+
+  .resonator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  
+  .res-cavity {
+    width: 16px;
+    background: var(--surface);
+    border-radius: 0 0 8px 8px;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .res-cavity::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 6px;
+    width: 4px;
+    height: 12px;
+    background: #cbd5e1;
+  }
+  
+  .res-qubit {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: monospace;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 2;
+  }
+  
+  .state-0 { background: #3b82f6; }
+  .state-1 { background: #ef4444; }
+  .state-2 { background: #a855f7; }
+  
+  .res-label {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    font-family: monospace;
+    color: var(--text-main);
+  }
+  
+  .res-phase {
+    position: absolute;
+    top: -30px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+  }
+  .res-phase.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .shift-0 { color: #3b82f6; }
+  .shift-1 { color: #ef4444; }
+  .shift-2 { color: #a855f7; }
+  
+  .fdm-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  .text-pink { color: #db2777; }
+  
+  .fdm-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-hover);
+    border-radius: 4px;
+    border-left: 4px solid #0ea5e9;
+    font-size: 0.95rem;
+  }
+  .text-cyan { color: #0284c7; }
+  
+  @keyframes moveRight {
+    0% { left: -100px; opacity: 1; width: 80px; }
+    45% { left: 50%; opacity: 1; width: 80px; }
+    50% { left: 50%; opacity: 0; width: 80px; } /* Hit resonators */
+    51% { left: 50%; opacity: 0; width: 80px; background: repeating-linear-gradient(90deg, transparent, transparent 5px, #f59e0b 5px, #f59e0b 10px); }
+    55% { left: 50%; opacity: 1; width: 80px; background: repeating-linear-gradient(90deg, transparent, transparent 5px, #f59e0b 5px, #f59e0b 10px); }
+    100% { left: 100%; opacity: 1; width: 80px; background: repeating-linear-gradient(90deg, transparent, transparent 5px, #f59e0b 5px, #f59e0b 10px); }
+  }
+  
+  .animating {
+    animation: moveRight 3s linear forwards;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('btn-pulse');
+  const wave = document.getElementById('fdm-wave');
+  const phases = document.querySelectorAll('.res-phase');
+  const title = document.getElementById('fdm-title');
+  const desc = document.getElementById('fdm-desc');
+  
+  if (btn && wave) {
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      btn.textContent = 'Measuring...';
+      
+      // Reset
+      wave.classList.remove('animating');
+      void wave.offsetWidth; // trigger reflow
+      
+      // Hide phases
+      phases.forEach(p => p.classList.remove('show'));
+      
+      title.textContent = 'Incident Composite Pulse:';
+      desc.textContent = 'A single broadband pulse travels down the feedline. It contains energy at 6.1, 6.2, 6.3, and 6.4 GHz simultaneously.';
+      
+      // Start animation
+      wave.classList.add('animating');
+      
+      // Interaction point
+      setTimeout(() => {
+        phases.forEach(p => p.classList.add('show'));
+        title.textContent = 'Reflected Signal:';
+        title.style.color = '#d97706'; // amber
+        desc.textContent = 'The wave reflects back. The 6.2 GHz component is phase-shifted by 180° due to the |1⟩ state, and 6.3 GHz by 90° due to the |2⟩ state. A room-temperature ADC will run an FFT to separate these shifts.';
+      }, 1500);
+      
+      // End animation
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = 'Send Readout Pulse';
+        title.textContent = 'Ready:';
+        title.style.color = '#0284c7'; // cyan
+        desc.textContent = 'Waiting for next measurement cycle. The returned composite wave has been digitized and demultiplexed.';
+      }, 3000);
+    });
+  }
+</script>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="389" height="514" font-family="serif" text-anchor="middle">
+  <defs>
+    <marker id="b" markerHeight="1" markerWidth="1.2" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="none" viewBox="0 0 1 1">
+      <path fill="context-stroke" fill-rule="evenodd" d="M-1.4-2.8 6.3 0l-7.7 2.8C0 1.169 0-1.162-1.4-2.8"/>
+    </marker>
+    <marker id="a" markerHeight="1.6" markerWidth="2" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="none" viewBox="0 0 1 1">
+      <path fill="context-stroke" fill-rule="evenodd" d="M-1.4-2.8 6.3 0l-7.7 2.8C0 1.169 0-1.162-1.4-2.8"/>
+    </marker>
+  </defs>
+  <path fill="none" stroke="#a9a9ff" stroke-dasharray="6, 6" stroke-width="2" d="M24.138 104.9c10.913-20.31 25.457-35.242 37.581-35.113 22.75-.362 50.949 69.109 77.451 69.383 21.379-1.213 56.393-69.117 72.61-68.979 15.769-.024 40.637 28.52 40.767 33.884-9.152 16.136-20.858 34.02-38.75 35.499-21.944-1.48-51.234-68.907-77.047-69.383-22.306-.387-48.966 68.539-76.644 68.979-9.03-.128-28.281-19.619-35.967-34.27z"/>
+  <path fill="gray" d="M61.041 18.826c-45.606 44.393-52.886 117.62.57 171.71l-15.973 1.141c-12.307-8.55-24.56-17.474-27.953-88.424 3.033-51.382 12.18-79.828 27.383-85.572zm154.599 0c45.606 44.393 52.886 117.62-.57 171.71l15.973 1.141c12.307-8.55 24.56-17.474 27.953-88.424-3.033-51.382-12.18-79.828-27.383-85.572z"/>
+  <circle cx="138.34" cy="104.68" r="6" fill="red"/>
+  <g fill="none" stroke-width="1.5">
+    <path stroke="gray" marker-end="url(#a)" d="m205.7 286.52-49.592-151.79"/>
+    <circle cx="253.13" cy="391.29" r="115" stroke="gray"/>
+    <path stroke="#000" d="m184.55 345.14 91.847.285M184.26 425.29l91.847.285"/>
+  </g>
+  <circle cx="230.19" cy="345.57" r="12" fill="red"/>
+  <path fill="none" stroke="#0200ff" stroke-width="1.5" marker-end="url(#b)" marker-start="url(#b)" d="m229.9 368.81-.285 44.782"/>
+  <g fill="#0200ff" font-size="29.333" font-style="italic">
+    <text x="183.945" y="57.281">ω<tspan dy=".4em" font-size="65%">c</tspan></text>
+    <text x="258.169" y="403.388">ω<tspan dy=".4em" font-size="65%">a</tspan></text>
+  </g>
+  <g font-size="24">
+    <text x="305.768" y="354.175">|e⟩</text>
+    <text x="304.962" y="430.819">|g⟩</text>
+  </g>
+</svg>

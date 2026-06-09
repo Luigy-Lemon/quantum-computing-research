@@ -1,0 +1,313 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+
+<InteractiveBoard title="IQ Complex Plane Visualization" description="Interact with the controls to simulate quantum noise and readout dynamics on 4 qudit states (0, 1, 2, 3) in the IQ plane.">
+  <div class="iq-container">
+    <div class="controls-panel">
+      <button class="effect-btn" id="btn-power">
+        <span class="btn-icon">⚡</span> Increase Readout Power
+      </button>
+      <button class="effect-btn" id="btn-t1">
+        <span class="btn-icon">☄️</span> T1 Decay Smearing
+      </button>
+      <button class="effect-btn" id="btn-noise">
+        <span class="btn-icon">🌊</span> Shot Noise
+      </button>
+    </div>
+    
+    <div class="canvas-wrapper">
+      <canvas id="iq-canvas" width="1200" height="1200"></canvas>
+      
+      <div class="legend">
+        <div class="legend-item" style="color: rgb(14, 165, 233);"><span class="color-dot" style="background: currentColor;"></span> <span style="color: #f8fafc">|0⟩</span></div>
+        <div class="legend-item" style="color: rgb(244, 63, 94);"><span class="color-dot" style="background: currentColor;"></span> <span style="color: #f8fafc">|1⟩</span></div>
+        <div class="legend-item" style="color: rgb(217, 70, 239);"><span class="color-dot" style="background: currentColor;"></span> <span style="color: #f8fafc">|2⟩</span></div>
+        <div class="legend-item" style="color: rgb(234, 179, 8);"><span class="color-dot" style="background: currentColor;"></span> <span style="color: #f8fafc">|3⟩</span></div>
+      </div>
+    </div>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .iq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  .controls-panel {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .effect-btn {
+    background: var(--surface-alt);
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .effect-btn:hover {
+    background: var(--surface-hover);
+    color: #f8fafc;
+    transform: translateY(-1px);
+  }
+
+  .effect-btn.active {
+    background: #0ea5e9;
+    color: white;
+    border-color: #38bdf8;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+  }
+
+  .btn-icon {
+    font-size: 1.2em;
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+  }
+
+  #iq-canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 176, 0, 0.15), transparent);
+    box-shadow: none;
+    border: 1px solid #334155;
+  }
+
+  .legend {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-light);
+    padding: 0.75rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    color: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+  }
+
+  .color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px currentColor;
+  }
+</style>
+
+<script>
+  function initIQBlobs() {
+    const canvas = document.getElementById('iq-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const cx = width / 2;
+    const cy = height / 2;
+
+    let isT1 = false;
+    let isNoise = false;
+    let isPower = false;
+
+    let current_R = 240;
+    let target_R = 240;
+
+    let current_sigma = 30;
+    let target_sigma = 30;
+
+    let current_t1 = 0;
+    let target_t1 = 0;
+
+    let time = 0;
+
+    const rgbColors = [
+      '14, 165, 233', // 0: cyan
+      '244, 63, 94',  // 1: rose
+      '217, 70, 239', // 2: fuchsia
+      '234, 179, 8',  // 3: amber
+    ];
+
+    function createParticle(rgb) {
+      const pc = document.createElement('canvas');
+      pc.width = 24;
+      pc.height = 24;
+      const pctx = pc.getContext('2d');
+      if (!pctx) return pc;
+      const grad = pctx.createRadialGradient(12, 12, 0, 12, 12, 12);
+      grad.addColorStop(0, `rgba(${rgb}, 0.9)`);
+      grad.addColorStop(0.4, `rgba(${rgb}, 0.5)`);
+      grad.addColorStop(1, `rgba(${rgb}, 0)`);
+      pctx.fillStyle = grad;
+      pctx.fillRect(0, 0, 24, 24);
+      return pc;
+    }
+
+    const particles = rgbColors.map(createParticle);
+
+    const numStates = 4;
+    const pointsPerState = 1200;
+    const points = [];
+
+    const angles = [
+      Math.PI * 0.25, // 0
+      Math.PI * 0.75, // 1
+      Math.PI * 1.25, // 2
+      Math.PI * 1.75  // 3
+    ];
+
+    for (let s = 0; s < numStates; s++) {
+      for (let i = 0; i < pointsPerState; i++) {
+        let u1 = Math.random();
+        let u2 = Math.random();
+        if (u1 === 0) u1 = 0.0001; 
+        let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        let z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(2.0 * Math.PI * u2);
+        
+        let decay_t = 0;
+        if (s > 0) {
+          if (Math.random() < 0.35) {
+            decay_t = Math.random(); 
+          }
+        }
+        
+        points.push({
+          state: s,
+          angle: angles[s],
+          prev_angle: s > 0 ? angles[s-1] : angles[s],
+          z0: z0,
+          z1: z1,
+          decay_t: decay_t,
+          jitterOffset: Math.random() * Math.PI * 2,
+          jitterSpeed: 0.02 + Math.random() * 0.05
+        });
+      }
+    }
+
+    const btnT1 = document.getElementById('btn-t1');
+    if (btnT1) {
+      btnT1.addEventListener('click', (e) => {
+        isT1 = !isT1;
+        e.currentTarget.classList.toggle('active');
+        target_t1 = isT1 ? 1 : 0;
+      });
+    }
+    
+    const btnNoise = document.getElementById('btn-noise');
+    if (btnNoise) {
+      btnNoise.addEventListener('click', (e) => {
+        isNoise = !isNoise;
+        e.currentTarget.classList.toggle('active');
+        target_sigma = isNoise ? 90 : 30;
+      });
+    }
+    
+    const btnPower = document.getElementById('btn-power');
+    if (btnPower) {
+      btnPower.addEventListener('click', (e) => {
+        isPower = !isPower;
+        e.currentTarget.classList.toggle('active');
+        target_R = isPower ? 400 : 240;
+      });
+    }
+
+    function draw() {
+      current_sigma += (target_sigma - current_sigma) * 0.1;
+      current_R += (target_R - current_R) * 0.1;
+      current_t1 += (target_t1 - current_t1) * 0.1;
+      
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw Axes
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, cy); ctx.lineTo(width, cy);
+      ctx.moveTo(cx, 0); ctx.lineTo(cx, height);
+      ctx.stroke();
+
+      // Draw target circle
+      ctx.setLineDash([10, 10]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, current_R, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Axis Labels
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.font = '24px system-ui, sans-serif';
+      ctx.fillText('I (In-phase)', width - 180, cy - 20);
+      ctx.fillText('Q (Quadrature)', cx + 20, 40);
+
+      // Draw points with additive blending
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = 0; i < points.length; i++) {
+        const p = points[i];
+        
+        let cx_k = cx + current_R * Math.cos(p.angle);
+        let cy_k = cy + current_R * Math.sin(p.angle);
+        
+        if (p.decay_t > 0) {
+          let cx_prev = cx + current_R * Math.cos(p.prev_angle);
+          let cy_prev = cy + current_R * Math.sin(p.prev_angle);
+          
+          let t = p.decay_t * current_t1;
+          cx_k = cx_k * (1 - t) + cx_prev * t;
+          cy_k = cy_k * (1 - t) + cy_prev * t;
+        }
+        
+        let x = cx_k + (p.z0 * current_sigma) + Math.cos(time * p.jitterSpeed + p.jitterOffset) * 4;
+        let y = cy_k + (p.z1 * current_sigma) + Math.sin(time * p.jitterSpeed + p.jitterOffset) * 4;
+        
+        ctx.drawImage(particles[p.state], x - 12, y - 12);
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      
+      time += 1;
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  }
+
+  initIQBlobs();
+</script>

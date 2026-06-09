@@ -1,0 +1,368 @@
+---
+// ChandelierSchematic.astro
+// Light-theme, ultra-sleek horizontal schematic of the Quantum Hardware Stack.
+---
+
+<div class="fridge-svg-wrapper">
+  <!-- Custom Floating Tooltip -->
+  <div id="svg-tooltip" class="svg-tooltip">
+    <div id="svg-tooltip-title" class="svg-tooltip-title">Title</div>
+    <div id="svg-tooltip-desc" class="svg-tooltip-desc">Description</div>
+  </div>
+
+  <svg viewBox="0 0 1400 650" width="100%" height="100%" id="fridge-diagram" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Subtle Glow for LED Indicators -->
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      
+      <!-- Component Card Gradient (White to very slight gray) -->
+      <linearGradient id="grad-card" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="100%" stop-color="#fdfdfd" />
+      </linearGradient>
+
+      <!-- Column Backgrounds -->
+      <linearGradient id="grad-col-red" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(220, 38, 38, 0.04)" />
+        <stop offset="100%" stop-color="rgba(220, 38, 38, 0.0)" />
+      </linearGradient>
+      <linearGradient id="grad-col-orange" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(217, 119, 6, 0.04)" />
+        <stop offset="100%" stop-color="rgba(217, 119, 6, 0.0)" />
+      </linearGradient>
+      <linearGradient id="grad-col-yellow" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(202, 138, 4, 0.04)" />
+        <stop offset="100%" stop-color="rgba(202, 138, 4, 0.0)" />
+      </linearGradient>
+      <linearGradient id="grad-col-green" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(5, 150, 105, 0.04)" />
+        <stop offset="100%" stop-color="rgba(5, 150, 105, 0.0)" />
+      </linearGradient>
+      <linearGradient id="grad-col-blue" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(37, 99, 235, 0.04)" />
+        <stop offset="100%" stop-color="rgba(37, 99, 235, 0.0)" />
+      </linearGradient>
+      <linearGradient id="grad-col-purple" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(124, 58, 237, 0.04)" />
+        <stop offset="100%" stop-color="rgba(124, 58, 237, 0.0)" />
+      </linearGradient>
+
+      <!-- Magnetic Shield Texture -->
+      <pattern id="shield-pattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <path d="M 0 10 L 10 0" fill="none" stroke="rgba(107, 112, 133, 0.1)" stroke-width="1" />
+      </pattern>
+    </defs>
+
+    <!-- Background Base -->
+    <rect width="1400" height="650" fill="#ffffff" rx="16"/>
+
+    <!-- Dataflow Lines -->
+    <!-- Control Line -->
+    <rect x="545" y="125" width="250" height="20" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="1" />
+    <text x="670" y="139" fill="#dc2626" font-size="11" font-weight="600" font-family="sans-serif" text-anchor="middle" letter-spacing="1">MICROWAVE CONTROL PULSES</text>
+    <path d="M 130,190 L 1255,190" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 8">
+      <animate attributeName="stroke-dashoffset" from="28" to="0" dur="1s" repeatCount="indefinite" />
+    </path>
+
+    <!-- Readout Line -->
+    <rect x="545" y="265" width="250" height="20" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="1" />
+    <text x="670" y="279" fill="#7c3aed" font-size="11" font-weight="600" font-family="sans-serif" text-anchor="middle" letter-spacing="1">QUANTUM READOUT SIGNAL</text>
+    <path d="M 1255,360 L 130,360" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 8">
+      <animate attributeName="stroke-dashoffset" from="0" to="28" dur="1s" repeatCount="indefinite" />
+    </path>
+
+    <!-- Optical Line -->
+    <rect x="535" y="435" width="270" height="20" rx="10" fill="#ffffff" stroke="#0891b2" stroke-width="1" />
+    <text x="670" y="449" fill="#0891b2" font-size="11" font-weight="600" font-family="sans-serif" text-anchor="middle" letter-spacing="1">OPTICAL ENTANGLEMENT LINK</text>
+    <path d="M 130,530 L 1255,530" fill="none" stroke="#0891b2" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 8">
+      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="1.5s" repeatCount="indefinite" />
+    </path>
+
+    <!-- STAGES -->
+
+    <!-- STAGE 1: 300K -->
+    <g transform="translate(30, 30)">
+      <rect x="0" y="0" width="200" height="590" rx="12" fill="url(#grad-col-red)" stroke="rgba(220, 38, 38, 0.15)" stroke-width="1"/>
+      <path d="M 0,0 L 200,0" fill="none" stroke="#dc2626" stroke-width="3" />
+      <text x="100" y="40" fill="#1a1d26" font-size="24" font-weight="800" font-family="sans-serif" text-anchor="middle">300 K</text>
+      <text x="100" y="60" fill="#3d4252" font-size="13" font-weight="600" font-family="sans-serif" text-anchor="middle">Room Temperature</text>
+      <text x="100" y="78" fill="#6b7085" font-size="11" font-family="sans-serif" text-anchor="middle">Classical environment</text>
+      
+      <g class="has-tooltip schematic-block" data-title="Control Rack (AWG & RFSoC)" data-desc="Arbitrary Waveform Generators (AWGs) synthesize precise microwave pulses to steer qubit states. RFSoCs digitize returning signals in real-time for active error correction.">
+        <rect x="15" y="125" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="150" r="5" fill="#dc2626" filter="url(#glow)"/>
+        <text x="50" y="154" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">RF Control</text>
+        <text x="50" y="172" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Waveform Synthesis</text>
+      </g>
+      
+      <g class="has-tooltip schematic-block" data-title="RFSoC Digitizer" data-desc="Receives the amplified readout signal from the fridge, demodulates the analog waveform into IQ data, and performs rapid state classification in under 200 ns.">
+        <rect x="15" y="295" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="320" r="5" fill="#7c3aed" filter="url(#glow)"/>
+        <text x="50" y="324" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Digitizer</text>
+        <text x="50" y="342" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Signal Classification</text>
+      </g>
+
+      <g class="has-tooltip schematic-block" data-title="Laser / Optical TX" data-desc="Generates classical optical photons for transmission into the cryostat. The first step toward optical-to-microwave transduction.">
+        <rect x="15" y="465" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="490" r="5" fill="#0891b2" filter="url(#glow)"/>
+        <text x="50" y="494" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Optical TX</text>
+        <text x="50" y="512" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Photon Generation</text>
+      </g>
+    </g>
+
+    <!-- STAGE 2: 50K -->
+    <g transform="translate(255, 30)">
+      <rect x="0" y="0" width="200" height="590" rx="12" fill="url(#grad-col-orange)" stroke="rgba(217, 119, 6, 0.15)" stroke-width="1"/>
+      <path d="M 0,0 L 200,0" fill="none" stroke="#d97706" stroke-width="3" />
+      <text x="100" y="40" fill="#1a1d26" font-size="24" font-weight="800" font-family="sans-serif" text-anchor="middle">50 K</text>
+      <text x="100" y="60" fill="#3d4252" font-size="13" font-weight="600" font-family="sans-serif" text-anchor="middle">Shield Plate</text>
+      <text x="100" y="78" fill="#6b7085" font-size="11" font-family="sans-serif" text-anchor="middle">Blocks thermal radiation</text>
+      
+      <g class="has-tooltip schematic-block" data-title="Microwave Attenuator (-20dB)" data-desc="Intentionally dissipates 99% of the room-temperature noise into the 50K plate acting as a heat sink.">
+        <rect x="15" y="125" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="150" r="5" fill="#d97706" />
+        <text x="50" y="154" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Attenuator</text>
+        <text x="50" y="172" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">-20dB Noise Dump</text>
+      </g>
+      
+      <g class="has-tooltip schematic-block" data-title="Thermal Anchor" data-desc="Tightly clamps the cable to the 50K plate to cool the metal itself without degrading the RF readout signal.">
+        <rect x="15" y="295" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="320" r="5" fill="#d97706" />
+        <text x="50" y="324" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Anchor</text>
+        <text x="50" y="342" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Cable Heat Sinking</text>
+      </g>
+    </g>
+
+    <!-- STAGE 3: 4K -->
+    <g transform="translate(480, 30)">
+      <rect x="0" y="0" width="200" height="590" rx="12" fill="url(#grad-col-yellow)" stroke="rgba(202, 138, 4, 0.15)" stroke-width="1"/>
+      <path d="M 0,0 L 200,0" fill="none" stroke="#ca8a04" stroke-width="3" />
+      <text x="100" y="40" fill="#1a1d26" font-size="24" font-weight="800" font-family="sans-serif" text-anchor="middle">4.2 K</text>
+      <text x="100" y="60" fill="#3d4252" font-size="13" font-weight="600" font-family="sans-serif" text-anchor="middle">LHe Stage</text>
+      <text x="100" y="78" fill="#6b7085" font-size="11" font-family="sans-serif" text-anchor="middle">Liquid Helium layer</text>
+      
+      <g class="has-tooltip schematic-block" data-title="Microwave Attenuator (-10dB)" data-desc="Further suppression of thermal photons.">
+        <rect x="15" y="125" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="150" r="5" fill="#ca8a04" />
+        <text x="50" y="154" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Attenuator</text>
+        <text x="50" y="172" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">-10dB Thermal Filter</text>
+      </g>
+      
+      <g class="has-tooltip schematic-block" data-title="HEMT Amplifier" data-desc="High Electron Mobility Transistor. Provides ~40 dB of low-noise gain to the quantum readout signal. Anchored at 4K because it generates heat.">
+        <rect x="15" y="295" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="320" r="5" fill="#ca8a04" filter="url(#glow)"/>
+        <text x="50" y="324" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">HEMT Amp</text>
+        <text x="50" y="342" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">+40dB Signal Gain</text>
+      </g>
+    </g>
+
+    <!-- STAGE 4: 800mK -->
+    <g transform="translate(705, 30)">
+      <rect x="0" y="0" width="200" height="590" rx="12" fill="url(#grad-col-green)" stroke="rgba(5, 150, 105, 0.15)" stroke-width="1"/>
+      <path d="M 0,0 L 200,0" fill="none" stroke="#059669" stroke-width="3" />
+      <text x="100" y="40" fill="#1a1d26" font-size="24" font-weight="800" font-family="sans-serif" text-anchor="middle">800 mK</text>
+      <text x="100" y="60" fill="#3d4252" font-size="13" font-weight="600" font-family="sans-serif" text-anchor="middle">Still Plate</text>
+      <text x="100" y="78" fill="#6b7085" font-size="11" font-family="sans-serif" text-anchor="middle">He-3 Evaporation stage</text>
+      
+      <g class="has-tooltip schematic-block" data-title="Microwave Isolator" data-desc="A cryogenic diode. Allows control pulses to pass downwards toward the QPU, but totally blocks thermal noise.">
+        <rect x="15" y="125" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="150" r="5" fill="#059669" />
+        <text x="50" y="154" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Isolator</text>
+        <text x="50" y="172" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">One-Way Flow</text>
+      </g>
+
+      <g class="has-tooltip schematic-block" data-title="Readout Isolators" data-desc="Crucial for preventing noise generated by the 4K HEMT amplifier from traveling backward and smashing the qubits.">
+        <rect x="15" y="295" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="320" r="5" fill="#059669" />
+        <text x="50" y="324" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Isolator</text>
+        <text x="50" y="342" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Noise Blockade</text>
+      </g>
+    </g>
+
+    <!-- STAGE 5: 100mK -->
+    <g transform="translate(930, 30)">
+      <rect x="0" y="0" width="200" height="590" rx="12" fill="url(#grad-col-blue)" stroke="rgba(37, 99, 235, 0.15)" stroke-width="1"/>
+      <path d="M 0,0 L 200,0" fill="none" stroke="#2563eb" stroke-width="3" />
+      <text x="100" y="40" fill="#1a1d26" font-size="24" font-weight="800" font-family="sans-serif" text-anchor="middle">100 mK</text>
+      <text x="100" y="60" fill="#3d4252" font-size="13" font-weight="600" font-family="sans-serif" text-anchor="middle">Cold Plate</text>
+      <text x="100" y="78" fill="#6b7085" font-size="11" font-family="sans-serif" text-anchor="middle">Final thermal buffer</text>
+      
+      <g class="has-tooltip schematic-block" data-title="Eccosorb IR Filter" data-desc="A custom-cast low-pass filter molded from lossy dielectric epoxy. Strips stray high-frequency photons.">
+        <rect x="15" y="125" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="150" r="5" fill="#2563eb" />
+        <text x="50" y="154" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">ECC Filter</text>
+        <text x="50" y="172" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Infrared Trap</text>
+      </g>
+
+      <g class="has-tooltip schematic-block" data-title="Deep Isolators" data-desc="Additional cryogenic isolation stages providing over 60dB of total reverse isolation.">
+        <rect x="15" y="295" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#dde1ea" stroke-width="1.5" />
+        <circle cx="35" cy="320" r="5" fill="#2563eb" />
+        <text x="50" y="324" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">Isolator</text>
+        <text x="50" y="342" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Final Barrier</text>
+      </g>
+    </g>
+
+    <!-- STAGE 6: 15mK -->
+    <g transform="translate(1155, 30)">
+      <!-- Magnetic Shield Area -->
+      <rect x="-10" y="90" width="220" height="490" rx="16" fill="url(#shield-pattern)" stroke="#9298ad" stroke-width="1" stroke-dasharray="6 4" />
+      <text x="100" y="115" fill="#6b7085" font-size="10" font-family="sans-serif" text-anchor="middle" letter-spacing="1">μ-METAL MAGNETIC SHIELD</text>
+
+      <rect x="0" y="0" width="200" height="590" rx="12" fill="url(#grad-col-purple)" stroke="rgba(124, 58, 237, 0.15)" stroke-width="1" style="pointer-events: none;"/>
+      <path d="M 0,0 L 200,0" fill="none" stroke="#7c3aed" stroke-width="3" />
+      <text x="100" y="40" fill="#1a1d26" font-size="24" font-weight="800" font-family="sans-serif" text-anchor="middle">15 mK</text>
+      <text x="100" y="60" fill="#3d4252" font-size="13" font-weight="600" font-family="sans-serif" text-anchor="middle">Mixing Chamber</text>
+      <text x="100" y="78" fill="#7c3aed" font-size="11" font-weight="600" font-family="sans-serif" text-anchor="middle">Colder than Deep Space</text>
+      
+      <!-- Internal routing -->
+      <path d="M 100,210 L 100,295" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="4 4">
+        <animate attributeName="stroke-dashoffset" from="0" to="16" dur="1s" repeatCount="indefinite" />
+      </path>
+      
+      <path d="M 100,465 L 100,210" fill="none" stroke="#0891b2" stroke-width="2.5" stroke-dasharray="4 4">
+        <animate attributeName="stroke-dashoffset" from="16" to="0" dur="1.5s" repeatCount="indefinite" />
+      </path>
+
+      <g class="has-tooltip schematic-block" data-title="Transmon QPU" data-desc="The Quantum Processing Unit. Houses the superconducting transmon qudits and microwave resonators, shielded from thermal and magnetic noise.">
+        <rect x="15" y="125" width="170" height="85" rx="10" fill="url(#grad-card)" stroke="#dc2626" stroke-width="1.5" />
+        <circle cx="35" cy="150" r="5" fill="#dc2626" filter="url(#glow)"/>
+        <text x="52" y="154" fill="#1a1d26" font-size="15" font-weight="800" font-family="sans-serif">Transmon QPU</text>
+        <text x="52" y="172" fill="#6b7085" font-size="11" font-weight="600" font-family="sans-serif">Quantum Core</text>
+        <circle cx="52" cy="192" r="3.5" fill="#dc2626" />
+        <circle cx="67" cy="192" r="3.5" fill="#dc2626" />
+        <circle cx="82" cy="192" r="3.5" fill="#dc2626" opacity="0.4"/>
+      </g>
+
+      <g class="has-tooltip schematic-block" data-title="TWPA" data-desc="Traveling Wave Parametric Amplifier. A purely superconducting amplifier providing the critical first stage of readout gain near the quantum zero-point noise limit.">
+        <rect x="15" y="295" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#7c3aed" stroke-width="1.5" />
+        <circle cx="35" cy="320" r="5" fill="#7c3aed" filter="url(#glow)"/>
+        <text x="50" y="324" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">TWPA</text>
+        <text x="50" y="342" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Quantum Limited Amp</text>
+      </g>
+
+      <g class="has-tooltip schematic-block" data-title="E/O Transducer" data-desc="Converts stationary microwave quantum states from the QPU into traveling optical frequencies for transmission over the fiber network.">
+        <rect x="15" y="465" width="170" height="70" rx="10" fill="url(#grad-card)" stroke="#0891b2" stroke-width="1.5" />
+        <circle cx="35" cy="490" r="5" fill="#0891b2" filter="url(#glow)"/>
+        <text x="50" y="494" fill="#1a1d26" font-size="14" font-weight="700" font-family="sans-serif">E/O Transducer</text>
+        <text x="50" y="512" fill="#6b7085" font-size="11" font-weight="500" font-family="sans-serif">Microwave ↔ Optical</text>
+      </g>
+      
+    </g>
+  </svg>
+</div>
+
+<style>
+  .fridge-svg-wrapper {
+    width: 100%;
+    margin: 3rem 0;
+    position: relative;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #dde1ea;
+    padding: 2rem 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    overflow-x: auto;
+  }
+
+  .schematic-block {
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .schematic-block:hover {
+    transform: translateY(-3px);
+  }
+
+  .schematic-block rect {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .schematic-block:hover rect {
+    fill: #f8f9fc;
+    stroke-width: 2.5;
+  }
+
+  /* Tooltip CSS Light Mode */
+  .svg-tooltip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid #dde1ea;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 320px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translateY(10px) scale(0.98);
+    z-index: 100;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+    backdrop-filter: blur(8px);
+    color: #1a1d26;
+  }
+
+  .svg-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .svg-tooltip-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #1a1d26;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #ebeef5;
+    padding-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+  }
+
+  .svg-tooltip-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #3d4252;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tooltip = document.getElementById('svg-tooltip');
+    const titleEl = document.getElementById('svg-tooltip-title');
+    const descEl = document.getElementById('svg-tooltip-desc');
+    const wrapper = document.querySelector('.fridge-svg-wrapper');
+    const interactables = document.querySelectorAll('.has-tooltip');
+
+    interactables.forEach(el => {
+      el.addEventListener('mousemove', (e) => {
+        const title = el.getAttribute('data-title');
+        const desc = el.getAttribute('data-desc');
+        
+        titleEl.textContent = title;
+        descEl.textContent = desc;
+
+        const rect = wrapper.getBoundingClientRect();
+        let x = e.clientX - rect.left + 20;
+        let y = e.clientY - rect.top + 20;
+
+        if (x + 340 > rect.width) {
+          x = x - 360; 
+        }
+        if (y + 150 > rect.height) {
+          y = y - 170; 
+        }
+
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
+        tooltip.classList.add('visible');
+      });
+
+      el.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+      });
+    });
+  });
+</script>

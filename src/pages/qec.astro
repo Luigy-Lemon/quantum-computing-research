@@ -1,0 +1,323 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+import Math from '../components/Math.astro';
+import Timeline from '../components/Timeline.astro';
+import CrossLayerMap from '../components/CrossLayerMap.astro';
+import InteractiveSurfaceCode from '../components/InteractiveSurfaceCode.astro';
+
+const timelineItems = [
+  {
+    year: '1995',
+    title: 'Quantum Error Correction Born',
+    description: 'Peter Shor and Andrew Steane independently prove that quantum information can be protected from decoherence. <strong>Contribution:</strong> Demonstrated that by encoding a single logical qubit state across highly entangled multi-qubit registers, local errors can be detected and corrected without measuring (and thus destroying) the logical superposition.'
+  },
+  {
+    year: '1997',
+    title: 'The Surface Code Proposed',
+    description: 'Alexei Kitaev introduces topological quantum error correction. <strong>Contribution:</strong> Showed that local, nearest-neighbor parity measurements on a 2D grid offer a highly realistic physical error threshold (~1%). This dictated the planar, 2D checkerboard layout of almost every modern superconducting quantum processor.'
+  },
+  {
+    year: '2012',
+    title: 'MWPM Syndrome Decoders Established',
+    description: 'Fowler et al. develop sub-microsecond Minimum-Weight Perfect Matching (MWPM) classical decoders. <strong>Contribution:</strong> Proved that the massive influx of syndrome measurement data could be processed and matched to error graphs dynamically in real-time, preventing the exponential backlog of classical data processing during a quantum algorithm.'
+  },
+  {
+    year: '2015',
+    title: 'Bit-Flip Code on a Linear Array',
+    description: 'Kelly et al. at Google demonstrate a 9-qubit repetition code. <strong>Contribution:</strong> Provided the first experimental proof that measuring parity stabilizers repeatedly can preserve a classical state against bit-flip errors longer than the constituent physical qubits.'
+  },
+  {
+    year: '2019',
+    title: 'Qudits Break Standard QEC',
+    description: 'Researchers rigorously model the impact of |2⟩ state leakage on the Surface Code. <strong>Contribution:</strong> Revealed that transmon leakage is "invisible" to standard binary parity checks, causing localized errors to persist and spread (error chains), completely collapsing the logical fault-tolerance threshold.'
+  },
+  {
+    year: '2021',
+    title: 'Leakage-Reduction Circuits (LRCs) Validated',
+    description: 'IBM and Google physically demonstrate active Leakage-Reduction Circuits. <strong>Contribution:</strong> Integrated specialized SWAP sequences into the stabilizer cycle that actively detect and purge high-energy leakage states (|2⟩) into the readout resonators, successfully restoring the Surface Code threshold on physical hardware.'
+  },
+  {
+    year: '2023',
+    title: 'Distance-5 Outperforms Distance-3',
+    description: 'Google Quantum AI demonstrates that a 49-qubit (distance-5) surface code suppresses errors better than a 17-qubit (distance-3) code. <strong>Contribution:</strong> The first experimental proof that adding physical qubits to a topological code actually lowers the logical error rate, validating the entire premise of fault-tolerant scaling.'
+  },
+  {
+    year: '2024',
+    title: 'Bivariate Bicycle (BB) qLDPC Codes Introduced',
+    description: 'Bravyi et al. detail high-rate quantum Low-Density Parity-Check (qLDPC) codes utilizing fold-transversal logic. <strong>Contribution:</strong> Demonstrated that massive O(d²) surface code overheads can be replaced with highly sparse, bounded-overhead graph architectures yielding finite R = k/n encoding rates, fundamentally changing the physical qubit scaling roadmap for post-2025 architectures.'
+  }
+];
+---
+
+<Base title="Topological QEC: The Leakage Solution" activeNav="/qec" mathjax>
+  <PageLayout>
+  <PageHeader title="Topological QEC: The Leakage Solution" meta="3 · Error Correction" description={`If utilizing the`} theme="green" />
+
+  <ContentSection title="1. The Surface Code Architecture">
+    <p>Quantum states cannot be copied due to the No-Cloning Theorem, meaning standard classical redundancy (copying a bit 3 times) is impossible. To protect the logical state of the <code>secp256k1</code> registers, we use a <strong>Surface Code</strong>.</p>
+    
+    <Card theme="accent-dark" title="Data vs. Measure Qubits">
+      <p>The physical transmons are arranged in a 2D checkerboard lattice. The lattice is split into two roles:</p>
+      <ul>
+        <li><strong>Data Qubits:</strong> These hold the actual cryptographic algorithmic state. They are never measured directly during computation.</li>
+        <li style="margin-top: 0.5rem;"><strong>Measure (Syndrome) Qubits:</strong> Interspersed between the Data Qubits, these act as active probes. Through a rapid cycle of CNOT gates, they entangle with their neighbors to check the <em>parity</em> (even/odd) of the local area without collapsing the overarching wave function. They are violently measured and reset every ~1.0 µs.</li>
+      </ul>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="2. Interactive Lab: Topological Surface Code Sandbox">
+    <p>Explore how stabilizers detect errors. Select an error type, click on data qubits to inject errors, and run the matching decoder loop to locate and correct them.</p>
+    <InteractiveSurfaceCode />
+
+  </ContentSection>
+
+  <ContentSection title="3. The Blindness Bottleneck (State Leakage)">
+    <p>The mathematics of the Surface Code strictly assume that the errors occurring on the Data Qubits are Pauli <strong>X (Bit-flip)</strong> or <strong>Z (Phase-flip)</strong> errors within the <Math formula="\\{|0\\rangle, |1\\rangle\\}"  /> computational subspace.</p>
+    <p>When executing Qutrit Toffolis, there is a probability that a microwave DRAG pulse fails, leaving a Data Qubit permanently trapped in the <Math formula="|2\\rangle"  /> state. This is called <strong>Leakage</strong>.</p>
+    
+    <Card theme="red" title="Why Leakage Breaks the Decoder" style="margin-top: 2rem;">
+      <p>A CNOT gate is physically tuned to execute a <Math formula="\\pi"  />-rotation at the specific <Math formula="f_{01}"  /> frequency. If the control Data Qubit is sitting in the <Math formula="|2\\rangle"  /> state, the CNOT gate physically does nothing (it is completely off-resonant). The corresponding Measure Qubit therefore reads out completely randomized static.</p>
+      <p>Worse, because the Data Qubit is stuck in <Math formula="|2\\rangle"  />, it cannot be corrected by standard Pauli gates. It acts as a permanent, spreading "pothole" on the lattice, rendering the classical Minimum-Weight Perfect Matching (MWPM) decoder entirely blind to that sector of the chip.</p>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="4. The Solution: Leakage-Reduction Circuits (LRCs)">
+    <p>To safely utilize base-3 logic, we must modify the microscopic syndrome extraction cycles. We cannot prevent leakage entirely, but we can continuously flush it out of the lattice using Leakage-Reduction Circuits (LRCs).</p>
+
+    <Card theme="green" style="margin-top: 2rem;" title="Absorbing the Leakage">
+      <p>In an LRC, we deliberately treat the <strong>Measure Qubits</strong> as full Qutrits. During the final step of the syndrome extraction cycle, instead of just reading out the Measure Qubit, we execute a specialized <strong>State-Swapping Protocol</strong>.</p>
+      
+      <Math formula="\\text{SWAP}_{\\text{Leak}}( \\text{Data}_{|2\\rangle}, \\text{Measure}_{|0\\rangle} ) \\rightarrow \\text{Data}_{|0\\rangle}, \\text{Measure}_{|2\\rangle}" />
+      
+      <p>If the Data Qubit has accidentally leaked into <Math formula="|2\\rangle"  />, the microwave sequence physically transfers the <Math formula="|2\\rangle"  /> excitation into the Measure Qutrit. This forces the Data Qubit back down into the safe binary computational space, repairing the pothole.</p>
+      
+      <h3 style="margin-top: 2rem;">The Cold Flush</h3>
+      <p>By design, Measure Qubits are measured and physically reset at the end of every 1.0 µs cycle. The readout resonator rapidly pulls the energy out of the transmon and dumps it into the cold bath (the 15mK dilution refrigerator plate). By swapping the leakage into the Measure Qutrit right before the reset, the topological lattice continuously purges higher-energy errors without ever destroying the logical data.</p>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="5. The QEC Latency Wall & Non-Pauli Codes">
+    <p>Scaling topological quantum error correction to the thousands of physical qubits required for Shor's algorithm introduces severe hardware bottlenecks:</p>
+
+    <div>
+      <Card theme="orange" title="The Decoding Latency Wall">
+        <p>Stabilizer parities must be extracted and decoded within a strict ~1.0 µs window (the decoherence limit). If the classical decoder cannot process syndrome data faster than errors accumulate, the quantum state stalls and collapses. For dense topological codes, classical data volume explodes as <Math formula="\\mathcal{O}(d^3)"  /> in space-time.</p>
+        <p style="margin-top: 1rem;"><strong>Hardware Mitigation:</strong> Traditional MWPM on CPUs fails entirely. Research has pivoted to mapping algorithms like Union-Find (UF) or Belief Propagation with Ordered Statistics Decoding (BP-OSD) directly onto FPGA fabric or Cryo-ASICs mounted at the 4K stage to achieve strict sub-microsecond, pipeline-overlapped inference.</p>
+      </Card>
+      <Card theme="red" title="Correlated Non-IID Error Burst Mitigation">
+        <p>Standard threshold models falsely assume Independent and Identically Distributed (IID) errors. In reality, high-energy cosmic rays or substrate phonons trigger massive, localized bursts of correlated phase flips, instantly bypassing standard Pauli tracking logic and breaking IID assumptions.</p>
+        <p style="margin-top: 1rem;"><strong>Mitigation:</strong> Beyond hardware phonon-moats, researchers must utilize advanced decoders (like dual-mode heuristic Triage systems) capable of tracking and isolating spatial-temporal error bursts before they geometrically span the logical qubit patch.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ContentSection title="6. Code Distance, Logical Error Rate & the Break-Even Analysis">
+    <p>The central promise of topological QEC is that logical error rates can be exponentially suppressed by increasing the <strong>code distance</strong> <Math formula="d"  />. But this suppression only works when the underlying physical error rate is below the code's threshold — and the resource cost is enormous.</p>
+
+    <Card theme="accent-dark" title="The Logical Error Rate Formula" style="margin-top: 2rem;">
+      <p>For a distance-<Math formula="d"  /> surface code with physical error rate <Math formula="p"  /> and code threshold <Math formula="p_{\\text{th}}"  />, the logical error rate per syndrome round scales as:</p>
+      <Math formula="p_L \\approx \\left( \\frac{p}{p_{\\text{th}}} \\right)^{\\lfloor d/2 \\rfloor}" />
+      <p>This exponential suppression is the entire basis of fault-tolerant quantum computing. Each increment in code distance squares the suppression ratio — but only if <Math formula="p < p_{\\text{th}}"  />. For the surface code, the threshold is approximately <Math formula="p_{\\text{th}} \\approx 1\\%"  />.</p>
+    </Card>
+
+    <Card theme="orange" title="Quantitative Example: secp256k1 at d = 17" style="margin-top: 2rem;">
+      <p>For a physical error rate <Math formula="p = 10^{-3}"  /> and threshold <Math formula="p_{\\text{th}} = 10^{-2}"  />, with code distance <Math formula="d = 17"  />:</p>
+      <Math formula="p_L \\approx \\left( \\frac{10^{-3}}{10^{-2}} \\right)^{\\lfloor 17/2 \\rfloor} = (0.1)^8 = 10^{-8}" />
+      <p>This gives a per-round logical error rate of approximately <Math formula="10^{-8}"  />, which is sufficient for the <Math formula="\\sim 10^{10}"  /> T-gate operations required by Shor's algorithm against <code>secp256k1</code>.</p>
+      <h3 style="margin-top: 1.5rem;">The O(d²) Surface Code Bottleneck</h3>
+      <p>A planar distance-<Math formula="d"  /> surface code requires <Math formula="\\mathcal{O}(d^2)"  /> qubits, specifically <Math formula="(2d - 1)^2"  /> physical qubits per logical qubit. For <Math formula="d = 17"  />:</p>
+      <Math formula="n_{\\text{physical}} = (2 \\times 17 - 1)^2 = 33^2 = 1{,}089 \\text{ physical qubits per logical qubit}" />
+      <p>The complete Shor's circuit for <code>secp256k1</code> requires approximately <strong>2,330 logical qubits</strong>. This translates to:</p>
+      <Math formula="2{,}330 \\times 1{,}089 \\approx 2.54 \\times 10^6 \\text{ physical qubits}" />
+      <p>Adding the staggering overhead for magic state distillation factories, a surface code architecture typically requires &gt;10 million physical qubits to attack elliptic curve cryptography, pushing the absolute thermal limits of current mega-cryostats.</p>
+      
+      <h3 style="margin-top: 1.5rem; color: var(--accent-green);">The qLDPC Paradigm Shift</h3>
+      <p>By moving to sparse, non-local graph connectivities, <strong>Bivariate Bicycle (BB) qLDPC codes</strong> escape the 2D planar constraints. They achieve finite code rates <Math formula="R = k/n"  />, meaning multiple logical qubits <Math formula="k"  /> are encoded into a single block of <Math formula="n"  /> physical qubits.</p>
+      <p>Recent studies (Bravyi et al. 2024) demonstrate that BB qLDPC codes could reduce the 10-million qubit requirement by a massive factor of <strong>10x to 15x</strong>, driving the secp256k1 breaking threshold down to potentially sub-1-million qubits.</p>
+    </Card>
+
+    <Card theme="red" title="The Break-Even Point" style="margin-top: 2rem;">
+      <p>The exponential suppression formula has a critical precondition: <Math formula="p < p_{\\text{th}}"  />. If the physical error rate exceeds the threshold, increasing code distance makes things <em>worse</em>, not better — each additional layer of physical qubits introduces more errors than it corrects.</p>
+      <Math formula="\\text{Break-even condition: } \\frac{p}{p_{\\text{th}}} < 1 \\implies p < p_{\\text{th}} \\approx 1\\%" />
+      <p>This is the fundamental reason why T1/T2 coherence times, gate fidelities, and readout accuracy all matter: they collectively determine whether <Math formula="p"  /> sits safely below threshold. Current state-of-the-art transmons achieve <Math formula="p \\approx 10^{-3}"  />, giving a suppression ratio of <Math formula="0.1"  /> — a factor of 10 below threshold, which is the minimum viable margin.</p>
+    </Card>
+
+    <Card theme="green" title="Experimental Milestone: Google's Below-Threshold Demonstration (2023)" style="margin-top: 2rem;">
+      <p>In February 2023, Google Quantum AI achieved the first experimental demonstration of exponential error suppression with increasing code distance on a surface code. Using their 72-qubit Sycamore processor, they showed:</p>
+      <ul>
+        <li><strong>Distance-3 → Distance-5:</strong> Logical error rate decreased by a factor of <Math formula="\\Lambda \\approx 2.14"  />, confirming below-threshold operation.</li>
+        <li><strong>Physical error rate:</strong> Achieved <Math formula="p \\approx 0.3\\%"  /> for CZ gates, well below the <Math formula="\\sim 1\\%"  /> surface code threshold.</li>
+        <li><strong>Logical qubit lifetime:</strong> The distance-5 logical qubit preserved quantum information longer than any individual physical qubit on the chip — the first time QEC actually helped rather than hurt.</li>
+      </ul>
+      <p>This result validates the exponential suppression model but highlights the gap: scaling from <Math formula="d = 5"  /> to the <Math formula="d = 17"  /> required for cryptographic applications demands a <Math formula="\\sim 50\\times"  /> increase in physical qubits with <em>no degradation</em> in per-qubit error rates.</p>
+    </Card>
+
+    <Timeline items={timelineItems} />
+
+  </ContentSection>
+
+  <ContentSection title="Current Bottlenecks & Unlocking Potential">
+    <p>To establish fault-tolerance for long cryptographic runs, the following error correction bottlenecks must be resolved:</p>
+    <div>
+      <Card theme="green" title="1. State Leakage Blinding the Decoder">
+        <p><strong>The Bottleneck:</strong> If population leaks to the <Math formula="|2\\rangle"  /> state, the physical qubits become off-resonant to standard binary control pulses, causing CNOT parity checks to fail and rendering the MWPM decoder blind to errors in that sector.</p>
+        <p><strong>Unlocking Potential:</strong> Implementing State-Swapping Leakage-Reduction Circuits (LRCs) that transfer the leaked <Math formula="|2\\rangle"  /> state from data transmons to syndrome transmons (which are reset every cycle) actively purges leakage, preserving the surface code's error-tracking capability.</p>
+      </Card>
+      <Card theme="green" title="2. Real-time Decoding Latency (The 1.0 µs Wall)">
+        <p><strong>The Bottleneck:</strong> Stabilizer syndromes must be extracted and decoded within <Math formula="\\approx 1.0\\text{ µs}"  /> to apply corrections before errors propagate and corrupt the logical state. Standard software decoders running on CPUs are too slow.</p>
+        <p><strong>Unlocking Potential:</strong> Custom silicon Cryo-ASICs mounted at the 4K plate running neural-network decoding algorithms can extract and process syndromes in <Math formula="< 500\\text{ ns}"  />, preventing error accumulation during massive computation runs.</p>
+      </Card>
+      <Card theme="green" title="3. Non-Pauli Ternary Error Scaling">
+        <p><strong>The Bottleneck:</strong> Qudits introduce non-Pauli errors (shifts like <Math formula="\\pm 1, \\pm 2"  /> in phase and bit spaces). Standard surface codes only track <Math formula="X"  /> and <Math formula="Z"  /> flips and cannot correct high-dimensional error channels.</p>
+        <p><strong>Unlocking Potential:</strong> Developing high-dimensional topological codes (such as <Math formula="Z_d"  /> Toric Codes or Color Codes) allows systematic syndrome extraction for qudits, keeping the physical-to-logical qubit overhead manageable.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ContentSection title="Cross-Layer Dependencies">
+    <CrossLayerMap
+      currentLayer="QEC"
+      dependencies={[
+        {
+          layer: 'Algorithm & Compilation',
+          href: '/compilation',
+          relationship: "The QEC overhead multiplies the physical resource estimate by 10-100x.",
+          direction: 'constrains',
+          impact: 'critical',
+          status: 'bottleneck',
+          details: "Every logical qubit in Shor's circuit requires a d×d surface code patch of physical qubits, where d is the code distance. This bloats the physical footprint from thousands to millions of qubits."
+        },
+        {
+          layer: 'Qutrits & Qudits',
+          href: '/qudits',
+          relationship: 'Qutrit gates cause population leakage to |2⟩, which is invisible to binary stabilizer checks.',
+          direction: 'constrains',
+          impact: 'high',
+          status: 'active-research',
+          details: 'QEC must actively detect and purge leaked states using Leakage-Reduction Circuits (LRCs) during every syndrome extraction cycle, increasing the complexity of the parity checks.'
+        },
+        {
+          layer: 'QND Readout',
+          href: '/readout',
+          relationship: 'Syndrome extraction relies on high-fidelity QND readout of measure qubits every ~1.0 µs.',
+          direction: 'requires',
+          impact: 'critical',
+          status: 'mature',
+          details: 'Readout errors directly propagate as false syndrome events, creating phantom errors that confuse the decoder. Rapid, high-fidelity readout is the bedrock of surface code execution.'
+        },
+        {
+          layer: 'Pulse Control',
+          href: '/control',
+          relationship: 'Syndrome extraction cycles require precisely timed, massively parallel sequences of CNOT gates.',
+          direction: 'requires',
+          impact: 'high',
+          status: 'mature',
+          details: 'Gate timing errors or crosstalk between data and measure qubits corrupt the parity information. Control hardware must orchestrate millions of concurrent pulses flawlessly.'
+        },
+        {
+          layer: 'Decoherence',
+          href: '/decoherence',
+          relationship: "The physical error rate p must be strictly below the code threshold (~1% for surface code).",
+          direction: 'constrains',
+          impact: 'critical',
+          status: 'bottleneck',
+          details: "If T1/T2 decoherence drives p above threshold, adding more physical qubits makes the logical error rate worse, not better. Fault tolerance completely collapses."
+        },
+        {
+          layer: 'Cryogenics',
+          href: '/cryogenics',
+          relationship: "Real-time MWPM decoding at cryptographic scale requires Cryo-ASICs operating inside the fridge.",
+          direction: 'requires',
+          impact: 'high',
+          status: 'active-research',
+          details: "Running classical decoders on CPUs outside the fridge is too slow and causes a latency wall. The heat dissipation from in-fridge decoders must fit within the strict 4K thermal budget."
+        }
+      ]}
+    />
+
+  </ContentSection>
+
+  <SkepticismPanel>
+    <ul>
+      <li><strong>The Resource Overhead Critique:</strong> The surface code requires a massive physical-to-logical qubit ratio (often 1000:1 or more). Skeptics argue that building systems with millions of physical qubits with ultra-low error rates, while avoiding spectral crowding and crosstalk, is an insurmountable engineering challenge. However, hardware yields are improving, and breakthroughs in dynamically reconfigurable architectures may alleviate wiring bottlenecks. Alternatively, the community is not locked into surface codes: higher-rate Low-Density Parity-Check (qLDPC) codes might drastically reduce the overhead required.</li>
+      <li><strong>Correlated Errors vs. IID Assumption:</strong> Theoretical thresholds assume errors are Independent and Identically Distributed (IID). Reality has correlated errors, such as a single cosmic ray or thermal phonon burst wiping out multiple adjacent qubits simultaneously, immediately breaking the surface code's assumptions. However, researchers are designing mitigation strategies like phonon-absorbing moats and specialized error decoders (e.g., belief propagation) that can identify and correct correlated burst errors, extending fault tolerance beyond simplistic IID models.</li>
+    </ul>
+  </SkepticismPanel>
+
+  <ContentSection title="Actionable Research Matters">
+    <div>
+      <Card theme="accent-dark" title="Next-Gen Fast Classical Decoders">
+        <p>Standard Minimum-Weight Perfect Matching (MWPM) algorithms running on traditional CPUs hit a "latency wall," failing to decode syndromes within the strict 1.0 µs quantum coherence budget. <strong>Actionable Research:</strong> Design and test customized Cryo-ASICs, neural network-based decoders, or highly parallelized Union-Find algorithms that can execute in sub-microsecond timescales directly at the 4K stage.</p>
+      </Card>
+      <Card theme="accent-dark" title="Transitioning to qLDPC & BB Codes">
+        <p>The standard Surface Code's 2D lattice imposes catastrophic O(d²) overhead scaling. <strong>Actionable Research:</strong> Implement Bivariate Bicycle (BB) qLDPC codes over hardware supporting long-range coupling (e.g., neutral atom Rydberg interactions or optical transduction meshes). Focus must shift to executing fold-transversal Clifford operations directly on these high-rate encoding blocks without tearing down the parity protection.</p>
+      </Card>
+      <Card theme="accent-dark" title="Synergy with Error Mitigation">
+        <p>Before full fault tolerance is realized, we will enter an intermediate era. <strong>Actionable Research:</strong> Develop hybrid pipelines where Quantum Error Mitigation (QEM) works synergistically with early, low-distance Quantum Error Correction (QEC) to suppress both algorithmic and physical noise simultaneously.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ContentSection title="Common Misconceptions">
+    <div>
+      <Card theme="orange" title="Myth: Just 'Copy' the Quantum Data">
+        <p><strong>Reality:</strong> Classical error correction heavily relies on redundancy (copying bits). In quantum mechanics, the <strong>No-Cloning Theorem</strong> strictly forbids copying an unknown state. QEC relies on encoding data globally across entangled states and measuring local parity syndromes without collapsing the superposition.</p>
+      </Card>
+      <Card theme="orange" title="Myth: Continuous Analog Noise is Unfixable">
+        <p><strong>Reality:</strong> It's assumed that because quantum states exist on a continuous Bloch sphere, correcting infinite possible error angles is impossible. However, syndrome measurement "digitizes" the noise: the act of measuring parity collapses continuous errors into discrete Pauli errors (X, Y, Z flips) that the decoder can perfectly identify and fix.</p>
+      </Card>
+      <Card theme="orange" title="Myth: QEC Means Infinite Speed">
+        <p><strong>Reality:</strong> Popular media suggests quantum computers check all possibilities at once and that error correction unlocks instantaneous solutions. Fault tolerance merely stabilizes delicate quantum interference patterns; it does not change the fundamental asymptotic complexity of algorithms.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ReferenceList theme="green">
+    <li>
+      <a href="https://arxiv.org/abs/quant-ph/9707021" target="_blank">Kitaev (1997) - "Fault-tolerant quantum computation by anyons"</a>
+      <p>Annals of Physics. The landmark paper introducing topological quantum error correction, presenting the Toric Code and demonstrating how stabilizer measurements on a 2D surface can protect quantum states.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1208.0928" target="_blank">Fowler et al. (2012) - "Surface codes: Towards practical large-scale quantum computation"</a>
+      <p>Physical Review A. A comprehensive blueprint for implementing 2D surface codes, establishing thresholds, routing schemes, and decoding latency limits.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1038/s41586-022-05434-1" target="_blank">Google Quantum AI (2023) - "Suppressing quantum errors by scaling a surface code logical qubit"</a>
+      <p>Nature. First experimental demonstration that increasing surface code distance exponentially suppresses logical errors, achieving below-threshold operation on a 72-qubit Sycamore processor with a suppression factor Λ ≈ 2.14.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/quant-ph/0110143" target="_blank">Dennis et al. (2002) - "Topological quantum memory"</a>
+      <p>Journal of Mathematical Physics. Establishes the rigorous statistical-mechanical framework for analyzing surface code thresholds, mapping the decoding problem to a random-bond Ising model and proving the ~1% error threshold.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1410.8562" target="_blank">Suchara et al. (2015) - "Leakage suppression in the toric code"</a>
+      <p>Quantifies the impact of leakage errors on topological codes and demonstrates that periodic leakage-reduction circuits restore the code's threshold to near its ideal value, providing theoretical foundation for LRC integration.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1038/s41586-024-07107-7" target="_blank">Bravyi et al. (2024) - "High-threshold and low-overhead fault-tolerant quantum memory"</a>
+      <p>Nature. Introduces bivariate bicycle (BB) qLDPC codes. Directly addresses the resource overhead skepticism by demonstrating how non-local stabilizer geometries can achieve the same error suppression as the surface code using roughly 10x fewer physical qubits, substantiating the "Transitioning to qLDPC Codes" research agenda.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1038/s41567-021-01432-8" target="_blank">McEwen et al. (2022) - "Resolving catastrophic error bursts from cosmic rays in large arrays of superconducting qubits"</a>
+      <p>Nature Physics. Validates the "Correlated Errors" skepticism by experimentally proving that high-energy cosmic rays generate spreading phonon bursts in the substrate. This breaks the fundamental IID (Independent and Identically Distributed) error assumption of the surface code, necessitating new mitigation moats or burst-aware decoders.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2108.06569" target="_blank">Das et al. (2022) - "LILLIPUT: A Lightweight Low-Latency Lookup-Table Decoder for Near-term Quantum Error Correction"</a>
+      <p>ASPLOS. Addresses the "Next-Gen Fast Classical Decoders" actionable research by implementing an ultra-fast, FPGA-based lookup-table decoder. Achieves nanosecond-scale latency to process syndrome graphs in real-time, preventing the exponential backlog of classical data processing during a quantum algorithm.</p>
+    </li>
+  </ReferenceList>
+  </PageLayout>
+</Base>

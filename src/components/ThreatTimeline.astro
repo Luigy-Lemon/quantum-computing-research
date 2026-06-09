@@ -1,0 +1,223 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+
+interface Milestone {
+  year: string;
+  label: string;
+  detail: string;
+  scenario: 'pessimistic' | 'realistic' | 'aggressive';
+}
+
+interface Props {
+  milestones: Milestone[];
+}
+
+const { milestones } = Astro.props;
+
+const scenarioColors = {
+  pessimistic: { bg: 'rgba(143, 47, 47, 0.08)', color: 'var(--accent-red)', border: 'var(--accent-red)' },
+  realistic: { bg: 'rgba(138, 90, 47, 0.08)', color: 'var(--accent-orange)', border: 'var(--accent-orange)' },
+  aggressive: { bg: 'rgba(47, 122, 74, 0.08)', color: 'var(--accent-green)', border: 'var(--accent-green)' },
+};
+---
+
+<InteractiveBoard 
+  className="threat-timeline-board" 
+  title="Quantum Threat Projection Timeline" 
+  description="Three scenarios for when a cryptographically relevant quantum computer (CRQC) could threaten secp256k1. Click a scenario to explore its milestones."
+>
+  <div class="scenario-tabs">
+    <button class="scenario-tab active" data-scenario="pessimistic" style={`--tab-color: var(--accent-red);`}>
+      <span class="tab-icon">🛡️</span>
+      <span class="tab-label">Pessimistic</span>
+      <span class="tab-year">2045+</span>
+    </button>
+    <button class="scenario-tab" data-scenario="realistic" style={`--tab-color: var(--accent-orange);`}>
+      <span class="tab-icon">⚖️</span>
+      <span class="tab-label">Realistic</span>
+      <span class="tab-year">2035–2040</span>
+    </button>
+    <button class="scenario-tab" data-scenario="aggressive" style={`--tab-color: var(--accent-green);`}>
+      <span class="tab-icon">⚡</span>
+      <span class="tab-label">Aggressive</span>
+      <span class="tab-year">2029–2034</span>
+    </button>
+  </div>
+
+  <div class="timeline-track-container">
+    {(['pessimistic', 'realistic', 'aggressive'] as const).map((scenario, si) => (
+      <div class={`timeline-track ${si === 0 ? 'active' : ''}`} data-track={scenario}>
+        <div class="track-line" style={`background: ${scenarioColors[scenario].border};`}></div>
+        {milestones.filter(m => m.scenario === scenario).map((m, i) => (
+          <div class="milestone-node" style={`--node-color: ${scenarioColors[scenario].color}; --node-bg: ${scenarioColors[scenario].bg};`}>
+            <div class="node-dot"></div>
+            <div class="node-year">{m.year}</div>
+            <div class="node-card">
+              <h5 class="node-label">{m.label}</h5>
+              <p class="node-detail">{m.detail}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+</InteractiveBoard>
+
+<style>
+  .scenario-tabs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .scenario-tab {
+    flex: 1;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border, #d9d2c7);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: var(--surface, #fff);
+    font-family: inherit;
+  }
+
+  .scenario-tab:hover {
+    border-color: var(--tab-color);
+    background: color-mix(in srgb, var(--tab-color) 5%, transparent);
+  }
+
+  .scenario-tab.active {
+    border-color: var(--tab-color);
+    background: color-mix(in srgb, var(--tab-color) 8%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--tab-color) 15%, transparent);
+  }
+
+  .tab-icon { font-size: 1.25rem; }
+  .tab-label {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+  }
+  .tab-year {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .timeline-track-container {
+    position: relative;
+    min-height: 200px;
+  }
+
+  .timeline-track {
+    display: none;
+    animation: fadeTrack 0.35s ease;
+  }
+
+  .timeline-track.active {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: relative;
+    padding-left: 2.5rem;
+  }
+
+  .track-line {
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 2px;
+    opacity: 0.35;
+  }
+
+  .milestone-node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .node-dot {
+    position: absolute;
+    left: -2.15rem;
+    top: 0.35rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--node-color);
+    border: 3px solid var(--surface, #fff);
+    box-shadow: 0 0 0 2px var(--node-color);
+    z-index: 2;
+  }
+
+  .node-year {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--node-color);
+    letter-spacing: 0.05em;
+  }
+
+  .node-card {
+    background: var(--node-bg);
+    border: 1px solid color-mix(in srgb, var(--node-color) 20%, transparent);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .node-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .node-label {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .node-detail {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  @keyframes fadeTrack {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  const boards = document.querySelectorAll('.threat-timeline-board');
+  boards.forEach(board => {
+    const tabs = board.querySelectorAll('.scenario-tab');
+    const tracks = board.querySelectorAll('.timeline-track');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tracks.forEach(t => t.classList.remove('active'));
+        
+        tab.classList.add('active');
+        const scenario = tab.getAttribute('data-scenario');
+        const activeTrack = board.querySelector(`[data-track="${scenario}"]`);
+        if (activeTrack) activeTrack.classList.add('active');
+      });
+    });
+  });
+</script>

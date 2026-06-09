@@ -1,0 +1,399 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+
+<InteractiveBoard 
+  className="jc-container" 
+  title="Jaynes-Cummings Dispersive Shift" 
+  description="Observe how the transmon state (|0⟩, |1⟩, or |2⟩) shifts the resonance frequency of the coupled microwave cavity. This is the foundation of dispersive qudit readout."
+>
+  
+  <div class="board-controls">
+    <button id="btn-state-0" class="active">Qubit |0⟩ (Ground)</button>
+    <button id="btn-state-1">Qubit |1⟩ (Excited)</button>
+    <button id="btn-state-2">Qutrit |2⟩ (Second Excited)</button>
+  </div>
+
+  <div class="jc-graphic-container">
+    <canvas id="jc-canvas" class="jc-canvas"></canvas>
+  </div>
+  
+  <div class="jc-info">
+    <p id="jc-status">Cavity Frequency: <strong>&omega;<sub>r,0</sub> + &chi;<sub>0</sub></strong></p>
+  </div>
+
+</InteractiveBoard>
+
+<style>
+  .jc-graphic-container {
+    width: 100%;
+    height: 350px;
+    background: var(--surface); /* Dark background for glowing effects */
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: none;
+  }
+
+  .jc-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .board-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    justify-content: center;
+  }
+
+  .board-controls button {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-weight: 600;
+  }
+
+  .board-controls button:hover {
+    background: var(--surface-hover);
+  }
+
+  .board-controls button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .jc-info {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    background: var(--surface-alt);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+  }
+
+  :global(.dark) .jc-info {
+    color: #cbd5e1;
+    background: var(--surface-alt);
+    border-color: var(--text-main);
+  }
+  
+  .jc-info p {
+    margin: 0;
+  }
+
+  .jc-info strong {
+    transition: color 0.3s ease;
+    font-size: 1.2rem;
+  }
+  
+  .jc-info.state-0 strong { color: #0ea5e9; } /* Sky blue */
+  .jc-info.state-1 strong { color: #ec4899; } /* Pink */
+  .jc-info.state-2 strong { color: #a855f7; } /* Purple */
+</style>
+
+<script>
+  function initJC() {
+    const canvas = document.getElementById('jc-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const btn0 = document.getElementById('btn-state-0');
+    const btn1 = document.getElementById('btn-state-1');
+    const btn2 = document.getElementById('btn-state-2');
+    const statusText = document.getElementById('jc-status');
+    const infoContainer = statusText?.parentElement;
+
+    if (infoContainer) infoContainer.classList.add('state-0');
+
+    let targetState = 0; // 0 for |0>, 1 for |1>, 2 for |2>
+    let currentState = 0;
+    let time = 0;
+    let animationFrameId: number;
+
+    const states = [
+      { id: 0, btn: btn0, html: `Cavity Frequency: <strong>&omega;<sub>r,0</sub> + &chi;<sub>0</sub></strong>`, cls: 'state-0' },
+      { id: 1, btn: btn1, html: `Cavity Frequency: <strong>&omega;<sub>r,0</sub> + &chi;<sub>1</sub></strong>`, cls: 'state-1' },
+      { id: 2, btn: btn2, html: `Cavity Frequency: <strong>&omega;<sub>r,0</sub> + &chi;<sub>2</sub></strong>`, cls: 'state-2' }
+    ];
+
+    states.forEach(s => {
+      if (s.btn) {
+        s.btn.addEventListener('click', () => {
+          targetState = s.id;
+          states.forEach(other => {
+            other.btn?.classList.remove('active');
+            infoContainer?.classList.remove(other.cls);
+          });
+          s.btn?.classList.add('active');
+          if (statusText) statusText.innerHTML = s.html;
+          if (infoContainer) infoContainer.classList.add(s.cls);
+        });
+      }
+    });
+
+    function resize() {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      if (rect) {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx!.scale(dpr, dpr);
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+      }
+    }
+    
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Helper to interpolate between multiple colors
+    function interpolateColor(value: number) {
+      const c0 = { r: 14, g: 165, b: 233 }; // Sky blue #0ea5e9
+      const c1 = { r: 236, g: 72, b: 153 }; // Pink #ec4899
+      const c2 = { r: 168, g: 85, b: 247 }; // Purple #a855f7
+
+      let cA, cB, t;
+      if (value <= 1) {
+        cA = c0; cB = c1; t = value;
+      } else {
+        cA = c1; cB = c2; t = value - 1;
+      }
+
+      const r = Math.round(cA.r + t * (cB.r - cA.r));
+      const g = Math.round(cA.g + t * (cB.g - cA.g));
+      const b = Math.round(cA.b + t * (cB.b - cA.b));
+      
+      return {
+        str: `rgb(${r}, ${g}, ${b})`,
+        glow: `rgba(${r}, ${g}, ${b}, 0.6)`
+      };
+    }
+
+    function draw() {
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+
+      // Smooth state transition
+      currentState += (targetState - currentState) * 0.05;
+
+      // Clear
+      ctx!.clearRect(0, 0, width, height);
+
+      // Grid background
+      ctx!.save();
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx!.lineWidth = 1;
+      for (let i = 0; i < width; i += 30) {
+        ctx!.beginPath(); ctx!.moveTo(i, 0); ctx!.lineTo(i, height); ctx!.stroke();
+      }
+      for (let i = 0; i < height; i += 30) {
+        ctx!.beginPath(); ctx!.moveTo(0, i); ctx!.lineTo(width, i); ctx!.stroke();
+      }
+      ctx!.restore();
+
+      const colorInfo = interpolateColor(currentState);
+      const colorStr = colorInfo.str;
+      const glowStr = colorInfo.glow;
+
+      const centerX = Math.min(120, width * 0.25);
+      const centerY = height / 2;
+
+      // Draw Transmon
+      ctx!.save();
+      ctx!.translate(centerX, centerY);
+
+      // Energy level indicator
+      ctx!.fillStyle = colorStr;
+      ctx!.font = 'bold 18px monospace';
+      ctx!.textAlign = 'center';
+      ctx!.shadowBlur = 10;
+      ctx!.shadowColor = glowStr;
+      
+      let stateLabel = '|0⟩ Ground';
+      if (targetState === 1) stateLabel = '|1⟩ Excited';
+      if (targetState === 2) stateLabel = '|2⟩ Qutrit';
+      ctx!.fillText(stateLabel, 0, -70);
+      
+      ctx!.font = '12px sans-serif';
+      ctx!.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx!.shadowBlur = 0;
+      ctx!.fillText('Transmon Qudit', 0, 75);
+
+      // Glowing aura
+      ctx!.shadowBlur = 25 + currentState * 10;
+      ctx!.shadowColor = colorStr;
+
+      // Transmon pads
+      ctx!.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx!.beginPath();
+      ctx!.roundRect(-25, -45, 50, 25, 6);
+      ctx!.fill();
+
+      ctx!.beginPath();
+      ctx!.roundRect(-25, 20, 50, 25, 6);
+      ctx!.fill();
+
+      // Junction wires
+      ctx!.shadowBlur = 0;
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx!.lineWidth = 2;
+      ctx!.beginPath();
+      ctx!.moveTo(0, -20);
+      ctx!.lineTo(0, 20);
+      ctx!.stroke();
+
+      // Josephson Junction (X)
+      ctx!.strokeStyle = colorStr;
+      ctx!.lineWidth = 3;
+      ctx!.shadowBlur = 10;
+      ctx!.shadowColor = colorStr;
+      ctx!.beginPath();
+      ctx!.moveTo(-8, -8);
+      ctx!.lineTo(8, 8);
+      ctx!.moveTo(-8, 8);
+      ctx!.lineTo(8, -8);
+      ctx!.stroke();
+
+      ctx!.restore();
+
+      // Coupling Capacitor
+      ctx!.save();
+      const resStart = centerX + 60;
+      const resEnd = width - 40;
+      
+      // Draw coupling lines
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx!.lineWidth = 2;
+      ctx!.beginPath();
+      ctx!.moveTo(centerX + 35, centerY);
+      ctx!.lineTo(resStart - 10, centerY);
+      ctx!.stroke();
+      
+      // Capacitor plates
+      ctx!.strokeStyle = colorStr;
+      ctx!.lineWidth = 3;
+      ctx!.shadowBlur = 10;
+      ctx!.shadowColor = glowStr;
+      ctx!.beginPath();
+      ctx!.moveTo(centerX + 35, centerY - 15);
+      ctx!.lineTo(centerX + 35, centerY + 15);
+      ctx!.moveTo(resStart - 10, centerY - 15);
+      ctx!.lineTo(resStart - 10, centerY + 15);
+      ctx!.stroke();
+      ctx!.restore();
+
+      // Draw Cavity / Resonator
+      ctx!.save();
+      
+      // Resonator text
+      ctx!.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx!.font = '12px sans-serif';
+      ctx!.textAlign = 'center';
+      ctx!.fillText('Microwave Readout Resonator', resStart + (resEnd - resStart)/2, centerY - 80);
+
+      // Resonator boundaries
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx!.lineWidth = 3;
+      ctx!.beginPath();
+      ctx!.moveTo(resStart, centerY - 60);
+      ctx!.lineTo(resEnd, centerY - 60);
+      ctx!.moveTo(resStart, centerY + 60);
+      ctx!.lineTo(resEnd, centerY + 60);
+      ctx!.stroke();
+      
+      // Closed end at the left, open at the right
+      ctx!.beginPath();
+      ctx!.moveTo(resStart, centerY - 60);
+      ctx!.lineTo(resStart, centerY + 60);
+      ctx!.stroke();
+
+      // Sine Wave inside resonator
+      const baseFreq = 0.025;
+      const freqShift = 0.015; 
+      const currentFreq = baseFreq + currentState * freqShift;
+      
+      const speed = 0.06 + currentState * 0.03;
+      time += speed;
+
+      ctx!.beginPath();
+      ctx!.strokeStyle = colorStr;
+      ctx!.lineWidth = 3;
+      ctx!.shadowBlur = 15;
+      ctx!.shadowColor = glowStr;
+      
+      const totalLength = resEnd - resStart;
+      
+      for (let x = resStart; x <= resEnd; x++) {
+        const dx = x - resStart;
+        // Apply an envelope
+        const envelope = Math.sin((dx / totalLength) * Math.PI * 0.8 + 0.2);
+        const y = centerY + Math.sin(dx * currentFreq - time) * 45 * envelope;
+        
+        if (x === resStart) {
+          ctx!.moveTo(x, y);
+        } else {
+          ctx!.lineTo(x, y);
+        }
+      }
+      ctx!.stroke();
+
+      // Draw flowing photons
+      ctx!.fillStyle = '#fff';
+      const photonSpacing = 60 - currentState * 10; 
+      
+      for (let offset = 0; offset < totalLength; offset += photonSpacing) {
+        let px = resStart + ((offset + time * 40) % totalLength);
+        const dx = px - resStart;
+        const pEnvelope = Math.sin((dx / totalLength) * Math.PI * 0.8 + 0.2);
+        const py = centerY + Math.sin(dx * currentFreq - time) * 45 * pEnvelope;
+        
+        // Fade in/out at the ends
+        let alpha = 1;
+        if (dx < 20) alpha = dx / 20;
+        else if (totalLength - dx < 40) alpha = (totalLength - dx) / 40;
+        
+        ctx!.globalAlpha = alpha * 0.8;
+        ctx!.shadowBlur = 8;
+        ctx!.shadowColor = '#fff';
+        
+        ctx!.beginPath();
+        ctx!.arc(px, py, 3, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+      ctx!.globalAlpha = 1.0;
+      ctx!.restore();
+
+      animationFrameId = requestAnimationFrame(draw);
+    }
+    
+    // Start loop
+    draw();
+
+    // Cleanup
+    document.addEventListener('astro:before-swap', () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+    }, { once: true });
+  }
+
+  document.addEventListener('astro:page-load', initJC);
+  if (document.readyState === 'complete') {
+    initJC();
+  } else {
+    window.addEventListener('load', initJC);
+  }
+</script>

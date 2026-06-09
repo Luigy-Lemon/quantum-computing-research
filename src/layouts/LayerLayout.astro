@@ -1,0 +1,184 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  abstract: string;
+  layer: string;
+  activeNav: string;
+  prev?: { url: string; label: string };
+  next?: { url: string; label: string };
+}
+
+const { title, abstract, layer, activeNav, prev, next } = Astro.props;
+---
+
+<Base title={title} activeNav={activeNav} mathjax={true}>
+  <div class="quantum-workspace">
+    <canvas id="quantum-bg"></canvas>
+    
+    <div class="container article-layout">
+      <div class="hero article-hero">
+        <div class="paper-meta">
+          <span>Layer {layer}</span> &bull; <span>secp256k1 Quantum Stack</span>
+        </div>
+        <h1>{title}</h1>
+        <p class="hero-subtitle">{abstract}</p>
+      </div>
+
+      <div class="article-content">
+        <slot />
+      </div>
+
+      <div class="page-navigation">
+        {prev ? (
+          <a href={prev.url} class="nav-btn prev-btn">
+            <span class="nav-dir">&larr; Previous Layer</span>
+            <span class="nav-label">{prev.label}</span>
+          </a>
+        ) : <div class="nav-placeholder"></div>}
+        
+        {next ? (
+          <a href={next.url} class="nav-btn next-btn">
+            <span class="nav-dir">Next Layer &rarr;</span>
+            <span class="nav-label">{next.label}</span>
+          </a>
+        ) : <div class="nav-placeholder"></div>}
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    // Background Drifting Particles Canvas
+    const canvas = document.getElementById('quantum-bg');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = canvas.parentElement.offsetWidth;
+      let height = canvas.height = canvas.parentElement.offsetHeight;
+
+      window.addEventListener('resize', () => {
+        if (canvas) {
+          width = canvas.width = canvas.parentElement.offsetWidth;
+          height = canvas.height = canvas.parentElement.offsetHeight;
+        }
+      });
+
+      const symbols = ['H', 'X', 'Z', 'S', 'T', 'CNOT', '|0⟩', '|1⟩', '|ψ⟩', '⊕'];
+      const particles = [];
+      for (let i = 0; i < 30; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          text: symbols[Math.floor(Math.random() * symbols.length)],
+          size: Math.random() * 12 + 10,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: -Math.random() * 0.5 - 0.1,
+          alpha: Math.random() * 0.3 + 0.1
+        });
+      }
+
+      function drawBG() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = '#0891b2'; // Cyan color fitting light mode
+          ctx.font = `${p.size}px "Source Code Pro", monospace`;
+          ctx.fillText(p.text, p.x, p.y);
+          ctx.restore();
+
+          // update position
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          // recycle particle
+          if (p.y < -30) {
+            p.y = height + 30;
+            p.x = Math.random() * width;
+          }
+        });
+        requestAnimationFrame(drawBG);
+      }
+      drawBG();
+    }
+  </script>
+
+  <style>
+    .quantum-workspace {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      z-index: 1;
+      background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    #quantum-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.12;
+    }
+    .article-layout {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article-hero {
+      margin-bottom: 4rem;
+      border-bottom: 2px solid #dde1ea;
+      padding-bottom: 2rem;
+    }
+    .page-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid #dde1ea;
+      gap: 1rem;
+    }
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      padding: 1rem 1.5rem;
+      border: 1px solid #dde1ea;
+      border-radius: 4px;
+      background: #ffffff;
+      transition: all 0.2s ease;
+      flex: 1;
+      max-width: 48%;
+    }
+    .nav-btn:hover {
+      border-color: #2563eb;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+      transform: translateY(-2px);
+    }
+    .prev-btn { align-items: flex-start; }
+    .next-btn { align-items: flex-end; text-align: right; }
+    
+    .nav-dir {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.75rem;
+      color: #6b7085;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+    .nav-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f1117;
+    }
+    .nav-placeholder {
+      flex: 1;
+      max-width: 48%;
+    }
+  </style>
+</Base>

@@ -1,0 +1,306 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+import Math from '../components/Math.astro';
+import Timeline from '../components/Timeline.astro';
+import CrossLayerMap from '../components/CrossLayerMap.astro';
+import InteractivePulseShaping from '../components/InteractivePulseShaping.astro';
+
+const timelineItems = [
+  {
+    year: '1998',
+    title: 'GRAPE Optimal Control Algorithm',
+    description: 'Development of Gradient Ascent Pulse Engineering (GRAPE) for nuclear magnetic resonance. <strong>Contribution:</strong> Provided the mathematical framework to calculate the exact, arbitrary microwave waveform required to steer a quantum system from state A to state B in the minimum possible time, fundamentally enabling fast, high-fidelity native gates.'
+  },
+  {
+    year: '2009',
+    title: 'DRAG Pulse Formulation',
+    description: 'Motzoi et al. introduce Derivative Removal by Adiabatic Gate (DRAG) pulsing. <strong>Contribution:</strong> Solved the "frequency crowding" bottleneck of transmons. By adding a phase-shifted derivative to the Gaussian pulse envelope, DRAG actively suppresses leakage to the |2⟩ spectator state, enabling fast single-qubit gates (<20ns) without destroying the qubit subspace.'
+  },
+  {
+    year: '2011',
+    title: 'The Cross-Resonance Gate',
+    description: 'Rigetti and Devoret demonstrate the Cross-Resonance (CR) effect between two fixed-frequency transmons. <strong>Contribution:</strong> Established the dominant two-qubit entanglement mechanism used by IBM and others. Driving a control qubit at the target qubit\'s frequency allowed microwave-only entanglement without complex, noisy tunable couplers.'
+  },
+  {
+    year: '2012',
+    title: 'Active Qubit Reset',
+    description: 'Geerlings et al. demonstrate driven unconditional reset of a superconducting qubit. <strong>Contribution:</strong> Eliminated the need to wait hundreds of microseconds for a qubit to passively relax to the ground state. Active microwave cooling enables rapid reuse of ancilla qubits during Surface Code syndrome measurements.'
+  },
+  {
+    year: '2016',
+    title: 'Direct-to-RF FPGA Generation (RFSoC)',
+    description: 'Xilinx integrates high-speed DACs and ADCs directly onto FPGA fabric. <strong>Contribution:</strong> Eliminated the need for unstable analog IQ mixers and bulky local oscillators. Allowed researchers to synthesize complex microwave pulse schedules digitally at room temperature with nanosecond precision, enabling multiplexed control of large multi-qubit arrays.'
+  },
+  {
+    year: '2020',
+    title: 'Hardware-Efficient Ansatz & Parametric Control',
+    description: 'Researchers shift to directly parameterizing microwave pulses instead of using rigid gate decomposition. <strong>Contribution:</strong> Shifted gate execution from fixed decompositions to continuously parameterized pulses, allowing algorithms to execute shallow sequences tailored directly to the physical drift and native Hamiltonians of the transmons.'
+  },
+  {
+    year: '2022',
+    title: 'On-Chip Closed-Loop Calibration',
+    description: 'Google and IBM demonstrate closed-loop, automated machine learning routines running directly on FPGAs. <strong>Contribution:</strong> Allowed control electronics to continuously measure, calculate, and update optimal pulse parameters (like DRAG coefficients) in real-time, completely overcoming the slow thermal drift of macroscopic hardware without manual intervention.'
+  }
+];
+---
+
+<Base title="Quantum Control: From Code to Microwaves" activeNav="/control" mathjax>
+  <PageLayout>
+  <PageHeader title="Quantum Control: From Code to Microwaves" meta="5 · Control" description={`A quantum algorithm is an abstraction. To actually execute a gate on a superconducting transmon, a classical computer must synthesize, sequence, and blast highly calibrated analog microwave pulses down coaxial cables. This page bridges the gap between software abstractions and fundamental control physics.`} theme="indigo" />
+
+  <ContentSection title="1. Cross-Resonance Gate Physics">
+    <p>To perform calculations, qubits must be entangled. In fixed-frequency transmon architectures, the gold standard for entanglement is the <strong>Cross-Resonance (CR) Gate</strong>. The qubits are coupled together via a physical bus resonator, but they operate at different frequencies (<Math formula="f_C"  /> for Control, <Math formula="f_T"  /> for Target).</p>
+    
+    <Card theme="pink" title="The Interaction Hamiltonian">
+      <p>To execute a CNOT, we drive the <em>Control</em> qubit with a microwave tone exactly matching the frequency of the <em>Target</em> qubit (<Math formula="f_T"  />). Because they are capacitively coupled, this off-resonant drive on the Control qubit bleeds over and drives the Target qubit.</p>
+      <p>Under the <strong>Rotating-Wave Approximation (RWA)</strong>, the fast oscillating terms average out to zero, leaving behind an effective interaction Hamiltonian dominated by the <Math formula="ZX"  /> term:</p>
+      
+      <Math formula="H_{\\text{eff}} \\approx \\frac{\\Omega_{ZX}}{2} \\hat{Z}_C \\otimes \\hat{X}_T" />
+      
+      <p>This means the Target qubit undergoes an X-rotation (flips) at a speed that depends entirely on whether the Control qubit is in the <Math formula="|0\\rangle"  /> or <Math formula="|1\\rangle"  /> (<Math formula="\\hat{Z}"  />) state. By carefully calibrating the duration of the pulse, we achieve perfect entanglement.</p>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="2. DRAG Pulse Shaping & Derivation">
+    <p>A simple single-qubit microwave pulse driving transitions at the frequency <Math formula="\\omega_{01}" /> has a Gaussian envelope in-phase with the carrier. However, because the Josephson junction transmon is only weakly anharmonic, its higher-energy state transition frequency <Math formula="\\omega_{12}" /> is close to the computational transition frequency, detuned only by the anharmonicity <Math formula="\\alpha = \\omega_{12} - \\omega_{01} \\approx -300\\text{ MHz}" />.</p>
+    <p>If we drive a fast single-qubit gate (e.g., under 10–20 ns), the Fourier frequency width of the pulse overlaps with the <Math formula="\\omega_{12}" /> transition. This drives spurious leakage out of the computational basis into the state <Math formula="|2\\rangle" />. To solve this, Motzoi et al. (2009) developed the <strong>Derivative Removal by Adiabatic Gate (DRAG)</strong> protocol.</p>
+    
+    <Card theme="orange" title="The DRAG Mathematical Formulation">
+      <p>Instead of driving the qubit solely with an in-phase pulse <Math formula="\\Omega_x(t)" /> (typically a Gaussian), we introduce a quadrature control tone <Math formula="\\Omega_y(t)" /> that is phase-shifted by 90 degrees. The complex drive envelope is written as:</p>
+      <Math formula="\\Omega(t) = \\Omega_x(t) + i\\Omega_y(t)" />
+      <p>DRAG actively cancels the leakage by setting the quadrature drive <Math formula="\\Omega_y(t)" /> to be proportional to the time-derivative of the primary in-phase pulse:</p>
+      <Math formula="\\Omega_y(t) = -\\frac{\\Omega_x'(t)}{\\alpha}" />
+      <p>This yields the complete DRAG pulse formulation:</p>
+      <Math formula="\\Omega_{\\text{DRAG}}(t) = \\Omega_x(t) - i \\frac{\\Omega_x'(t)}{\\alpha}" />
+      <p><strong>Physical Derivation & Intuition:</strong> To understand why the derivative cancels the leakage, we perform a unitary frame transformation (a time-dependent rotation) that "tilts" the quantization axis of the driven transmon. Under this rotating frame, the Hamiltonian's coupling between the computational subspace and the state <Math formula="|2\\rangle" /> is suppressed. The derivative quadrature tone acts as a dynamic Stark shift: it continuously detunes the transmon's transition frequencies during the pulse's rise and fall, causing the virtual transitions along the leakage pathway to destructively interfere with themselves, yielding zero net population in <Math formula="|2\\rangle" /> at the end of the gate.</p>
+    </Card>
+  </ContentSection>
+
+  <ContentSection title="3. Optimal Control Theory (GRAPE)">
+    <p>A standard microwave pulse has a simple Gaussian envelope. But as we discussed in the Qudits section, crowding multiple energy states (<Math formula="|0\\rangle, |1\\rangle, |2\\rangle, |3\\rangle"  />) together means a simple Gaussian pulse will accidentally trigger the wrong transitions (spectator leakage).</p>
+
+    <Card theme="purple" title="Gradient Ascent Pulse Engineering (GRAPE)">
+      <p>To safely navigate a highly crowded energy landscape governed by the system Hamiltonian <Math formula="\\hat{H}_0 + \\sum_k u_k(t) \\hat{H}_k"  />, we abandon standard analytical pulses and use <strong>GRAPE</strong>. The microwave envelope <Math formula="u_k(t)"  /> is mathematically sliced into hundreds of discrete 1-nanosecond "pixels."</p>
+      <ul>
+        <li>A classical supercomputer simulates the unitary evolution operator <Math formula="\\hat{U}(t)"  /> based on the current pulse shape.</li>
+        <li>It calculates the gradient of the target fidelity <Math formula="\\Phi"  /> with respect to the amplitude of every single 1ns pixel.</li>
+        <li>It iteratively updates the pixels using gradient ascent to find a highly irregular analog waveform that perfectly steers the quantum state while actively canceling out leakage to non-computational states (e.g., <Math formula="|2\\rangle, |3\\rangle"  />) via destructive interference.</li>
+      </ul>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="4. Interactive Lab: Pulse Shaping & Leakage Sandbox">
+    <p>Tune microwave pulse widths and envelopes. Compare square, gaussian, and DRAG shapes to minimize leakage to the |2⟩ state.</p>
+    <InteractivePulseShaping />
+
+  </ContentSection>
+
+  <ContentSection title="5. RFSoC & Digital-to-Analog Synthesis">
+    <p>Once the supercomputer has calculated the perfect GRAPE pulse envelopes, how do we physically generate them in the laboratory?</p>
+
+    <Card theme="cyan" style="margin-bottom: 2rem;" title="Direct Digital Synthesis (DDS)">
+      <p>We rely on room-temperature <strong>Radio Frequency System-on-Chips (RFSoCs)</strong>, massive FPGA processors (like Xilinx Zynq Ultrascale+) combined with bleeding-edge Digital-to-Analog Converters (DACs).</p>
+      <p>The optimal control wave arrays are loaded into the FPGA's memory. During execution, the FPGA streams this digital data into the DACs at a staggering rate of <strong>8 to 10 Giga-Samples Per Second (GSPS)</strong>. This allows the RFSoC to synthesize 5.0 GHz microwaves <em>directly</em> in the first Nyquist zone, without relying on unstable analog IQ mixers.</p>
+      
+      <h3 style="margin-top: 2rem;">The Memory Bottleneck</h3>
+      <p>Shor's algorithm requires millions of sequential gates. Storing billions of 16-bit voltage samples in FPGA RAM is physically impossible. Modern controllers must therefore use <strong>Parametric Compilation</strong>: the FPGA stores a small dictionary of base GRAPE pulse shapes, and a real-time sequencer stretches, scales, and alters their phase on-the-fly according to the quantum assembly code.</p>
+    </Card>
+
+  </ContentSection>
+
+  <ContentSection title="6. Closed-Loop Feedback & Active Reset">
+    <p>After a quantum operation, qubits must be returned to their ground state before the next computation cycle. The naive approach—<strong>passive reset</strong>—simply waits for the qubit to decay thermally, requiring roughly <Math formula="5 \\times T_1"  />. With modern transmons achieving <Math formula="T_1 \\approx 100\\,\\mu\\text{s}"  />, this wastes ~500 µs per reset—an eternity when a QEC cycle must complete in microseconds.</p>
+
+    <Card theme="pink" title="Active Qubit Reset">
+      <p>In <strong>active reset</strong>, we measure the qubit immediately and apply a conditional <Math formula="\\pi"  />-pulse to force it back to <Math formula="|0\\rangle"  /> if it is found in <Math formula="|1\\rangle"  />. This reduces the reset time from ~500 µs to under 500 ns—a factor of 1000× improvement.</p>
+      <p>The total feedback loop latency budget breaks down as:</p>
+      <Math formula="\\underbrace{\\sim 300\\,\\text{ns}}_{\\text{Dispersive readout}} + \\underbrace{\\sim 100\\,\\text{ns}}_{\\text{FPGA decision}} + \\underbrace{\\sim 50\\,\\text{ns}}_{\\text{Correction pulse}} \\approx 450\\,\\text{ns total}" />
+      <p>This tight loop demands deterministic, hard-real-time processing on the FPGA. Any jitter or non-determinism in the decision pipeline directly degrades reset fidelity.</p>
+    </Card>
+
+    <Card theme="cyan" style="margin-bottom: 2rem;" title="Why Active Reset Matters for QEC">
+      <p>In topological QEC schemes, <strong>syndrome extraction</strong> requires measuring ancilla (measure) qubits every cycle and resetting them immediately for the next round. If passive reset is used, each QEC cycle takes at least <Math formula="5 \\times T_1 \\approx 500\\,\\mu\\text{s}"  />, limiting the code to ~2,000 cycles per second. Active reset shrinks this to <Math formula="\\lesssim 500\\,\\text{ns}"  />, enabling QEC cycle rates above <Math formula="10^5"  /> per second—fast enough to keep pace with decoherence.</p>
+    </Card>
+
+    <Card theme="purple" style="margin-bottom: 2rem;" title="Qudit Active Reset Challenge">
+      <p>For qudit systems with <Math formula="d > 2"  />, active reset becomes significantly harder. The readout must discriminate between <Math formula="d"  /> states (not just 2), the FPGA must decide which correction to apply, and the controller must issue up to <Math formula="d-1"  /> sequential <Math formula="\\pi"  />-pulses to cascade the population back from <Math formula="|d{-}1\\rangle"  /> down to <Math formula="|0\\rangle"  />. Each additional level increases the total reset latency and demands higher readout signal-to-noise for reliable state discrimination.</p>
+    </Card>
+
+    <Card theme="pink" style="margin-bottom: 2rem;" title="Randomized Benchmarking (RB)">
+      <p>How do we know the control pulses are actually good? <strong>Randomized benchmarking</strong> is the gold-standard protocol for characterizing average gate error, independent of state preparation and measurement (SPAM) errors.</p>
+      <p>A sequence of <Math formula="m"  /> random Clifford gates is applied, followed by an inversion gate. The survival probability decays exponentially with sequence length:</p>
+      <Math formula="F_{\\text{seq}}(m) = A \\cdot p^m + B" />
+      <p>where <Math formula="p"  /> is the depolarizing parameter. The average error per gate (EPC) is extracted as:</p>
+      <Math formula="r = \\frac{(d-1)(1-p)}{d}" />
+      <p>where <Math formula="d = 2^n"  /> is the Hilbert-space dimension. For single-qubit gates (<Math formula="d=2"  />), this simplifies to <Math formula="r = (1 - p)/2"  />. State-of-the-art transmon gates achieve <Math formula="r < 10^{-4}"  />, meaning fewer than 1 error per 10,000 gates.</p>
+    </Card>
+
+    <Timeline items={timelineItems} />
+
+  </ContentSection>
+
+  <ContentSection title="Current Bottlenecks & Unlocking Potential">
+    <p>To orchestrate millions of highly coherent microwave pulses down to the dilution plate, the following control hardware bottlenecks must be resolved:</p>
+    <div>
+      <Card theme="purple" title="1. Waveform Storage Wall (Memory Bandwidth)">
+        <p><strong>The Bottleneck:</strong> Storing raw 16-bit voltage samples for the millions of custom GRAPE pulse waveforms required in Shor's algorithm exceeds the onboard SRAM capacity of standard FPGAs.</p>
+        <p><strong>Unlocking Potential:</strong> Implementing real-time Parametric Compilation on the FPGA fabric allows synthesizing pulses on-the-fly from basic parameters (amplitude, duration, phase), slashing the waveform storage footprint by 99% and enabling continuous execution.</p>
+      </Card>
+      <Card theme="purple" title="2. Analog IQ Mixer Drift & Calibration Overhead">
+        <p><strong>The Bottleneck:</strong> Traditional microwave generation setups rely on analog IQ mixers that suffer from local oscillator leakage and phase imbalances, requiring constant, manual recalibration to prevent gate errors.</p>
+        <p><strong>Unlocking Potential:</strong> Utilizing high-speed Direct Digital Synthesis (DDS) via RFSoCs operating at <Math formula="8\\text{--}10\\text{ GSPS}"  /> synthesizes microwaves directly in the first Nyquist zone, eliminating analog mixers and their associated drift errors entirely.</p>
+      </Card>
+      <Card theme="purple" title="3. Crosstalk & Spectator Coupling">
+        <p><strong>The Bottleneck:</strong> Capacitive bus lines between neighboring transmons cause microwave pulses on one qubit to bleed over and drive transitions on its neighbors, corrupting parallel gate operations.</p>
+        <p><strong>Unlocking Potential:</strong> Custom optimal control pulse shaping (such as DRAG and GRAPE) combined with active cancellation tones on adjacent channels destructive-interferes with crosstalk fields, pushing parallel gate fidelities past 99.9%.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ContentSection title="Cross-Layer Dependencies">
+    <p>Quantum control is the physical bridge between abstract algorithms and real hardware. Every layer of the stack either demands specific capabilities from the control electronics or is enabled by them.</p>
+    <CrossLayerMap
+      currentLayer="Quantum Control"
+      dependencies={[
+        { 
+          layer: 'Algorithm & Compilation', 
+          href: '/compilation', 
+          relationship: 'The compiled circuit specifies millions of gate operations that the control hardware must sequence and deliver within the coherence window.', 
+          direction: 'constrains',
+          impact: 'high',
+          status: 'bottleneck',
+          details: 'Deeper circuits require massive amounts of FPGA memory to store waveform data. The shift toward Parametric Compilation on the FPGA fabric is essential to overcome this memory bandwidth wall and allow continuous circuit execution.'
+        },
+        { 
+          layer: 'Qutrits & Qudits', 
+          href: '/qudits', 
+          relationship: 'Each qudit energy level requires a separate, precisely calibrated drive frequency and pulse shape.', 
+          direction: 'constrains',
+          impact: 'critical',
+          status: 'active-research',
+          details: 'A d=5 qudit demands 4 distinct drive tones per physical node. This radically quadruples the RFSoC channel count, DAC bandwidth requirements, and the complexity of optimal control (GRAPE/DRAG) pulse shaping to avoid spectator leakage.'
+        },
+        { 
+          layer: 'Transmon Physics', 
+          href: '/physics', 
+          relationship: 'Control electronics must synthesize microwaves that perfectly match the transition frequencies set by physical Josephson junction parameters.', 
+          direction: 'requires',
+          impact: 'high',
+          status: 'mature',
+          details: 'Transmon transition frequencies and anharmonicity drift over time due to strongly coupled two-level systems (TLS) and 1/f charge noise. This mandates continuous, automated closed-loop feedback routines running on the FPGAs to recalibrate gate parameters (e.g., DRAG coefficients, pulse amplitudes) in real-time.'
+        },
+        { 
+          layer: 'QND Readout', 
+          href: '/readout', 
+          relationship: 'The readout chain shares the exact same RFSoC hardware platform as the control electronics.', 
+          direction: 'enables',
+          impact: 'medium',
+          status: 'mature',
+          details: 'Control pulses and readout tones must be seamlessly interleaved on the same DAC/ADC hardware. Careful synchronization is required to ensure that high-power readout tones do not accidentally drive unintended qubit transitions or saturate amplifiers during control phases.'
+        },
+        { 
+          layer: 'Cryogenics', 
+          href: '/cryogenics', 
+          relationship: 'Every single coaxial cable carrying microwave pulses from room-temperature electronics down to the 15mK stage acts as a thermal bridge.', 
+          direction: 'constrains',
+          impact: 'critical',
+          status: 'bottleneck',
+          details: 'Scaling to thousands of qubits means thousands of coaxial cables. The passive heat load from the cables, plus the active dissipation from the microwave pulses themselves, pushes the cooling power limits of modern dilution refrigerators.'
+        },
+        { 
+          layer: 'Topological QEC', 
+          href: '/qec', 
+          relationship: 'Real-time syndrome extraction demands that the control FPGA apply conditional correction pulses almost instantaneously after readout.', 
+          direction: 'enables',
+          impact: 'critical',
+          status: 'bottleneck',
+          details: 'Active reset and QEC feedback must occur within ~1 µs of measuring the ancilla qubit. Any non-determinism, jitter, or excessive latency in the FPGA processing pipeline directly limits the maximum QEC cycle speed and overall logical fidelity.'
+        }
+      ]}
+    />
+
+  </ContentSection>
+
+  <SkepticismPanel>
+    <ul>
+      <li><strong>GRAPE is Computationally Impractical for Scaling:</strong> As quantum processors scale, the classical computation required for GRAPE optimizations grows exponentially. Calculating gradients for large Hilbert spaces can take weeks or months. This is fundamentally incompatible with the need for daily or hourly recalibrations in drift-heavy superconducting systems.</li>
+      <li><strong>The Over-reliance on Simplified Hamiltonians:</strong> Both DRAG and GRAPE rely heavily on highly truncated, idealized mathematical models of the qubit (e.g., treating it strictly as a two- or three-level system). In physical reality, higher-order spurious modes, unmodeled parasitic couplings, and non-Markovian noise frequently cause theoretically "optimal" pulses to underperform compared to empirical tunes.</li>
+      <li><strong>Hardware Bandwidth Restricts 'Optimal' Pulses:</strong> Arbitrary Waveform Generators (AWGs) and DACs have strict frequency and bandwidth limits. GRAPE often produces rapidly fluctuating, high-frequency spectral components that physical DACs distort, leading to signal ringing and adjacent-channel crosstalk that negates the theoretical fidelity gains.</li>
+    </ul>
+  </SkepticismPanel>
+
+  <ContentSection title="Actionable Research Matters">
+    <div>
+      <Card theme="cyan" title="Physics-Informed Neural Networks (PINNs) for Pulse Shaping">
+        <p>Recent 2024–2025 frameworks replace pure GRAPE optimization with Physics-Informed Neural Networks (PINNs). By embedding the time-dependent Schrödinger or Lindblad master equation directly into the loss function, two-stage PINNs simultaneously maximize noise-averaged gate fidelity and minimize pulse duration. They learn the physical distortions of the cryostat wiring and DAC non-linearities, outputting robust pulse shapes in milliseconds rather than hours, making continuous recalibration viable.</p>
+      </Card>
+      <Card theme="pink" title="Pulse-Level Crosstalk Cancellation">
+        <p>Current active cancellation relies on simple destructive interference tones. Recent 2024–2025 breakthroughs, such as CYCO (CYcle-aware ZZ Crosstalk Optimization), focus on the co-optimization of hardware-level pulses and software-level gate scheduling. By employing joint pulse optimization, the control waveform for Qubit A inherently anticipates and neutralizes the ZZ crosstalk and AC Stark shifts it causes on Qubit B, without requiring separate, dedicated physical cancellation lines.</p>
+      </Card>
+      <Card theme="purple" title="Robustness to Static Disorder">
+        <p>Superconducting qubits suffer from severe fabrication variability (static disorder in resonance frequencies). We must research "robust" optimal control algorithms that optimize a pulse not just for a single ideal frequency, but over a distribution of possible frequencies, allowing a single parameterized pulse dictionary to serve an entire defective array.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ContentSection title="Common Misconceptions">
+    <div>
+      <Card theme="purple" title="Misconception: DRAG completely solves leakage">
+        <p><strong>Reality:</strong> While DRAG is excellent at mitigating leakage to the <Math formula="|2\\rangle"  /> state caused by frequency crowding, it does not solve leakage caused by higher-frequency harmonics, drive-induced heating, or multi-photon transitions during high-power two-qubit gates.</p>
+      </Card>
+      <Card theme="cyan" title="Misconception: More DAC GSPS always equals better fidelity">
+        <p><strong>Reality:</strong> While 10 GSPS DACs provide pristine first-Nyquist-zone synthesis, ultra-fast sampling also means injecting more wideband noise down the dilution refrigerator. The thermal load and broadband noise floor of ultra-fast DACs can sometimes cause more dephasing than the pulse shape improvements fix.</p>
+      </Card>
+      <Card theme="pink" title="Misconception: Gates are discrete events">
+        <p><strong>Reality:</strong> In software, a CNOT is a discrete box. In hardware, control pulses possess long "tails" due to the finite bandwidth of the control electronics and cavity ring-down times. Assuming a gate "ends" exactly when the mathematical envelope goes to zero ignores the residual microwave photons that cause critical subsequent-gate errors.</p>
+      </Card>
+    </div>
+
+  </ContentSection>
+
+  <ReferenceList theme="indigo">
+    <li>
+      <a href="https://arxiv.org/abs/0901.0534" target="_blank">Motzoi et al. (2009) - "Simple method for mitigating leakage in weakly anharmonic two-level systems"</a>
+      <p>Physical Review Letters. Introduces the DRAG (Derivative Removal by Adiabatic Gate) method, shaping microwave envelopes to prevent leakage to the |2⟩ state in transmons.</p>
+    </li>
+    <li>
+      <a href="https://doi.org/10.1016/j.jmr.2004.11.004" target="_blank">Khaneja et al. (2005) - "Optimal control of coupled spin dynamics: design of NMR pulse sequences by gradient ascent algorithms"</a>
+      <p>Journal of Magnetic Resonance. The original paper proposing the GRAPE algorithm for pulse shaping, which is now standard in quantum computing optimal control pipelines.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1901.01460" target="_blank">Rol et al. (2019) - "Fast, high-fidelity conditional-reset of a single superconducting qubit"</a>
+      <p>Applied Physics Letters. Demonstrates active qubit reset using measurement-conditional π-pulses, achieving reset fidelities above 99% in under 500 ns—critical for rapid QEC syndrome cycling.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2003.05952" target="_blank">Werninghaus et al. (2021) - "Leakage reduction in fast superconducting qubit gates via optimal control"</a>
+      <p>npj Quantum Information. Applies optimal control techniques (DRAG and beyond) to suppress leakage during fast gates, achieving single-qubit gate fidelities exceeding 99.99% while maintaining gate durations under 20 ns.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1203.4550" target="_blank">Magesan et al. (2012) - "Efficient measurement of quantum gate error by interleaved randomized benchmarking"</a>
+      <p>Physical Review Letters. Introduces interleaved randomized benchmarking (IRB), enabling precise characterization of individual gate errors independent of SPAM, now the standard protocol for reporting gate fidelities.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2206.06287" target="_blank">Norambuena et al. (2022) - "Physics-informed neural networks for quantum control"</a>
+      <p>Introduces a Physics-Informed Neural Network (PINN) approach to directly invert the Schrödinger equation. This framework drastically accelerates the generation of high-fidelity optimal control pulses by learning the physical dynamics of the system, effectively circumventing the computational scaling bottlenecks of pure GRAPE.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2403.00275" target="_blank">You et al. (2024) - "Crosstalk-Robust Quantum Control in Multimode Bosonic Systems"</a>
+      <p>Physical Review Applied. Demonstrates pulse-level engineering to suppress coherent crosstalk and AC Stark shifts. This paper validates that joint pulse optimization can actively neutralize unintended entanglement on spectator modes without requiring dedicated physical cancellation lines.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2208.07008" target="_blank">Araki et al. (2023) - "Robust quantum control with disorder-dressed evolution"</a>
+      <p>Physical Review A. Develops an optimal control framework explicitly designed to be robust against static hardware disorder. By baking parameter variability into the master equation, a single parameterized optimal pulse sequence can maintain high fidelity across an array of imperfect transmons with varying transition frequencies.</p>
+    </li>
+  </ReferenceList>
+  </PageLayout>
+</Base>

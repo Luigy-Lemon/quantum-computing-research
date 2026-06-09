@@ -1,0 +1,46 @@
+---
+interface Props {
+  defaultText: string;
+}
+
+const { defaultText } = Astro.props;
+---
+
+<div class="hover-info-panel">
+  <div class="info-content">{defaultText}</div>
+</div>
+
+<style>
+  .hover-info-panel {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(37, 99, 235, 0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+  }
+  .info-content {
+    font-size: 0.95rem;
+    color: var(--text-main);
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.hover-info-panel').forEach(panel => {
+    const content = panel.querySelector('.info-content');
+    if (!content) return;
+    const defaultText = content.textContent ?? '';
+    panel.closest('.interactive-board-container')?.querySelectorAll('.hoverable').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        content.textContent = el.getAttribute('data-info');
+        content.style.color = 'var(--accent-dark)';
+      });
+      el.addEventListener('mouseleave', () => {
+        content.textContent = defaultText;
+        content.style.color = 'var(--text-main)';
+      });
+    });
+  });
+</script>

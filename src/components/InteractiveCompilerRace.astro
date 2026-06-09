@@ -1,0 +1,518 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard id="lab" title="Decoherence Race: Compiler vs. Environmental Noise" description="Race a 1,000-gate quantum circuit compilation against exponential dephasing. Tune the qubit coherence time T1 and single-qubit gate speed to see if the circuit completes before the qubit collapses.">
+  
+  <div class="cr-layout">
+    <div class="cr-inputs-panel">
+      <div class="cr-slider-group">
+        <label>
+          <span>Qubit Coherence Time ($T_1$):</span>
+          <span class="value-display"><span id="cr-t1-val">80</span> μs</span>
+        </label>
+        <input type="range" id="cr-t1" min="10" max="250" value="80" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>10 μs (Noisy)</span>
+          <span>130 μs</span>
+          <span>250 μs (SOTA)</span>
+        </div>
+      </div>
+
+      <div class="cr-slider-group">
+        <label>
+          <span>Single-Qubit Gate Speed:</span>
+          <span class="value-display"><span id="cr-speed-val">20</span> ns</span>
+        </label>
+        <input type="range" id="cr-speed" min="10" max="100" value="20" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>10 ns (Fast)</span>
+          <span>55 ns</span>
+          <span>100 ns (Slow)</span>
+        </div>
+      </div>
+
+      <div class="cr-button-row">
+        <button class="cr-btn" id="cr-run">Run 1,000 Gates</button>
+      </div>
+
+      <div class="cr-stats-grid">
+        <div class="cr-stat-card">
+          <div class="cr-stat-num text-cyan" id="cr-executed">0 / 1000</div>
+          <div class="cr-stat-lbl">Gates Executed</div>
+        </div>
+        <div class="cr-stat-card">
+          <div class="cr-stat-num text-magenta" id="cr-survival">100.0%</div>
+          <div class="cr-stat-lbl">Coherence Health</div>
+        </div>
+        <div class="cr-stat-card">
+          <div class="cr-stat-num text-green" id="cr-state">Ready</div>
+          <div class="cr-stat-lbl">Qubit State</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cr-visual-panel">
+      <h5>Coherence Life & Gate Execution Tape</h5>
+      
+      <!-- Coherence Health Bar -->
+      <div class="cr-health-container">
+        <div class="cr-health-bar-bg">
+          <div class="cr-health-bar" id="cr-health-bar"></div>
+        </div>
+      </div>
+
+      <!-- Scrolling Circuit Tape -->
+      <div class="cr-tape-container">
+        <div class="cr-circuit-tape" id="cr-circuit-tape">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Loss Channel Breakdown -->
+      <div class="cr-loss-breakdown">
+        <div class="loss-title">Decoherence Loss Channels:</div>
+        <div class="loss-item">
+          <span class="loss-lbl">Dielectric Loss (Materials):</span>
+          <div class="loss-bar"><div class="loss-fill fill-dielectric" id="ch-dielectric"></div></div>
+        </div>
+        <div class="loss-item">
+          <span class="loss-lbl">Quasiparticle Tunneling:</span>
+          <div class="loss-bar"><div class="loss-fill fill-quasiparticle" id="ch-quasiparticle"></div></div>
+        </div>
+        <div class="loss-item">
+          <span class="loss-lbl">Radiative RF Coupling:</span>
+          <div class="loss-bar"><div class="loss-fill fill-radiative" id="ch-radiative"></div></div>
+        </div>
+      </div>
+
+      <div class="cr-narrative" id="cr-narrative">
+        The qubit state decays exponentially: P<sub>survival</sub> = e<sup>-t / T<sub>1</sub></sup>. Click "Run 1,000 Gates" to see if your compiled gates can outrun dephasing!
+      </div>
+    </div>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .cr-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .cr-layout {
+      grid-template-columns: 1fr 1.25fr;
+    }
+  }
+
+  .cr-inputs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .cr-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .cr-slider-group label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+  .value-display {
+    font-family: monospace;
+    color: var(--accent);
+  }
+
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    padding: 0 4px;
+  }
+
+  .neon-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(226, 232, 240, 0.8);
+    border-radius: 2px;
+    outline: none;
+  }
+  .neon-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
+  }
+
+  .cr-button-row {
+    margin-top: 0.25rem;
+  }
+  
+  .cr-btn {
+    width: 100%;
+    background: var(--surface);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(99,102,241,0.25);
+    transition: all 0.2s;
+  }
+  .cr-btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    box-shadow: 0 6px 12px -2px rgba(99,102,241,0.35);
+  }
+  .cr-btn:disabled {
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .cr-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .cr-stat-card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem;
+    text-align: center;
+    box-shadow: none;
+  }
+
+  .cr-stat-num {
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-family: monospace;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.2rem;
+  }
+  
+  .cr-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .cr-visual-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+  .cr-visual-panel h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .cr-health-container {
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+  .cr-health-bar-bg {
+    width: 100%;
+    height: 12px;
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .cr-health-bar {
+    height: 100%;
+    width: 100%;
+    background: #10b981; /* start green */
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    transition: width 0.08s linear, background-color 0.2s;
+  }
+
+  .cr-tape-container {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    overflow: hidden;
+  }
+
+  .cr-circuit-tape {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    height: 38px;
+    width: max-content;
+    padding-left: 10px;
+  }
+
+  .cr-gate-card {
+    background: var(--surface-alt);
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .cr-gate-card.gate-err {
+    border-color: #f43f5e;
+    color: #f43f5e;
+    background: rgba(244, 63, 94, 0.15);
+    animation: jitter-leak 0.15s infinite;
+  }
+
+  .cr-loss-breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .loss-title {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--text-main);
+  }
+  .loss-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .loss-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    width: 120px;
+  }
+  .loss-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-hover);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .loss-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .fill-dielectric { background: #3b82f6; }
+  .fill-quasiparticle { background: #a855f7; }
+  .fill-radiative { background: #f43f5e; }
+
+  .cr-narrative {
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: var(--text-main);
+    line-height: 1.45;
+    min-height: 60px;
+  }
+
+  .text-cyan { color: #0891b2; }
+  .text-magenta { color: #c026d3; }
+  .text-green { color: #16a34a; }
+</style>
+
+<script>
+  function initCompilerRace() {
+    const t1Slider = document.getElementById('cr-t1') as HTMLInputElement;
+    const speedSlider = document.getElementById('cr-speed') as HTMLInputElement;
+    const btnRun = document.getElementById('cr-run') as HTMLButtonElement;
+    const healthBar = document.getElementById('cr-health-bar');
+    const tape = document.getElementById('cr-circuit-tape');
+    const executedEl = document.getElementById('cr-executed');
+    const survivalEl = document.getElementById('cr-survival');
+    const stateEl = document.getElementById('cr-state');
+    const narrativeEl = document.getElementById('cr-narrative');
+
+    // Channels
+    const chDielectric = document.getElementById('ch-dielectric');
+    const chQuasiparticle = document.getElementById('ch-quasiparticle');
+    const chRadiative = document.getElementById('ch-radiative');
+
+    if (!btnRun || !t1Slider || !speedSlider || !healthBar || !executedEl || !survivalEl || !stateEl || !narrativeEl || !tape) return;
+
+    let animating = false;
+    let animationFrameId: number;
+
+    const gateTypes = ['H', 'CNOT', 'T', 'X', 'Y', 'Z', 'S', 'SWAP'];
+
+    function updateBreakdown() {
+      const t1 = parseInt(t1Slider.value);
+      // Material purity (dielectric loss) scales down as T1 gets longer
+      // Still and base temp cooling (quasiparticle)
+      const dielectricLoss = Math.max(10, Math.round(85 * (50 / t1)));
+      const quasiparticleTunneling = Math.max(5, Math.round(25 * (60 / t1)));
+      const radiativeCoupling = Math.max(2, Math.round(15 * (100 / t1)));
+
+      if (chDielectric) chDielectric.style.width = `${dielectricLoss}%`;
+      if (chQuasiparticle) chQuasiparticle.style.width = `${quasiparticleTunneling}%`;
+      if (chRadiative) chRadiative.style.width = `${radiativeCoupling}%`;
+
+      const t1Val = document.getElementById('cr-t1-val');
+      const speedVal = document.getElementById('cr-speed-val');
+      if (t1Val) t1Val.textContent = t1.toString();
+      if (speedVal) speedVal.textContent = speedSlider.value;
+    }
+
+    // Initialize tape with some static gates
+    function resetTape() {
+      if (!tape) return;
+      tape.innerHTML = '';
+      for (let i = 0; i < 12; i++) {
+        const card = document.createElement('div');
+        card.className = 'cr-gate-card';
+        card.textContent = gateTypes[Math.floor(Math.random() * gateTypes.length)];
+        tape.appendChild(card);
+      }
+    }
+
+    btnRun.onclick = () => {
+      if (animating) return;
+      animating = true;
+      btnRun.disabled = true;
+      btnRun.textContent = 'Compiling...';
+      stateEl.textContent = 'Running';
+      stateEl.className = 'cr-stat-num text-cyan';
+      
+      healthBar.style.width = '100%';
+      healthBar.style.backgroundColor = '#10b981';
+      
+      const t1 = parseInt(t1Slider.value);
+      const gateSpeed = parseInt(speedSlider.value);
+      
+      let currentGate = 0;
+      const totalGates = 1000;
+      let timeAccumulator = 0;
+      let elapsedTime = 0; // μs
+
+      function step() {
+        if (!animating) return;
+
+        currentGate += 5;
+        if (currentGate > totalGates) currentGate = totalGates;
+
+        // In a typical circuit, about 20-30% of gates are 2-qubit gates (CNOT, SWAP)
+        // 2-qubit gates take roughly 2-4x longer than 1-qubit gates
+        const num2Q = 1; // out of 5
+        const num1Q = 4;
+        const gateSpeedMs = gateSpeed / 1000; // converting ns to μs
+        const speed2Q = gateSpeedMs * 3.5; 
+        
+        elapsedTime += (num1Q * gateSpeedMs + num2Q * speed2Q);
+
+        // Effective T2* is usually shorter than T1.
+        const t2 = t1 * 0.7; // Approx realistic T2* < T1 limit
+        
+        // Decoherence is a combination of T1 (relaxation) and T2 (dephasing)
+        // P_survival = exp(-t/T1) * exp(-(t/T2)^2) for Gaussian dephasing, 
+        // or just simple exponential for Markovian.
+        const pRelaxation = Math.exp(-elapsedTime / t1);
+        const pDephasing = Math.exp(-elapsedTime / t2);
+        const pSurvival = pRelaxation * pDephasing;
+
+        executedEl.textContent = `${currentGate} / ${totalGates}`;
+        survivalEl.textContent = `${(pSurvival * 100).toFixed(1)}%`;
+        
+        healthBar.style.width = `${pSurvival * 100}%`;
+        // color interpolation green to orange to red
+        if (pSurvival > 0.6) {
+          healthBar.style.backgroundColor = '#10b981';
+        } else if (pSurvival > 0.3) {
+          healthBar.style.backgroundColor = '#f59e0b';
+        } else {
+          healthBar.style.backgroundColor = '#ef4444';
+        }
+
+        // Shift tape left and add new gate at right
+        timeAccumulator++;
+        if (timeAccumulator % 3 === 0) {
+          if (tape.children.length > 0) {
+            tape.removeChild(tape.children[0]);
+          }
+          const card = document.createElement('div');
+          card.className = 'cr-gate-card';
+          card.textContent = gateTypes[Math.floor(Math.random() * gateTypes.length)];
+          tape.appendChild(card);
+        }
+
+        // Random dephasing collapse test based on survival probability
+        if (Math.random() > pSurvival && currentGate < totalGates) {
+          animating = false;
+          btnRun.disabled = false;
+          btnRun.textContent = 'Run 1,000 Gates';
+          stateEl.textContent = 'COLLAPSED';
+          stateEl.className = 'cr-stat-num text-magenta';
+          healthBar.style.width = '0%';
+          healthBar.style.backgroundColor = '#f43f5e';
+
+          // Glitch the tape
+          Array.from(tape.children).forEach((node: any) => {
+            node.className = 'cr-gate-card gate-err';
+            node.textContent = 'ERROR';
+          });
+          
+          narrativeEl.innerHTML = `💥 <strong>DECOHERENCE COLLAPSE!</strong> Qubit collapsed to environmental noise at gate <strong>#${currentGate}</strong> (elapsed: <strong>${elapsedTime.toFixed(2)} μs</strong>). Dielectric surface loss or quasiparticles destroyed phase coherence ($T_2^*$) before completion.`;
+          return;
+        }
+
+        if (currentGate < totalGates) {
+          animationFrameId = requestAnimationFrame(step);
+        } else {
+          animating = false;
+          btnRun.disabled = false;
+          btnRun.textContent = 'Run 1,000 Gates';
+          stateEl.textContent = 'SUCCESS';
+          stateEl.className = 'cr-stat-num text-green';
+          healthBar.style.backgroundColor = '#10b981';
+          
+          narrativeEl.innerHTML = `🎉 <strong>SUCCESS!</strong> The compiler beat decoherence! The 1,000-gate circuit (mix of 1Q and slower 2Q gates) finished in <strong>${elapsedTime.toFixed(2)} μs</strong> with a final coherence health of <strong>${(pSurvival * 100).toFixed(1)}%</strong>. Ready for readout.`;
+        }
+      }
+
+      step();
+    };
+
+    t1Slider.addEventListener('input', updateBreakdown);
+    speedSlider.addEventListener('input', updateBreakdown);
+    
+    updateBreakdown();
+    resetTape();
+  }
+
+  // Load
+  initCompilerRace();
+  document.addEventListener('astro:page-load', initCompilerRace);
+</script>

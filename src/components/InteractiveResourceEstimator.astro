@@ -1,0 +1,700 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard title="Shor's Resource Estimator & Chip Footprint" description="Adjust target cryptographic key size, physical gate error rate, and cycle time to dynamically compute logical/physical qubit overheads and estimate wall-clock execution time for breaking secp256k1.">
+  
+  <div class="re-layout">
+    <div class="re-inputs-panel">
+      <div class="re-slider-group">
+        <label>
+          <span>Target Key Size (Bits):</span>
+          <span class="value-display"><span id="re-keysize-val">2048</span> bits</span>
+        </label>
+        <input type="range" id="re-keysize" min="128" max="4096" step="128" value="2048" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>128</span>
+          <span>1024</span>
+          <span>2048</span>
+          <span>3072</span>
+          <span>4096</span>
+        </div>
+      </div>
+
+      <div class="re-slider-group">
+        <label>
+          <span>Physical Gate Error Rate (p<sub>phys</sub>):</span>
+          <span class="value-display"><span id="re-error-val">0.10</span>%</span>
+        </label>
+        <input type="range" id="re-error" min="0.01" max="1.50" step="0.01" value="0.10" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>0.01%</span>
+          <span>0.50%</span>
+          <span>1.00% (Threshold)</span>
+          <span>1.50%</span>
+        </div>
+      </div>
+
+      <div class="re-slider-group">
+        <label>
+          <span>Surface Code Cycle Time:</span>
+          <span class="value-display"><span id="re-cycle-val">1.0</span> μs</span>
+        </label>
+        <input type="range" id="re-cycle" min="0.1" max="2.0" step="0.1" value="1.0" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>100 ns</span>
+          <span>500 ns</span>
+          <span>1.0 μs</span>
+          <span>1.5 μs</span>
+          <span>2.0 μs</span>
+        </div>
+      </div>
+
+      <div class="re-row">
+        <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.9rem;">T-Gate Distillation Strategy:</label>
+        <div class="re-btn-group" id="re-distill-strategy">
+          <button class="re-btn" data-strategy="sequential">Sequential (1 Factory)</button>
+          <button class="re-btn active" data-strategy="pipelined">Pipelined (15 Factories)</button>
+          <button class="re-btn" data-strategy="parallel">Massive (100 Factories)</button>
+        </div>
+      </div>
+
+      <div class="re-stats-grid">
+        <div class="re-stat-card">
+          <div class="re-stat-num text-cyan" id="re-logical">4,100</div>
+          <div class="re-stat-lbl">Logical Qubits</div>
+        </div>
+        <div class="re-stat-card">
+          <div class="re-stat-num text-purple" id="re-distance">23</div>
+          <div class="re-stat-lbl">Code Distance (d)</div>
+        </div>
+        <div class="re-stat-card">
+          <div class="re-stat-num text-magenta" id="re-physical">4.3M</div>
+          <div class="re-stat-lbl">Physical Qubits</div>
+        </div>
+        <div class="re-stat-card">
+          <div class="re-stat-num text-orange" id="re-runtime">~18 Hours</div>
+          <div class="re-stat-lbl">Estimated Runtime</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="re-visual-panel">
+      <div class="re-tab-bar">
+        <button class="re-tab-btn active" id="tab-lattice">Lattice Patch</button>
+        <button class="re-tab-btn" id="tab-floorplan">Processor Floorplan</button>
+      </div>
+      <p class="re-visual-hint" id="re-visual-hint">Visual representation of one logical qubit patch. Size adjusts dynamically with code distance.</p>
+      
+      <div class="patch-box-container">
+        <canvas id="re-canvas" width="240" height="240" style="width: 100%; height: 100%; display: block; background: var(--surface-alt);"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="re-narrative" id="re-narrative">
+    Factoring a 2048-bit key requires 4,098 logical qubits. Under a surface code with 10^-3 error rate, we need 1,000 physical qubits per logical qubit to suppress errors below cryptographic threshold.
+  </div>
+</InteractiveBoard>
+
+<style>
+  .re-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .re-layout {
+      grid-template-columns: 1.2fr 1.1fr;
+    }
+  }
+
+  .re-inputs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .re-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .re-slider-group label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+  .value-display {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    padding: 0 0.2rem;
+  }
+
+  .re-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .re-btn-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .re-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .re-btn.active, .re-btn:hover {
+    border-color: var(--accent);
+    color: #ffffff;
+    background: var(--accent);
+  }
+
+  .re-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .re-stat-card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    text-align: center;
+    border-radius: var(--radius);
+  }
+  .re-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+  .re-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .re-visual-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 340px;
+  }
+  
+  .re-tab-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    background: var(--surface);
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .re-tab-btn {
+    background: var(--surface-alt);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .re-tab-btn.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .re-visual-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    max-width: 320px;
+    line-height: 1.3;
+  }
+
+  .patch-box-container {
+    width: 240px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .re-narrative {
+    margin-top: 1.5rem;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    background: var(--surface-alt);
+    padding: 1rem 1.25rem;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .text-cyan { color: var(--accent-cyan); }
+  .text-purple { color: var(--accent-purple); }
+  .text-magenta { color: var(--accent-pink); }
+  .text-orange { color: var(--accent-orange); }
+
+  /* Input Range slider custom */
+  .neon-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    background: var(--border);
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+  }
+  .neon-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-muted);
+    transition: transform 0.1s;
+  }
+  .neon-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+</style>
+
+<script>
+  function initResourceEstimator() {
+    const keySlider = document.getElementById('re-keysize') as HTMLInputElement;
+    const errSlider = document.getElementById('re-error') as HTMLInputElement;
+    const cycleSlider = document.getElementById('re-cycle') as HTMLInputElement;
+    const canvas = document.getElementById('re-canvas') as HTMLCanvasElement;
+    const stratButtons = document.querySelectorAll('#re-distill-strategy button');
+    const tabLattice = document.getElementById('tab-lattice');
+    const tabFloorplan = document.getElementById('tab-floorplan');
+    const hintEl = document.getElementById('re-visual-hint');
+
+    if (!keySlider || !errSlider || !cycleSlider || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let strategy = 'pipelined'; // 'sequential', 'pipelined', 'parallel'
+    let currentTab = 'lattice'; // 'lattice', 'floorplan'
+    let animationFrameId: number;
+
+    // Pulse particles for floorplan animation
+    interface Pulse {
+      x: number;
+      y: number;
+      targetX: number;
+      targetY: number;
+      speed: number;
+      progress: number;
+    }
+    const pulses: Pulse[] = [];
+
+    stratButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        stratButtons.forEach(b => b.classList.remove('active'));
+        const target = e.currentTarget as HTMLButtonElement;
+        target.classList.add('active');
+        strategy = target.getAttribute('data-strategy') || 'pipelined';
+        updateEstimator();
+      });
+    });
+
+    if (tabLattice) {
+      tabLattice.addEventListener('click', () => {
+        tabLattice.classList.add('active');
+        tabFloorplan?.classList.remove('active');
+        currentTab = 'lattice';
+        if (hintEl) hintEl.textContent = 'Visual representation of one logical qubit patch. Size adjusts dynamically with code distance.';
+        updateEstimator();
+      });
+    }
+
+    if (tabFloorplan) {
+      tabFloorplan.addEventListener('click', () => {
+        tabFloorplan.classList.add('active');
+        tabLattice?.classList.remove('active');
+        currentTab = 'floorplan';
+        if (hintEl) hintEl.textContent = 'Fault-Tolerant Processor Floorplan: Data register patches (blue) connected via corridors to T-gate distillation factories (purple).';
+        updateEstimator();
+      });
+    }
+
+    function updateEstimator() {
+      const keysize = parseInt(keySlider.value);
+      const error = parseFloat(errSlider.value);
+      const cycleTime = parseFloat(cycleSlider.value); // μs
+
+      const keysizeVal = document.getElementById('re-keysize-val');
+      const errorVal = document.getElementById('re-error-val');
+      const cycleVal = document.getElementById('re-cycle-val');
+
+      if (keysizeVal) keysizeVal.textContent = keysize.toLocaleString();
+      if (errorVal) errorVal.textContent = error.toFixed(2);
+      if (cycleVal) cycleVal.textContent = cycleTime.toFixed(1);
+
+      // Fault-Tolerant Code Distance Math
+      const p_phys = error / 100;
+      const p_th = 0.01; // 1% threshold
+      
+      const logicalDataQubits = 2 * keysize + 2;
+      const dataEl = document.getElementById('re-logical');
+      if (dataEl) dataEl.textContent = logicalDataQubits.toLocaleString();
+
+      const distEl = document.getElementById('re-distance');
+      const physEl = document.getElementById('re-physical');
+      const runEl = document.getElementById('re-runtime');
+      const narrativeEl = document.getElementById('re-narrative');
+
+      if (p_phys >= p_th) {
+        if (distEl) distEl.textContent = 'FAIL';
+        if (distEl) distEl.className = 're-stat-num text-magenta';
+        if (physEl) physEl.textContent = 'N/A';
+        if (runEl) runEl.textContent = '∞';
+        if (narrativeEl) {
+          narrativeEl.innerHTML = `🚨 <strong>Catastrophic Error Threshold Exceeded:</strong> At a physical error rate of <strong>${error.toFixed(2)}%</strong>, the system exceeds the fault-tolerant threshold (\\(p_{\\text{th}} \\approx 1.0\\%\\)). Scaling up the code distance will actually <em>increase</em> logical errors. Lower the gate error rate to enable error correction.`;
+          if (window.MathJax) { window.MathJax.typesetPromise([narrativeEl]); }
+        }
+        drawLatticeFail();
+        return;
+      } else {
+        if (distEl) distEl.className = 're-stat-num text-purple';
+      }
+
+      // Calculate d accurately:
+      const P_fail = 0.01; // target success rate 99%
+      const N_logical = logicalDataQubits;
+      const N_cycles_logical = 192 * keysize;
+      const P_logical_target = P_fail / (N_logical * N_cycles_logical);
+      
+      const num = Math.log(P_logical_target / 0.03);
+      const den = Math.log(p_phys / p_th);
+      let raw_d = 2 * (num / den) - 1;
+      let d = Math.max(3, Math.ceil(raw_d));
+      if (d % 2 === 0) d += 1; // Must be odd
+      if (d > 45) d = 45; // Caps visual overflow
+
+      if (distEl) distEl.textContent = d.toString();
+
+      // Factory overhead
+      let numFactories = 15;
+      let factoryPatches = 15 * 16; // 16 patches per factory for 15-to-1 distillation
+      if (strategy === 'sequential') {
+        numFactories = 1;
+        factoryPatches = 16;
+      } else if (strategy === 'parallel') {
+        numFactories = 100;
+        factoryPatches = 100 * 16;
+      }
+
+      const totalLogicalQubits = logicalDataQubits + factoryPatches;
+      const physicalPerLogical = 2 * d * d;
+      const physicalQubits = totalLogicalQubits * physicalPerLogical;
+
+      let physicalText = physicalQubits >= 1000000 
+        ? `${(physicalQubits / 1000000).toFixed(2)}M` 
+        : physicalQubits.toLocaleString();
+      if (physEl) physEl.textContent = physicalText;
+
+      // Runtime Calculation
+      // Shor's uses roughly 32 * K^3 T-gates. Pipelined factories distill in parallel.
+      const totalTGates = 32 * Math.pow(keysize, 3);
+      const TgateDistCycles = 15; // cycles to distill a T-state
+      const factoryThroughputPerCycle = numFactories / TgateDistCycles;
+      
+      let totalCycles = totalTGates / factoryThroughputPerCycle;
+      // Logical algorithm execution bottleneck limit (sequential adders)
+      const minLogicalCycles = 200 * keysize;
+      if (totalCycles < minLogicalCycles) {
+        totalCycles = minLogicalCycles;
+      }
+
+      const totalSeconds = totalCycles * (cycleTime * 1e-6);
+      const hours = totalSeconds / 3600;
+      let runtimeText = '';
+      if (hours < 1) {
+        runtimeText = `${Math.round(hours * 60)} Mins`;
+      } else if (hours < 48) {
+        runtimeText = `~${hours.toFixed(1)} Hours`;
+      } else {
+        runtimeText = `~${(hours / 24).toFixed(1)} Days`;
+      }
+      if (runEl) runEl.textContent = runtimeText;
+
+      // Update narrative
+      if (narrativeEl) {
+        if (strategy === 'sequential') {
+          narrativeEl.innerHTML = `⏳ <strong>Sequential Bottleneck:</strong> Factoring a ${keysize}-bit key requires <strong>${logicalDataQubits.toLocaleString()} data patches</strong>. Using a single T-distillation factory minimizes chip size (<strong>${physicalText} physical qubits</strong>) but bottlenecks execution: T-gates must be consumed sequentially, dragging runtime to <strong>${runtimeText}</strong>.`;
+        } else if (strategy === 'parallel') {
+          narrativeEl.innerHTML = `⚡ <strong>High Throughput:</strong> Utilizing 100 parallel distillation factories supplies T-gates faster than the logic register consumes them. This slashes runtime to <strong>${runtimeText}</strong>, but swells the processor size to a massive <strong>${physicalText} physical qubits</strong> (\\(N_{\\text{distill}} = ${factoryPatches.toLocaleString()}\\) patches).`;
+        } else {
+          narrativeEl.innerHTML = `📘 <strong>Standard Pipelined Case:</strong> A balanced configuration. Factoring a ${keysize}-bit key uses <strong>${logicalDataQubits.toLocaleString()} data patches</strong> and 15 T-factories. With a code distance \\(d = ${d}\\) (\\(2d^2 = ${physicalPerLogical}\\) physical qubits per patch), the chip runs <strong>${physicalText} physical qubits</strong>, completing the attack in <strong>${runtimeText}</strong>.`;
+        }
+        if (window.MathJax) { window.MathJax.typesetPromise([narrativeEl]); }
+      }
+
+      // Draw active tab
+      if (currentTab === 'lattice') {
+        drawLattice(d);
+      } else {
+        drawFloorplan(logicalDataQubits, factoryPatches, numFactories);
+      }
+    }
+
+    function drawLattice(d: number) {
+      if (!ctx || !canvas) return;
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = canvas.offsetHeight || 240;
+      ctx.clearRect(0, 0, w, h);
+
+      const drawD = Math.min(d, 19); // Cap rendering size
+      const padding = 15;
+      const gridArea = Math.min(w, h) - 2 * padding;
+      const cellSize = gridArea / drawD;
+
+      for (let r = 0; r < drawD; r++) {
+        for (let c = 0; c < drawD; c++) {
+          const isData = (r + c) % 2 === 0;
+          const x = padding + c * cellSize + cellSize / 2;
+          const y = padding + r * cellSize + cellSize / 2;
+
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(2, cellSize / 2.8), 0, Math.PI * 2);
+          if (isData) {
+            ctx.fillStyle = '#0ea5e9'; // Cyan data
+            ctx.shadowBlur = 1;
+            ctx.shadowColor = '#0ea5e9';
+          } else {
+            ctx.fillStyle = '#f43f5e'; // Magenta measure
+            ctx.shadowBlur = 0;
+          }
+          ctx.fill();
+        }
+      }
+      ctx.shadowBlur = 0;
+    }
+
+    function drawLatticeFail() {
+      if (!ctx || !canvas) return;
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = 240;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(10, 10, w - 20, h - 20);
+
+      ctx.font = 'bold 12px "Space Grotesk", sans-serif';
+      ctx.fillStyle = '#f43f5e';
+      ctx.textAlign = 'center';
+      ctx.fillText('STABILIZER LATTICE COLLAPSED', w / 2, h / 2 - 10);
+      
+      ctx.font = '10px monospace';
+      ctx.fillStyle = 'var(--text-muted)';
+      ctx.fillText('p_phys >= p_th (Logical errors diverge)', w / 2, h / 2 + 10);
+    }
+
+    function drawFloorplan(dataPatches: number, factoryPatches: number, numFactories: number) {
+      if (!ctx || !canvas) return;
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = 240;
+
+      // Set up loop
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+      function renderFrame() {
+        ctx.clearRect(0, 0, w, h);
+
+        // Draw Silicon Die Border
+        ctx.strokeStyle = 'var(--border)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(5, 5, w - 10, h - 10);
+
+        // Label Die
+        ctx.font = '7px monospace';
+        ctx.fillStyle = 'var(--text-muted)';
+        ctx.textAlign = 'left';
+        ctx.fillText('Q-CORE DIE: secp256k1 ACCELERATOR', 10, 15);
+
+        // Core Center Coordinates
+        const centerX = w / 2;
+        const centerY = h / 2 + 5;
+
+        // Draw central Data Register
+        const regW = 80;
+        const regH = 120;
+        const regX = centerX - regW / 2;
+        const regY = centerY - regH / 2;
+
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.08)';
+        ctx.fillRect(regX, regY, regW, regH);
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(regX, regY, regW, regH);
+
+        // Draw micro-grid inside data register representing patches
+        ctx.strokeStyle = 'rgba(14, 165, 233, 0.15)';
+        const gridRows = 8;
+        const gridCols = 6;
+        for (let r = 1; r < gridRows; r++) {
+          const dy = regY + (regH / gridRows) * r;
+          ctx.beginPath(); ctx.moveTo(regX, dy); ctx.lineTo(regX + regW, dy); ctx.stroke();
+        }
+        for (let c = 1; c < gridCols; c++) {
+          const dx = regX + (regW / gridCols) * c;
+          ctx.beginPath(); ctx.moveTo(dx, regY); ctx.lineTo(dx, regY + regH); ctx.stroke();
+        }
+
+        ctx.font = 'bold 8px "Space Grotesk", sans-serif';
+        ctx.fillStyle = '#0284c7';
+        ctx.textAlign = 'center';
+        ctx.fillText('DATA REGISTER', centerX, regY + 12);
+        ctx.font = '7px monospace';
+        ctx.fillText(`${dataPatches} Patches`, centerX, regY + regH - 8);
+
+        // Draw factories flanking the register
+        const factoryWidth = 35;
+        const factoryHeight = 25;
+        const leftFactoryX = regX - factoryWidth - 15;
+        const rightFactoryX = regX + regW + 15;
+
+        const drawnFactories = Math.min(numFactories, 6);
+        const factorySpacing = 32;
+
+        const leftFactoriesY = centerY - ((drawnFactories / 2) * factorySpacing) / 2;
+
+        // Draw factory blocks
+        ctx.strokeStyle = '#a855f7';
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.08)';
+        
+        for (let i = 0; i < drawnFactories; i++) {
+          const fy = leftFactoriesY + (i % Math.ceil(drawnFactories / 2)) * factorySpacing;
+          const fx = i < Math.ceil(drawnFactories / 2) ? leftFactoryX : rightFactoryX;
+
+          ctx.fillRect(fx, fy, factoryWidth, factoryHeight);
+          ctx.strokeRect(fx, fy, factoryWidth, factoryHeight);
+
+          // Draw small grid lines in factory representing distillation distillation units
+          ctx.strokeStyle = 'rgba(168, 85, 247, 0.2)';
+          ctx.strokeRect(fx + 3, fy + 3, factoryWidth - 6, factoryHeight - 6);
+          ctx.strokeStyle = '#a855f7';
+
+          ctx.font = '7px "Space Grotesk", sans-serif';
+          ctx.fillStyle = '#7e22ce';
+          ctx.textAlign = 'center';
+          ctx.fillText('T-FACTORY', fx + factoryWidth / 2, fy + 12);
+
+          // Animate particle emission from this factory to data register
+          if (Math.random() < 0.02) {
+            pulses.push({
+              x: fx + factoryWidth / 2,
+              y: fy + factoryHeight / 2,
+              targetX: centerX + (Math.random() - 0.5) * 50,
+              targetY: regY + 20 + Math.random() * (regH - 40),
+              speed: 1.2 + Math.random() * 0.8,
+              progress: 0
+            });
+          }
+        }
+
+        // Draw routing bus channels
+        ctx.strokeStyle = 'rgba(100, 116, 139, 0.2)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        // Left bus
+        ctx.moveTo(leftFactoryX + factoryWidth, centerY);
+        ctx.lineTo(regX, centerY);
+        // Right bus
+        ctx.moveTo(rightFactoryX, centerY);
+        ctx.lineTo(regX + regW, centerY);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+
+        // Animate pulse particles
+        for (let i = pulses.length - 1; i >= 0; i--) {
+          const p = pulses[i];
+          p.progress += 0.015 * p.speed;
+
+          // Interpolate
+          const currX = p.x + (p.targetX - p.x) * p.progress;
+          const currY = p.y + (p.targetY - p.y) * p.progress;
+
+          ctx.beginPath();
+          ctx.arc(currX, currY, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#d946ef'; // glowing magic state
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = '#d946ef';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          if (p.progress >= 1) {
+            pulses.splice(i, 1);
+          }
+        }
+
+        if (currentTab === 'floorplan') {
+          animationFrameId = requestAnimationFrame(renderFrame);
+        }
+      }
+
+      renderFrame();
+    }
+
+    keySlider.addEventListener('input', updateEstimator);
+    errSlider.addEventListener('input', updateEstimator);
+    cycleSlider.addEventListener('input', updateEstimator);
+
+    updateEstimator();
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }
+
+  let cleanup: (() => void) | undefined;
+  function run() {
+    if (cleanup) cleanup();
+    cleanup = initResourceEstimator();
+  }
+
+  run();
+  document.addEventListener('astro:page-load', run);
+</script>

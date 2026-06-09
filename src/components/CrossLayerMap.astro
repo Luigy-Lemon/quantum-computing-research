@@ -1,0 +1,167 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+
+interface Dependency {
+  layer: string;
+  href: string;
+  relationship: string;
+  direction: 'requires' | 'enables' | 'constrains';
+  impact?: 'critical' | 'high' | 'medium';
+  status?: 'bottleneck' | 'active-research' | 'mature';
+  details?: string;
+}
+
+interface Props {
+  currentLayer: string;
+  dependencies: Dependency[];
+}
+
+const { currentLayer, dependencies } = Astro.props;
+
+const directionLabels = {
+  requires: 'Requires',
+  enables: 'Enables',
+  constrains: 'Constrains',
+};
+
+// Sort dependencies by impact (critical first) if present
+const sortedDependencies = [...dependencies].sort((a, b) => {
+  const impactScore = { critical: 3, high: 2, medium: 1 };
+  const scoreA = a.impact ? impactScore[a.impact] : 0;
+  const scoreB = b.impact ? impactScore[b.impact] : 0;
+  return scoreB - scoreA;
+});
+---
+
+<InteractiveBoard 
+  className="cross-layer-board" 
+  title="Cross-Layer Dependencies" 
+  description={`Explore how ${currentLayer} interacts with other layers of the quantum stack.`}
+>
+  <div class="dependency-grid">
+    {sortedDependencies.map((dep) => (
+      <div class={`dependency-card impact-${dep.impact || 'none'}`}>
+        <div class="dependency-header">
+          <a href={dep.href} class="layer-link">
+            <h3>{dep.layer}</h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <div class="dependency-badges">
+            <span class={`badge direction-${dep.direction}`}>{directionLabels[dep.direction]}</span>
+            {dep.impact && <span class={`badge impact-${dep.impact}`}>{dep.impact} impact</span>}
+            {dep.status && <span class="badge status">{dep.status.replace('-', ' ')}</span>}
+          </div>
+        </div>
+        
+        <div class="dependency-content">
+          <p class="relationship"><strong>Interaction:</strong> {dep.relationship}</p>
+          {dep.details && (
+            <div class="details-box">
+              <strong>Technical Details:</strong>
+              <p>{dep.details}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</InteractiveBoard>
+
+<style>
+  .dependency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .dependency-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  
+  .dependency-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+  }
+  
+  .dependency-header {
+    margin-bottom: 1rem;
+  }
+  
+  .layer-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #0f172a;
+    transition: color 0.2s ease;
+  }
+  
+  .layer-link:hover {
+    color: #3b82f6;
+  }
+  
+  .layer-link h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  
+  .dependency-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Use :global() so Astro does not purge dynamically generated class names */
+  :global(.badge.direction-requires) { background: #fef3c7; color: #d97706; }
+  :global(.badge.direction-enables) { background: #dcfce7; color: #15803d; }
+  :global(.badge.direction-constrains) { background: #f3e8ff; color: #7e22ce; }
+  
+  :global(.badge.impact-critical) { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  :global(.badge.impact-high) { background: #ffedd5; color: #c2410c; }
+  :global(.badge.impact-medium) { background: #f1f5f9; color: #475569; }
+  
+  :global(.badge.status) { background: #e0f2fe; color: #0369a1; }
+  
+  .dependency-content .relationship {
+    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    color: #334155;
+    line-height: 1.5;
+  }
+  
+  .details-box {
+    background: #f8fafc;
+    border-left: 3px solid #cbd5e1;
+    padding: 0.75rem 1rem;
+    border-radius: 0 4px 4px 0;
+  }
+  
+  .details-box strong {
+    display: block;
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 0.25rem;
+  }
+  
+  .details-box p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.5;
+  }
+</style>

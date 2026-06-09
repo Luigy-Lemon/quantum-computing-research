@@ -1,0 +1,304 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard title="Hahn Echo (Spin Echo) Sequence" description="Watch how low-frequency noise dephases the qubit state over time, and how applying a $\pi$-pulse reverses the phase evolution to refocus the signal.">
+  
+  <div class="echo-visualizer">
+    <div class="bloch-sphere">
+      <div class="sphere-outline"></div>
+      <div class="sphere-equator"></div>
+      <div class="axis x-axis"></div>
+      <div class="axis y-axis"></div>
+      <div class="axis z-axis"></div>
+      
+      <!-- Vectors -->
+      <div class="vector v1" id="v1"></div>
+      <div class="vector v2" id="v2"></div>
+      <div class="vector v3" id="v3"></div>
+      
+      <!-- Labels -->
+      <div class="label label-z">|0⟩</div>
+      <div class="label label-minus-z">|1⟩</div>
+      <div class="label label-x">X</div>
+      <div class="label label-y">Y</div>
+    </div>
+    
+    <div class="sequence-timeline">
+      <div class="pulse-line"></div>
+      <div class="pulse p-half" id="pulse-1">π/2</div>
+      <div class="delay" id="delay-1">τ/2</div>
+      <div class="pulse p-full" id="pulse-2">π</div>
+      <div class="delay" id="delay-2">τ/2</div>
+      <div class="pulse p-half" id="pulse-3">π/2</div>
+    </div>
+  </div>
+
+  <div class="echo-controls">
+    <button id="btn-run-echo" class="echo-btn active">Run Hahn Echo</button>
+  </div>
+
+  <div class="echo-info">
+    <strong id="echo-title" class="text-orange">Initialization:</strong>
+    <span id="echo-desc">The qubit starts in the |0⟩ state. Click "Run Hahn Echo" to begin the sequence.</span>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .echo-visualizer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    padding: 2rem 1rem;
+    gap: 2rem;
+  }
+  
+  .bloch-sphere {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    perspective: 800px;
+    transform-style: preserve-3d;
+  }
+  
+  .sphere-outline {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 176, 0, 0.15), transparent);
+  }
+  
+  .sphere-equator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px dashed rgba(148, 163, 184, 0.8);
+    transform: rotateX(75deg);
+  }
+  
+  .axis { position: absolute; background: rgba(148, 163, 184, 0.5); }
+  .z-axis { width: 2px; height: 240px; left: 100px; top: -20px; }
+  .x-axis { height: 2px; width: 240px; top: 100px; left: -20px; }
+  .y-axis { height: 2px; width: 200px; top: 100px; left: 0; transform: rotate(45deg); }
+  
+  .label { position: absolute; font-family: monospace; font-size: 0.8rem; font-weight: bold; color: #64748b; }
+  .label-z { top: -25px; left: 92px; color: var(--text-main); }
+  .label-minus-z { bottom: -25px; left: 92px; color: var(--text-main); }
+  .label-x { top: 92px; right: -25px; }
+  .label-y { bottom: 10px; right: 10px; }
+  
+  .vector {
+    position: absolute;
+    bottom: 100px;
+    left: 100px;
+    width: 2px;
+    height: 90px;
+    transform-origin: bottom center;
+    transition: all 1s ease-in-out;
+  }
+  .vector::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -4px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid;
+  }
+  
+  .v1 { background: #3b82f6; z-index: 5; } .v1::after { border-bottom-color: #3b82f6; }
+  .v2 { background: #ef4444; z-index: 4; opacity: 0; } .v2::after { border-bottom-color: #ef4444; }
+  .v3 { background: #10b981; z-index: 3; opacity: 0; } .v3::after { border-bottom-color: #10b981; }
+  
+  .sequence-timeline {
+    width: 100%;
+    max-width: 400px;
+    height: 60px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .pulse-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: #cbd5e1;
+    top: 50%;
+  }
+  
+  .pulse {
+    position: absolute;
+    background: #f43f5e;
+    color: white;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    bottom: 50%;
+    opacity: 0.3;
+    transition: all 0.3s;
+  }
+  .pulse.active { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+  
+  .p-half { width: 30px; height: 20px; }
+  .p-full { width: 40px; height: 40px; background: #e11d48; }
+  
+  #pulse-1 { left: 10%; }
+  #pulse-2 { left: 50%; transform: translateX(-50%); }
+  #pulse-3 { right: 10%; }
+  
+  .delay {
+    position: absolute;
+    bottom: 10%;
+    color: #64748b;
+    font-family: monospace;
+    font-weight: bold;
+    opacity: 0.3;
+    transition: all 0.3s;
+  }
+  .delay.active { opacity: 1; color: var(--text-main); }
+  
+  #delay-1 { left: 30%; }
+  #delay-2 { right: 30%; }
+  
+  .echo-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  
+  .echo-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-hover);
+    border-radius: 4px;
+    border-left: 4px solid #f97316;
+    font-size: 0.95rem;
+  }
+  .text-orange { color: #ea580c; }
+</style>
+
+<script>
+  const btn = document.getElementById('btn-run-echo');
+  const v1 = document.getElementById('v1');
+  const v2 = document.getElementById('v2');
+  const v3 = document.getElementById('v3');
+  const p1 = document.getElementById('pulse-1');
+  const p2 = document.getElementById('pulse-2');
+  const p3 = document.getElementById('pulse-3');
+  const d1 = document.getElementById('delay-1');
+  const d2 = document.getElementById('delay-2');
+  const title = document.getElementById('echo-title');
+  const desc = document.getElementById('echo-desc');
+
+  if (btn) {
+    // Initial state: pointing up
+    v1.style.transform = 'rotateX(0deg) rotateY(0deg)';
+
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      
+      // Reset
+      v1.style.opacity = '1';
+      v2.style.opacity = '0';
+      v3.style.opacity = '0';
+      v1.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      v2.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      v3.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      
+      let step = 0;
+      
+      const sequence = setInterval(() => {
+        step++;
+        
+        // Step 1: pi/2 pulse
+        if (step === 1) {
+          p1.classList.add('active');
+          v1.style.transform = 'rotateX(90deg) rotateY(0deg)'; // to equator
+          title.textContent = 'π/2 Pulse:';
+          desc.textContent = 'The first microwave pulse rotates the qubit from |0⟩ into a superposition state on the equator of the Bloch sphere.';
+        }
+        
+        // Step 2: tau/2 delay (Dephasing)
+        if (step === 2) {
+          p1.classList.remove('active');
+          d1.classList.add('active');
+          
+          v2.style.opacity = '1';
+          v3.style.opacity = '1';
+          
+          // Spread out
+          v1.style.transform = 'rotateX(90deg) rotateY(0deg)';
+          v2.style.transform = 'rotateX(90deg) rotateY(45deg)'; // fast spin
+          v3.style.transform = 'rotateX(90deg) rotateY(-45deg)'; // slow spin
+          
+          title.textContent = 'τ/2 Free Evolution (Dephasing):';
+          desc.textContent = 'During the wait time, low-frequency 1/f noise causes some qubits (or parts of the ensemble) to precess faster (red) or slower (green) than expected. The phase signal begins to smear out.';
+        }
+        
+        // Step 3: pi pulse
+        if (step === 3) {
+          d1.classList.remove('active');
+          p2.classList.add('active');
+          
+          // Flip 180 on X axis
+          v1.style.transform = 'rotateX(90deg) rotateY(180deg)';
+          v2.style.transform = 'rotateX(90deg) rotateY(135deg)'; // flipped fast
+          v3.style.transform = 'rotateX(90deg) rotateY(225deg)'; // flipped slow
+          
+          title.textContent = 'π Refocusing Pulse (The Echo):';
+          desc.textContent = 'A full π-pulse flips the entire equatorial plane 180 degrees. The "fast" spins are now behind, and the "slow" spins are ahead. The race is reversed.';
+        }
+        
+        // Step 4: tau/2 delay (Refocusing)
+        if (step === 4) {
+          p2.classList.remove('active');
+          d2.classList.add('active');
+          
+          // Converge
+          v1.style.transform = 'rotateX(90deg) rotateY(180deg)';
+          v2.style.transform = 'rotateX(90deg) rotateY(180deg)';
+          v3.style.transform = 'rotateX(90deg) rotateY(180deg)';
+          
+          title.textContent = 'τ/2 Free Evolution (Refocusing):';
+          desc.textContent = 'Because the noise is low-frequency (quasi-static), the fast spins continue to move fast, catching up to the others exactly at time τ. The vectors perfectly realign!';
+        }
+        
+        // Step 5: final pi/2 pulse
+        if (step === 5) {
+          d2.classList.remove('active');
+          p3.classList.add('active');
+          
+          v2.style.opacity = '0';
+          v3.style.opacity = '0';
+          
+          // Rotate back up
+          v1.style.transform = 'rotateX(0deg) rotateY(180deg)';
+          
+          title.textContent = 'Final π/2 Pulse:';
+          desc.textContent = 'The final pulse rotates the perfectly recombined state back to the poles for measurement, canceling out the dephasing noise and extending T2.';
+        }
+        
+        // End
+        if (step === 6) {
+          p3.classList.remove('active');
+          btn.disabled = false;
+          btn.textContent = 'Run Hahn Echo';
+          clearInterval(sequence);
+        }
+        
+      }, 1500);
+    });
+  }
+</script>

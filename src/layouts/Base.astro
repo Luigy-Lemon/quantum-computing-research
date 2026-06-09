@@ -1,0 +1,112 @@
+---
+interface Props {
+  title: string;
+  activeNav?: string;
+  mathjax?: boolean;
+}
+
+const { title, activeNav, mathjax = false } = Astro.props;
+
+const navItems = [
+  { href: '/', label: 'Introduction' },
+  { separator: true, label: 'Core Quantum Stack' },
+  { href: '/compilation', label: 'Compilation' },
+  { href: '/qudits', label: 'Qudits' },
+  { href: '/qec', label: 'Error Correction' },
+  { href: '/readout', label: 'Readout' },
+  { href: '/control', label: 'Control' },
+  { href: '/physics', label: 'Transmon Physics' },
+  { href: '/decoherence', label: 'Decoherence' },
+  { href: '/cryogenics', label: 'Cryogenics' },
+  { separator: true, label: 'Hardware Infrastructure' },
+  { href: '/classical-control', label: 'Classical Control' },
+  { href: '/microwave-wiring', label: 'Coaxial Wiring' },
+  { href: '/vacuum', label: 'Ultra-High Vacuum' },
+  { href: '/interconnects', label: 'Optical Links' },
+  { separator: true, label: 'Alternative Modalities' },
+  { href: '/neutral-atoms', label: 'Neutral Atoms' },
+  { href: '/trapped-ions', label: 'Trapped Ions' },
+  { href: '/photonic-computing', label: 'Photonic (Optical)' },
+  { separator: true, label: 'Meta-Analysis & Capstone' },
+  { href: '/threat-model', label: 'Threat Model' },
+  { href: '/breakthroughs', label: 'Milestones & Breakthroughs' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Deep technical documentation of the quantum computing stack, from Shor's algorithm compilation to millikelvin cryogenics.">
+  <title>{title} — Quantum Computing</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/global.css">
+  {mathjax && <script is:inline id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>}
+</head>
+<body>
+
+  <div class="mobile-header">
+    <a href="/" class="mobile-logo" style="text-decoration: none;">
+      <span class="nav-logo">Quantum Computing</span>
+    </a>
+    <button class="mobile-menu-btn" aria-label="Toggle Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="sidebar-overlay"></div>
+
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="nav-logo-wrap">
+        <span class="nav-logo">Quantum Computing</span>
+      </a>
+    </div>
+    <div class="nav-links">
+      {navItems.map((item) => {
+        if ('separator' in item) {
+          return <span class="nav-sep">{item.label}</span>;
+        }
+        
+        return (
+          <a href={item.href} class:list={[activeNav === item.href ? 'active' : undefined]}>
+            <span class="nav-text">{item.label}</span>
+          </a>
+        );
+      })}
+    </div>
+    <div class="sidebar-footer">
+      <svg class="sidebar-wave" viewBox="0 0 280 40" fill="none" preserveAspectRatio="none">
+        <path d="M0 20 L30 20 L30 10 L50 10 L50 30 L70 30 L70 20 L110 20 L110 5 L130 5 L130 20 L180 20 L180 35 L200 35 L200 20 L280 20" stroke="rgba(255,176,0,0.15)" stroke-width="1" stroke-linecap="square"/>
+        <path d="M0 25 L40 25 L40 15 L60 15 L60 25 L100 25 L100 32 L120 32 L120 25 L160 25 L160 12 L180 12 L180 25 L280 25" stroke="rgba(255,176,0,0.08)" stroke-width="1" stroke-dasharray="4,2" stroke-linecap="square"/>
+      </svg>
+    </div>
+  </nav>
+
+  <main class="content-area">
+    <slot />
+    <footer>Quantum Computing &mdash; From algorithmic theory to 15 mK hardware, one layer at a time.</footer>
+  </main>
+
+  <script is:inline>
+    const btn = document.querySelector('.mobile-menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    if (btn && sidebar && overlay) {
+      const toggleMenu = () => {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+      };
+      btn.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', toggleMenu);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+---
+interface Props {
+  title?: string;
+  theme?: 'red' | 'orange' | 'purple' | 'cyan' | 'green' | 'pink' | 'accent' | 'accent-dark' | 'accent-secondary';
+  class?: string;
+  style?: string;
+  href?: string;
+}
+
+const {
+  title,
+  theme = 'accent',
+  class: className = '',
+  style = '',
+  href,
+} = Astro.props;
+
+const themeColors: Record<string, string> = {
+  red: 'var(--accent-red)',
+  orange: 'var(--accent-orange)',
+  purple: 'var(--accent-purple)',
+  cyan: 'var(--accent-cyan)',
+  green: 'var(--accent-green)',
+  pink: 'var(--accent-pink)',
+  accent: 'var(--accent)',
+  'accent-dark': 'var(--accent-dark)',
+  'accent-secondary': 'var(--accent-secondary)',
+};
+
+const accentColor = themeColors[theme] || themeColors.accent;
+const cardStyle = `--card-accent: ${accentColor}; ${style}`.trim();
+---
+
+{href ? (
+  <a href={href} class:list={['card', className]} style={cardStyle}>
+    {title && <h3 class="card-title">{title}</h3>}
+    <slot />
+  </a>
+) : (
+  <div class:list={['card', className]} style={cardStyle}>
+    {title && <h3 class="card-title">{title}</h3>}
+    <slot />
+  </div>
+)}
+
+<style>
+  .card {
+    --card-accent: var(--accent);
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 1.75rem 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  /* Subtle top accent line */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--card-accent);
+    border-radius: var(--radius) var(--radius) 0 0;
+    opacity: 0.7;
+    transition: opacity 0.25s ease;
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .card:hover::before {
+    opacity: 1;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Small colored dot before the title */
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--card-accent);
+    flex-shrink: 0;
+  }
+</style>

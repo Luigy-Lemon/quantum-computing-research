@@ -1,0 +1,116 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+import HoverInfoPanel from './HoverInfoPanel.astro';
+---
+<InteractiveBoard className="fridge-container" title="³He/⁴He Dilution Mixing Chamber" description="Hover over the components to understand the quantum thermodynamic cycle that reaches 15 mK.">
+  
+  <div class="fridge-graphic">
+    <svg viewBox="0 0 500 400" width="100%" height="100%" class="fridge-svg">
+      <defs>
+        <filter id="glow-cold">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <pattern id="bubbles" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="5" cy="5" r="1.5" fill="var(--surface-alt)" opacity="0.6"/>
+          <circle cx="15" cy="15" r="2" fill="var(--surface-alt)" opacity="0.4"/>
+          <circle cx="10" cy="18" r="1" fill="var(--surface-alt)" opacity="0.5"/>
+        </pattern>
+      </defs>
+
+      <!-- Main Chamber Body -->
+      <g class="comp-group hoverable" data-info="Mixing Chamber (15 mK): The coldest stage of the dilution refrigerator. The quantum processor is bolted to the gold-plated exterior of this chamber.">
+        <path d="M 150 100 L 350 100 L 350 350 C 350 380, 150 380, 150 350 Z" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="3" />
+        <!-- Flange -->
+        <rect x="130" y="90" width="240" height="15" rx="3" fill="var(--border-light)" stroke="var(--border)" stroke-width="2" />
+      </g>
+
+      <!-- Concentrated Phase (Top) -->
+      <g class="comp-group hoverable" data-info="Concentrated Phase (100% ³He): The lighter isotope floats on top. ³He atoms must be continuously pumped across the boundary.">
+        <path d="M 153 105 L 347 105 L 347 220 L 153 220 Z" fill="rgba(6, 182, 212, 0.2)" stroke="var(--accent-cyan)" stroke-width="1" />
+        <text x="250" y="150" class="phase-label" fill="var(--accent-cyan)">³He Concentrated Phase</text>
+      </g>
+
+      <!-- Dilute Phase (Bottom) -->
+      <g class="comp-group hoverable" data-info="Dilute Phase (6.6% ³He in ⁴He): The heavier mixture. As ³He atoms are forced into this phase, they absorb heat (enthalpy of mixing), providing the cooling power.">
+        <path d="M 153 220 L 347 220 L 347 350 C 347 377, 153 377, 153 350 Z" fill="rgba(59, 130, 246, 0.3)" stroke="var(--accent)" stroke-width="1" />
+        <rect x="153" y="220" width="194" height="157" fill="url(#bubbles)" style="pointer-events: none;" />
+        <text x="250" y="290" class="phase-label" fill="var(--accent)">³He / ⁴He Dilute Phase</text>
+      </g>
+
+      <!-- Phase Boundary -->
+      <g class="comp-group hoverable" data-info="Phase Separation Boundary: Below 0.8K, the isotopes separate. Pumping ³He across this boundary is analogous to evaporating a liquid into a gas, but entirely within a liquid phase.">
+        <line x1="150" y1="220" x2="350" y2="220" stroke="var(--accent-pink)" stroke-width="3" stroke-dasharray="6 4" class="boundary-line" />
+        <!-- Arrows crossing boundary -->
+        <path d="M 220 200 L 220 240 M 215 235 L 220 240 L 225 235" stroke="var(--accent-pink)" stroke-width="2" fill="none" class="boundary-arrow" />
+        <path d="M 280 200 L 280 240 M 275 235 L 280 240 L 285 235" stroke="var(--accent-pink)" stroke-width="2" fill="none" class="boundary-arrow" />
+      </g>
+
+      <!-- Continuous Heat Exchanger (Input) -->
+      <g class="comp-group hoverable" data-info="Input Line (Condensing ³He): Pre-cooled ³He gas from the still returns to the mixing chamber, condensing into liquid as it enters the concentrated phase.">
+        <path d="M 200 40 L 200 130" stroke="var(--accent-cyan)" stroke-width="8" fill="none" class="pipe" />
+        <path d="M 195 125 L 200 130 L 205 125" stroke="var(--accent-cyan)" stroke-width="2" fill="none" />
+        <text x="195" y="60" class="pipe-label" text-anchor="end" fill="var(--accent-cyan)">³He IN</text>
+      </g>
+
+      <!-- Still Evaporation (Output) -->
+      <g class="comp-group hoverable" data-info="Output Line (Pumping out ³He): A turbo pump continuously removes ³He from the dilute phase, driving the concentration gradient and forcing more ³He across the boundary.">
+        <path d="M 300 320 L 300 40" stroke="var(--accent)" stroke-width="8" fill="none" class="pipe" />
+        <path d="M 295 60 L 300 40 L 305 60" stroke="var(--accent)" stroke-width="2" fill="none" />
+        <text x="310" y="60" class="pipe-label" text-anchor="start" fill="var(--accent)">³He OUT</text>
+      </g>
+
+    </svg>
+  </div>
+  
+  <HoverInfoPanel defaultText="Hover over regions of the mixing chamber to see how phase separation achieves 15 mK." />
+</InteractiveBoard>
+
+<style>
+  .fridge-graphic {
+    background: var(--surface-alt);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .phase-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    text-anchor: middle;
+    transition: all 0.2s ease;
+  }
+  .pipe-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .boundary-line, .boundary-arrow {
+    transition: all 0.2s ease;
+  }
+  .pipe {
+    transition: all 0.2s ease;
+  }
+  
+  .hoverable {
+    cursor: pointer;
+  }
+  .hoverable:hover .boundary-line {
+    stroke-width: 5;
+    filter: url(#glow-cold);
+  }
+  .hoverable:hover .boundary-arrow {
+    stroke-width: 4;
+    filter: url(#glow-cold);
+  }
+  .hoverable:hover .pipe {
+    stroke-width: 12;
+    filter: url(#glow-cold);
+  }
+  .hoverable:hover .phase-label {
+    font-size: 16px;
+  }
+</style>

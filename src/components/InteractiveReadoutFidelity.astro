@@ -1,0 +1,441 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard id="lab" title="QND Measurement Fidelity & HEMT Noise" description="Optimize measurement integration time and HEMT amplifier noise temperature to maximize readout state-discrimination fidelity and prevent T1 relaxation smearing.">
+  
+  <div class="rf-layout">
+    <div class="rf-inputs-panel">
+      <div class="rf-slider-group">
+        <label>
+          <span>Integration Measurement Time:</span>
+          <span class="value-display"><span id="rf-time-val">180</span> ns</span>
+        </label>
+        <input type="range" id="rf-time" min="40" max="600" step="10" value="180" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>40 ns</span>
+          <span>150 ns</span>
+          <span>300 ns</span>
+          <span>450 ns</span>
+          <span>600 ns</span>
+        </div>
+      </div>
+
+      <div class="rf-slider-group">
+        <label>
+          <span>HEMT Amplifier Noise Temp:</span>
+          <span class="value-display"><span id="rf-noise-val">0.30</span> K</span>
+        </label>
+        <input type="range" id="rf-noise" min="0.1" max="1.5" step="0.05" value="0.30" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>0.1 K</span>
+          <span>0.5 K</span>
+          <span>1.0 K</span>
+          <span>1.5 K</span>
+        </div>
+      </div>
+
+      <div class="rf-stats-grid">
+        <div class="rf-stat-card">
+          <div class="rf-stat-num text-cyan" id="rf-fidelity">99.1%</div>
+          <div class="rf-stat-lbl">Readout Fidelity</div>
+        </div>
+        <div class="rf-stat-card">
+          <div class="rf-stat-num text-magenta" id="rf-decay">0.9%</div>
+          <div class="rf-stat-lbl">T1 Decay Error</div>
+        </div>
+        <div class="rf-stat-card">
+          <div class="rf-stat-num text-green" id="rf-overlap">0.0%</div>
+          <div class="rf-stat-lbl">Thermal Overlap</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rf-visual-panel">
+      <h5>IQ State Space & RF Cavity Oscilloscope</h5>
+      <p class="rf-visual-hint">Left: Demodulated IQ voltage plane blobs. Right: Real-time cavity trace V(t) with HEMT noise and T1 decay phase jump.</p>
+      
+      <div class="rf-canvas-container">
+        <canvas id="rf-canvas" class="rf-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="rf-narrative" id="rf-narrative">
+    Microwave readouts return I/Q signals. Shorter integration fails to separate blobs against HEMT noise (left overlaps). Longer integration risks the |1⟩ decaying to |0⟩ mid-measurement, smearing red into blue.
+  </div>
+</InteractiveBoard>
+
+<style>
+  .rf-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .rf-layout {
+      grid-template-columns: 1fr 1.2fr;
+    }
+  }
+
+  .rf-inputs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .rf-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .rf-slider-group label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+  .value-display {
+    font-family: monospace;
+    color: var(--accent);
+  }
+
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    padding: 0 4px;
+  }
+
+  .neon-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    outline: none;
+  }
+  .neon-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+    transition: transform 0.1s;
+  }
+  .neon-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  .rf-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .rf-stat-card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    box-shadow: none;
+  }
+
+  .rf-stat-num {
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: monospace;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+  
+  .rf-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .rf-visual-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .rf-visual-panel h5 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .rf-visual-hint {
+    margin: 0 0 1rem 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+  }
+
+  .rf-canvas-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .rf-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .rf-narrative {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-alt);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.4;
+  }
+
+  .text-cyan { color: #0891b2; }
+  .text-magenta { color: #c026d3; }
+  .text-green { color: #16a34a; }
+</style>
+
+<script>
+  function initReadoutFidelity() {
+    const timeSlider = document.getElementById('rf-time') as HTMLInputElement;
+    const noiseSlider = document.getElementById('rf-noise') as HTMLInputElement;
+    const canvas = document.getElementById('rf-canvas') as HTMLCanvasElement;
+
+    if (!canvas || !timeSlider || !noiseSlider) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animTime = 0;
+    let animationFrameId: number;
+
+    function renderLoop() {
+      animTime += 0.05;
+      draw();
+      animationFrameId = requestAnimationFrame(renderLoop);
+    }
+
+    function draw() {
+      const time = parseInt(timeSlider.value);
+      const noise = parseFloat(noiseSlider.value);
+
+      const timeVal = document.getElementById('rf-time-val');
+      const noiseVal = document.getElementById('rf-noise-val');
+      if (timeVal) timeVal.textContent = time.toString();
+      if (noiseVal) noiseVal.textContent = noise.toFixed(2);
+
+      const separation = 2.4 * Math.sqrt(time / 180);
+      const stdDev = 14 * noise;
+
+      // Realistic T1 relaxation calculation
+      const t1 = 30000; // 30 μs = 30000 ns
+      const decayProb = 1 - Math.exp(-time / t1);
+      const decayEl = document.getElementById('rf-decay');
+      if (decayEl) decayEl.textContent = `${(decayProb * 100).toFixed(1)}%`;
+
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = 200;
+      ctx.clearRect(0, 0, w, h);
+
+      // Split canvas horizontally
+      const midX = w * 0.45;
+
+      // --- Left: IQ plane plot ---
+      const cx = midX / 2;
+      const cy = h / 2;
+
+      // Draw grid axes
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(10, cy); ctx.lineTo(midX - 10, cy);
+      ctx.moveTo(cx, 10); ctx.lineTo(cx, h - 10);
+      ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '7px monospace';
+      ctx.fillText('+I', midX - 22, cy - 4);
+      ctx.fillText('+Q', cx + 4, 15);
+
+      function randNormal(mean: number, std: number) {
+        let u = 0, v = 0;
+        while(u === 0) u = Math.random();
+        while(v === 0) v = Math.random();
+        let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        return num * std + mean;
+      }
+
+      const numPoints = 80;
+      let misclassified = 0;
+      let thermalOverlaps = 0;
+
+      // Draw |0> state distribution (Cyan)
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.65)';
+      const mean0 = cx - separation * 8;
+      for (let i = 0; i < numPoints; i++) {
+        const px = randNormal(mean0, stdDev);
+        const py = randNormal(cy, stdDev);
+        ctx.beginPath();
+        ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (px > cx) misclassified++;
+      }
+
+      // Draw |1> state distribution (Magenta / Comet tail decay)
+      const mean1 = cx + separation * 8;
+      for (let i = 0; i < numPoints; i++) {
+        const decayed = Math.random() < decayProb;
+        let px, py;
+
+        if (decayed) {
+          const fraction = Math.random();
+          const intermediateMean = mean1 - fraction * (mean1 - mean0);
+          px = randNormal(intermediateMean, stdDev);
+          py = randNormal(cy, stdDev);
+          ctx.fillStyle = 'rgba(244, 63, 94, 0.45)'; // Smear red-ish
+        } else {
+          px = randNormal(mean1, stdDev);
+          py = randNormal(cy, stdDev);
+          ctx.fillStyle = 'rgba(217, 70, 239, 0.65)'; // Magenta |1>
+        }
+
+        ctx.beginPath();
+        ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (px < cx) {
+          misclassified++;
+          if (decayed) thermalOverlaps++;
+        }
+      }
+
+      const totalFidelity = 100 - (misclassified / (numPoints * 2)) * 100;
+      const fidEl = document.getElementById('rf-fidelity');
+      if (fidEl) {
+        fidEl.textContent = `${totalFidelity.toFixed(1)}%`;
+        if (totalFidelity > 99.0) { fidEl.className = 'rf-stat-num text-green'; }
+        else if (totalFidelity > 95.0) { fidEl.className = 'rf-stat-num text-cyan'; }
+        else { fidEl.className = 'rf-stat-num text-magenta'; }
+      }
+
+      const overlapPct = (thermalOverlaps / numPoints) * 100;
+      const overlapEl = document.getElementById('rf-overlap');
+      if (overlapEl) overlapEl.textContent = `${overlapPct.toFixed(1)}%`;
+
+      // Draw SVM Decision Boundary (dashed line)
+      ctx.strokeStyle = '#ef4444';
+      ctx.setLineDash([3, 3]);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(cx, 15);
+      ctx.lineTo(cx, h - 15);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // --- Right: Raw Oscilloscope Cavity Trace ---
+      const oscLeft = midX + 15;
+      const oscWidth = w - oscLeft - 15;
+      const oscCenterY = h / 2;
+      const oscHeight = h - 60;
+
+      // Draw boundary partition
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(midX, 15); ctx.lineTo(midX, h - 15);
+      ctx.stroke();
+
+      // Oscilloscope background grid
+      ctx.fillStyle = '#0f172a'; // Dark retro CRT look
+      ctx.fillRect(oscLeft, oscCenterY - oscHeight / 2, oscWidth, oscHeight);
+
+      ctx.strokeStyle = 'rgba(34, 197, 94, 0.1)'; // CRT grid lines
+      ctx.lineWidth = 0.5;
+      const gridSpacing = 20;
+      for (let gx = oscLeft; gx < oscLeft + oscWidth; gx += gridSpacing) {
+        ctx.beginPath(); ctx.moveTo(gx, oscCenterY - oscHeight / 2); ctx.lineTo(gx, oscCenterY + oscHeight / 2); ctx.stroke();
+      }
+      for (let gy = oscCenterY - oscHeight / 2; gy < oscCenterY + oscHeight / 2; gy += gridSpacing) {
+        ctx.beginPath(); ctx.moveTo(oscLeft, gy); ctx.lineTo(oscLeft + oscWidth, gy); ctx.stroke();
+      }
+
+      // Draw signal trace
+      ctx.strokeStyle = '#22c55e'; // CRT Green
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+
+      // Determine if a decay occurs mid-measurement trace
+      const hasDecay = decayProb > 0.35 && (Math.sin(animTime * 0.1) > 0.1);
+      const decayThresholdIndex = Math.round(oscWidth * 0.55); // decays 55% of the way
+
+      for (let i = 0; i < oscWidth; i++) {
+        const xPos = oscLeft + i;
+        const phaseVal = (hasDecay && i > decayThresholdIndex) ? 0 : Math.PI / 2;
+        const frequency = 0.12;
+
+        const cleanSignal = Math.sin(i * frequency + animTime + phaseVal);
+        const noiseVal = (Math.random() - 0.5) * noise * 0.8;
+        const signalVal = (cleanSignal * 18 * Math.min(1, time / 100)) + noiseVal * 12;
+
+        const yPos = oscCenterY + Math.max(-oscHeight/2 + 2, Math.min(oscHeight/2 - 2, signalVal));
+        if (i === 0) {
+          ctx.moveTo(xPos, yPos);
+        } else {
+          ctx.lineTo(xPos, yPos);
+        }
+      }
+      ctx.stroke();
+
+      // Labels on scope
+      ctx.font = '8px monospace';
+      ctx.fillStyle = '#22c55e';
+      ctx.textAlign = 'right';
+      ctx.fillText('CH1 (Cavity Out)', oscLeft + oscWidth - 5, oscCenterY - oscHeight / 2 + 12);
+      if (hasDecay) {
+        ctx.fillStyle = '#ef4444';
+        ctx.fillText('T1 DECAY DETECTED', oscLeft + oscWidth - 5, oscCenterY + oscHeight / 2 - 8);
+      }
+    }
+
+    timeSlider.addEventListener('input', draw);
+    noiseSlider.addEventListener('input', draw);
+    
+    renderLoop();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }
+
+  // Run on load
+  let cleanup: (() => void) | undefined;
+  function run() {
+    if (cleanup) cleanup();
+    cleanup = initReadoutFidelity();
+  }
+
+  run();
+  document.addEventListener('astro:page-load', run);
+</script>

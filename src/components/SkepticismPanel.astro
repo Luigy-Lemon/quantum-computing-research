@@ -1,0 +1,50 @@
+---
+import Card from './Card.astro';
+---
+<div class="skepticism-wrapper">
+  <Card theme="red">
+    <h2 class="skepticism-title">Skepticism & Counter-points</h2>
+    <div class="skepticism-content">
+      <slot />
+    </div>
+  </Card>
+</div>
+<style>
+  .skepticism-wrapper {
+    margin: 5rem 0;
+  }
+  .skepticism-title {
+    font-size: 1.8rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--accent-red);
+  }
+  .skepticism-content {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-main);
+  }
+  .skepticism-content :global(ul) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .skepticism-content :global(li) {
+    background: var(--surface-alt);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--accent-red);
+  }
+  .skepticism-content :global(strong) {
+    display: block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+  }
+</style>

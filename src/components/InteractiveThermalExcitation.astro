@@ -1,0 +1,523 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard 
+  id="thermal-excitation" 
+  title="Cosmic Ray Impact & Phonon Mitigation" 
+  description="High-energy cosmic rays striking the substrate generate massive phonon cascades, which can break Cooper pairs into quasiparticles and poison the qubit. Toggle Normal Metal Phonon Traps to absorb these phonons before they reach the sensitive superconducting junction."
+>
+  <div class="te-layout">
+    <div class="te-controls">
+      <button id="btn-impact" class="btn primary">
+        ⚡ Trigger Cosmic Ray Impact
+      </button>
+      <button id="btn-traps" class="btn secondary" data-active="false">
+        🛡️ Normal Metal Phonon Traps: OFF
+      </button>
+      
+      <div class="te-stats">
+        <div class="stat-box">
+          <div class="stat-value text-blue" id="stat-cooper">100%</div>
+          <div class="stat-label">Cooper Pairs</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value text-red" id="stat-quasiparticles">0</div>
+          <div class="stat-label">Quasiparticles</div>
+        </div>
+      </div>
+      
+      <div class="te-narrative" id="te-narrative">
+        📘 <strong>Stable Ground State:</strong> The superconducting layer is cold and isolated. All electrons are bound into Cooper pairs, allowing dissipationless quantum operation.
+      </div>
+    </div>
+
+    <div class="te-canvas-container">
+      <canvas id="chip-canvas"></canvas>
+    </div>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .te-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .te-layout {
+      grid-template-columns: 320px 1fr;
+    }
+  }
+
+  .te-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .btn {
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.95rem;
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .btn.primary {
+    background: var(--surface);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(217, 70, 239, 0.4);
+  }
+  .btn.primary:active {
+    transform: translateY(0);
+  }
+
+  .btn.secondary {
+    background: var(--surface-alt);
+    border: 2px solid #475569;
+    color: #cbd5e1;
+  }
+  .btn.secondary:hover {
+    background: var(--surface-hover);
+  }
+  .btn.secondary[data-active="true"] {
+    background: #b45309;
+    border-color: #f59e0b;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+  }
+
+  .te-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .stat-box {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    box-shadow: none;
+  }
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    font-family: monospace;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .text-blue { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+  .text-red { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+  
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .te-narrative {
+    padding: 1rem;
+    background: var(--surface-alt);
+    border-left: 4px solid #3b82f6;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.5;
+    transition: border-color 0.3s;
+  }
+
+  .te-canvas-container {
+    width: 100%;
+    height: 400px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: none;
+  }
+  .te-canvas-container::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    box-shadow: none;
+    border-radius: 12px;
+  }
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>
+
+<script>
+  function initChipSimulation() {
+    const canvas = document.getElementById('chip-canvas') as HTMLCanvasElement;
+    const btnImpact = document.getElementById('btn-impact');
+    const btnTraps = document.getElementById('btn-traps');
+    const narrative = document.getElementById('te-narrative');
+    const statCooper = document.getElementById('stat-cooper');
+    const statQp = document.getElementById('stat-quasiparticles');
+
+    if (!canvas || !btnImpact || !btnTraps) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let w = 0, h = 0;
+    let animationFrameId: number;
+
+    // Simulation state
+    let trapsActive = false;
+    let cooperPairs: {x: number, y: number, vx: number, vy: number}[] = [];
+    let quasiparticles: {x: number, y: number, vx: number, vy: number}[] = [];
+    let phonons: {x: number, y: number, vx: number, vy: number, life: number}[] = [];
+    
+    let rayAlpha = 0;
+    let impactPoint = {x: 0, y: 0};
+    let rayStart = {x: 0, y: 0};
+
+    // Constants
+    const TOTAL_PAIRS = 100;
+    const SUPER_TOP = 60;
+    const SUPER_BOTTOM = 80;
+    const TRAP_HEIGHT = 12;
+
+    function resize() {
+      const container = canvas.parentElement;
+      if (container) {
+        w = canvas.width = container.offsetWidth;
+        h = canvas.height = container.offsetHeight;
+      }
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Initialize Cooper Pairs
+    for(let i=0; i<TOTAL_PAIRS; i++) {
+      cooperPairs.push({
+        x: Math.random() * w,
+        y: SUPER_TOP + 2 + Math.random() * (SUPER_BOTTOM - SUPER_TOP - 4),
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 0.4
+      });
+    }
+
+    function updateStats() {
+      if (!statCooper || !statQp || !narrative) return;
+      
+      const total = cooperPairs.length + quasiparticles.length / 2;
+      const cpPercent = total === 0 ? 0 : Math.max(0, Math.min(100, Math.round((cooperPairs.length / total) * 100)));
+      
+      statCooper.textContent = `${cpPercent}%`;
+      statQp.textContent = quasiparticles.length.toString();
+
+      if (quasiparticles.length > 60) {
+        narrative.innerHTML = `⚠️ <strong>Catastrophic Decoherence:</strong> A massive phonon burst has flooded the superconductor, breaking apart Cooper pairs into a swarm of quasiparticles. The qubit is heavily decohered.`;
+        narrative.style.borderColor = '#ef4444';
+      } else if (quasiparticles.length > 10) {
+        narrative.innerHTML = `⚠️ <strong>Quasiparticle Poisoning:</strong> Phonons are reaching the junction and breaking Cooper pairs. The resulting quasiparticles will cause excess loss and decoherence until they recombine.`;
+        narrative.style.borderColor = '#f59e0b';
+      } else if (trapsActive) {
+        narrative.innerHTML = `🛡️ <strong>Traps Active:</strong> Normal metal islands are absorbing substrate phonons before they can reach the sensitive superconducting junction. The Cooper pairs remain safe!`;
+        narrative.style.borderColor = '#10b981';
+      } else {
+        narrative.innerHTML = `📘 <strong>Stable Ground State:</strong> The superconducting layer is cold and isolated. All electrons are bound into Cooper pairs, allowing dissipationless quantum operation.`;
+        narrative.style.borderColor = '#3b82f6';
+      }
+    }
+
+    btnImpact.addEventListener('click', () => {
+      impactPoint = {
+        x: w * 0.2 + Math.random() * (w * 0.6), 
+        y: h - 30 - Math.random() * 60
+      };
+      rayStart = {
+        x: impactPoint.x + (Math.random() > 0.5 ? 150 : -150), 
+        y: -50
+      };
+      rayAlpha = 1.0;
+
+      const burstCount = 600;
+      for(let i=0; i<burstCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1 + Math.random() * 7;
+        phonons.push({
+          x: impactPoint.x,
+          y: impactPoint.y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1.0 + Math.random() * 0.8
+        });
+      }
+    });
+
+    btnTraps.addEventListener('click', () => {
+      trapsActive = !trapsActive;
+      if (trapsActive) {
+        btnTraps.setAttribute('data-active', 'true');
+        btnTraps.innerHTML = '🛡️ Normal Metal Phonon Traps: ON';
+      } else {
+        btnTraps.setAttribute('data-active', 'false');
+        btnTraps.innerHTML = '🛡️ Normal Metal Phonon Traps: OFF';
+      }
+      updateStats();
+    });
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      
+      // 1. Draw Substrate
+      const grad = ctx.createLinearGradient(0, SUPER_BOTTOM, 0, h);
+      grad.addColorStop(0, '#0f172a');
+      grad.addColorStop(1, '#020617');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, SUPER_BOTTOM, w, h - SUPER_BOTTOM);
+
+      // Substrate grid/texture
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let i=0; i<w; i+=40) { ctx.moveTo(i, SUPER_BOTTOM); ctx.lineTo(i + 40, h); }
+      for(let i=0; i<w; i+=40) { ctx.moveTo(i, h); ctx.lineTo(i + 40, SUPER_BOTTOM); }
+      ctx.stroke();
+
+      ctx.font = '10px sans-serif';
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+      ctx.fillText('SAPPHIRE SUBSTRATE', 15, h - 15);
+
+      // 2. Draw Traps
+      const trapGap = 40; // Gap for junction
+      if (trapsActive) {
+        const trapGrad = ctx.createLinearGradient(0, SUPER_BOTTOM, 0, SUPER_BOTTOM + TRAP_HEIGHT);
+        trapGrad.addColorStop(0, '#b45309');
+        trapGrad.addColorStop(1, '#78350f');
+        ctx.fillStyle = trapGrad;
+        
+        // Left trap
+        ctx.fillRect(0, SUPER_BOTTOM, w/2 - trapGap/2, TRAP_HEIGHT);
+        // Right trap
+        ctx.fillRect(w/2 + trapGap/2, SUPER_BOTTOM, w - (w/2 + trapGap/2), TRAP_HEIGHT);
+        
+        ctx.font = '9px sans-serif';
+        ctx.fillStyle = '#fde68a';
+        ctx.fillText('NORMAL METAL TRAP', 15, SUPER_BOTTOM + 9);
+        ctx.fillText('NORMAL METAL TRAP', w/2 + trapGap/2 + 10, SUPER_BOTTOM + 9);
+      }
+
+      // 3. Draw Superconductor
+      const scGrad = ctx.createLinearGradient(0, SUPER_TOP, 0, SUPER_BOTTOM);
+      scGrad.addColorStop(0, '#94a3b8');
+      scGrad.addColorStop(1, '#64748b');
+      ctx.fillStyle = scGrad;
+      ctx.fillRect(0, SUPER_TOP, w/2 - 4, SUPER_BOTTOM - SUPER_TOP);
+      ctx.fillRect(w/2 + 4, SUPER_TOP, w/2 - 4, SUPER_BOTTOM - SUPER_TOP);
+      
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('ALUMINUM SUPERCONDUCTOR', 15, SUPER_TOP + 12);
+
+      // Junction gap lines
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(w/2 - 4, SUPER_TOP + 10); ctx.lineTo(w/2 + 4, SUPER_TOP + 10);
+      ctx.moveTo(w/2 - 4, SUPER_TOP + 5); ctx.lineTo(w/2 - 4, SUPER_TOP + 15);
+      ctx.moveTo(w/2 + 4, SUPER_TOP + 5); ctx.lineTo(w/2 + 4, SUPER_TOP + 15);
+      ctx.stroke();
+
+      // 4. Draw Cosmic Ray
+      if (rayAlpha > 0) {
+        ctx.beginPath();
+        ctx.moveTo(rayStart.x, rayStart.y);
+        ctx.lineTo(impactPoint.x, impactPoint.y);
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#d946ef';
+        ctx.strokeStyle = `rgba(255, 255, 255, ${rayAlpha})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        ctx.beginPath();
+        ctx.arc(impactPoint.x, impactPoint.y, 25 * rayAlpha, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(217, 70, 239, ${rayAlpha})`;
+        ctx.fill();
+
+        rayAlpha -= 0.04;
+      }
+
+      // 5. Update & Draw Phonons
+      ctx.fillStyle = '#ffffff';
+      for(let i = phonons.length - 1; i >= 0; i--) {
+        let p = phonons[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.01;
+
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+
+        let dead = false;
+        if (p.life <= 0 || p.x < 0 || p.x > w || p.y > h || p.y < 0) {
+          dead = true;
+        }
+
+        // Collision with traps
+        if (!dead && p.y <= SUPER_BOTTOM + TRAP_HEIGHT && p.y >= SUPER_BOTTOM) {
+          if (trapsActive) {
+            if (p.x < w/2 - trapGap/2 || p.x > w/2 + trapGap/2) {
+              dead = true; // Absorbed by trap
+            }
+          }
+        }
+
+        // Collision with superconductor
+        if (!dead && p.y <= SUPER_BOTTOM && p.y >= SUPER_TOP) {
+          if (p.x < w/2 - 4 || p.x > w/2 + 4) {
+            // High chance to break a Cooper pair if close
+            if (Math.random() < 0.4 && cooperPairs.length > 0) {
+              let minDist = Infinity;
+              let minIdx = -1;
+              for(let j=0; j<cooperPairs.length; j++) {
+                let dx = cooperPairs[j].x - p.x;
+                let dist = dx*dx; // Only check X distance for simplicity, since Y is narrow
+                if(dist < minDist) { minDist = dist; minIdx = j; }
+              }
+              if(minIdx !== -1 && minDist < 1600) { // within 40px
+                const cp = cooperPairs.splice(minIdx, 1)[0];
+                quasiparticles.push({x: cp.x, y: cp.y, vx: 3 + Math.random()*2, vy: (Math.random()-0.5)*3});
+                quasiparticles.push({x: cp.x, y: cp.y, vx: -3 - Math.random()*2, vy: (Math.random()-0.5)*3});
+                dead = true;
+                updateStats();
+              }
+            }
+          }
+        }
+
+        if (dead) {
+          phonons.splice(i, 1);
+        }
+      }
+
+      // 6. Update & Draw Cooper Pairs
+      ctx.fillStyle = '#38bdf8';
+      ctx.shadowColor = '#0ea5e9';
+      ctx.shadowBlur = 8;
+      for(let i = 0; i < cooperPairs.length; i++) {
+        let cp = cooperPairs[i];
+        cp.x += cp.vx;
+        cp.y += cp.vy;
+        if (cp.x < 0) cp.x = w;
+        if (cp.x > w) cp.x = 0;
+        if (cp.y < SUPER_TOP + 2) cp.vy *= -1;
+        if (cp.y > SUPER_BOTTOM - 2) cp.vy *= -1;
+
+        // Draw as two connected dots
+        ctx.beginPath();
+        ctx.arc(cp.x - 3, cp.y, 2, 0, Math.PI*2);
+        ctx.arc(cp.x + 3, cp.y, 2, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      // 7. Update & Draw Quasiparticles
+      ctx.fillStyle = '#ef4444';
+      ctx.shadowColor = '#dc2626';
+      ctx.shadowBlur = 10;
+      for(let i = 0; i < quasiparticles.length; i++) {
+        let qp = quasiparticles[i];
+        qp.x += qp.vx;
+        qp.y += qp.vy;
+        
+        qp.vx += (Math.random() - 0.5) * 0.8;
+        qp.vy += (Math.random() - 0.5) * 0.8;
+        qp.vx *= 0.96; // friction
+        qp.vy *= 0.96;
+
+        if (qp.x < 0) qp.x = w;
+        if (qp.x > w) qp.x = 0;
+        if (qp.y < SUPER_TOP + 2) { qp.y = SUPER_TOP + 2; qp.vy *= -1; }
+        if (qp.y > SUPER_BOTTOM - 2) { qp.y = SUPER_BOTTOM - 2; qp.vy *= -1; }
+
+        ctx.beginPath();
+        ctx.arc(qp.x, qp.y, 2.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      // 8. Quasiparticle Recombination
+      let recombined = new Set();
+      let didRecombine = false;
+      for(let i = 0; i < quasiparticles.length; i++) {
+        if (recombined.has(i)) continue;
+        if (Math.random() < 0.015) { // Recombination chance
+          let minDist = Infinity;
+          let minIdx = -1;
+          for(let j=i+1; j<quasiparticles.length; j++) {
+            if (recombined.has(j)) continue;
+            let dx = quasiparticles[i].x - quasiparticles[j].x;
+            let dy = quasiparticles[i].y - quasiparticles[j].y;
+            let dist = dx*dx + dy*dy;
+            if (dist < 900 && dist < minDist) { // within 30px
+              minDist = dist;
+              minIdx = j;
+            }
+          }
+          if (minIdx !== -1) {
+            recombined.add(i);
+            recombined.add(minIdx);
+            cooperPairs.push({
+              x: (quasiparticles[i].x + quasiparticles[minIdx].x)/2,
+              y: (quasiparticles[i].y + quasiparticles[minIdx].y)/2,
+              vx: (Math.random() - 0.5)*1.5,
+              vy: (Math.random() - 0.5)*0.4
+            });
+            didRecombine = true;
+          }
+        }
+      }
+      
+      if (didRecombine) {
+        quasiparticles = quasiparticles.filter((_, idx) => !recombined.has(idx));
+        updateStats();
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }
+
+  // Astro page transition support
+  let cleanup: (() => void) | undefined;
+  function run() {
+    if (cleanup) cleanup();
+    cleanup = initChipSimulation();
+  }
+
+  run();
+  document.addEventListener('astro:page-load', run);
+</script>

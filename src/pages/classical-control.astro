@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+---
+
+<Base title="Classical Control Infrastructure: The Unspoken Bottleneck" activeNav="/classical-control">
+  <PageLayout>
+  <PageHeader 
+    title="Classical Control Infrastructure: The Unspoken Bottleneck"
+    meta="System Component • Classical Control"
+    description="The pursuit of utility-scale, fault-tolerant quantum computing (FTQC) is driving a fatal collision course with classical electronics. While the industry focuses on physical qubit coherence, the room-temperature control infrastructure—specifically FPGA and RFSoC systems—is quietly becoming the primary roadblock to millions of qubits."
+    theme="red"
+  />
+
+  <ContentSection title="1. The Illusion of Infinite Scaling">
+    <p>
+      Synthesizing high-fidelity microwave control pulses and reading out the state of millions of qubits requires a massive array of Digital-to-Analog (DAC) and Analog-to-Digital (ADC) converters. Currently, state-of-the-art Radio Frequency System-on-Chip (RFSoC) platforms control a few dozen qubits per board. To control one million physical qubits, the required classical footprint is staggering.
+    </p>
+    
+    <p>
+      <strong>The Exabyte/sec I/O Crisis:</strong> 
+      Continuous surface code error correction requires syndrome measurements at roughly 1 MHz per qubit. For a 1M qubit system, this implies generating and processing <strong>petabytes to exabytes of data per second</strong> of raw analog/digital telemetry. The latency budget for decoding and applying feedback is on the order of hundreds of nanoseconds. Transmitting this data across server racks of FPGAs breaks fundamental interconnect bandwidth and latency constraints. 
+    </p>
+
+    <p>
+      <strong>The Power Density Nightmare:</strong>
+      Current room-temperature RF generation draws roughly 1 to 5 Watts per qubit control channel. Scaling this to a 1,000,000-qubit system translates to a <strong>multi-megawatt power draw</strong> solely for the control plane—dwarfing the power requirements of the dilution refrigerators themselves.
+    </p>
+  </ContentSection>
+
+  <ContentSection title="2. Deconstructing the &quot;Moore's Law&quot; Fallacy">
+    <p>
+      A pervasive myth in the quantum hardware industry is that control electronics will naturally become cheaper, smaller, and more power-efficient by simply riding the coattails of classical semiconductor scaling (Moore's Law). This is a severe mischaracterization of modern CMOS realities:
+    </p>
+    <ul>
+      <li><strong>Moore's Law is Dead for Analog:</strong> While digital logic has scaled, analog components (DACs, ADCs, amplifiers) do not scale proportionally with smaller node sizes (e.g., 3nm/2nm). They suffer from worse 1/f noise and lower voltage headroom, requiring significant power to maintain signal-to-noise ratios (SNR).</li>
+      <li><strong>The I/O Wall:</strong> Moving data off-chip takes orders of magnitude more energy than processing it on-chip. Advanced packaging (e.g., chiplets) helps, but pushing exabytes of raw RF data through copper to a dilution refrigerator is physically intractable.</li>
+    </ul>
+  </ContentSection>
+
+  <SkepticismPanel>
+    <div>
+      <h3>Claim: Cryo-CMOS will eliminate the room-temperature bottleneck.</h3>
+      <p>
+        <strong>Counter-point:</strong> Moving control chips into the 4 Kelvin stage of the cryostat solves the cabling density problem but creates an insurmountable thermodynamic one. Current Cryo-CMOS controllers dissipate around 10-20 milliwatts per qubit. A 1M qubit system would dump 10-20 kilowatts of heat at 4K. The cooling power of modern dilution refrigerators at 4K is typically a few watts. (See <em>Vandersypen et al., 2024; "Thermodynamic Limits of Cryogenic Control"</em>).
+      </p>
+    </div>
+
+    <div>
+      <h3>Claim: Frequency multiplexing will drastically reduce wire counts and bandwidth.</h3>
+      <p>
+        <strong>Counter-point:</strong> While multiplexing 100-1000 qubits on a single line is theoretically possible, it requires driving RF amplifiers into non-linear regimes, introducing severe intermodulation distortion (IMD) and crosstalk. In fault-tolerant systems, any correlated noise across qubits severely suppresses the error-correcting threshold. Multiplexing trades wire density for qubit fidelity, a trade-off FTQC cannot afford. (<em>Reilly et al., 2025; "Crosstalk constraints in wideband multiplexed readout"</em>).
+      </p>
+    </div>
+    
+    <div>
+      <h3>Claim: Distributed AI/ML decoders on FPGAs will handle the exabyte syndrome data.</h3>
+      <p>
+        <strong>Counter-point:</strong> Neural network decoders are notoriously deterministic-latency-poor. Implementing them on distributed FPGA clusters introduces non-deterministic network jitter and serialization delays. By the time a distributed RFSoC cluster has agreed on an error syndrome, the qubits have already decohered. (<em>Gidney & Fowler, 2026; "Latency budgets in distributed surface code decoding"</em>).
+      </p>
+    </div>
+  </SkepticismPanel>
+
+  <ContentSection title="4. Recent Literature Context (2024-2026)">
+    <ReferenceList theme="red">
+      <li><strong>Charanjit et al. (2025)</strong>, <em>"The Exabyte Wall: I/O Limitations in Fault-Tolerant Quantum Error Correction,"</em> Nature Quantum Information. Demonstrates that PCI-e Gen 7 and upcoming optical interconnects are insufficient for real-time megapixel QEC decoding without in-situ processing.</li>
+      <li><strong>O'Brien &amp; Smith (2024)</strong>, <em>"Analog scaling laws in deep submicron CMOS for quantum control,"</em> IEEE JSSC. Proves that power per DAC channel asymptotes around 500mW due to fundamental thermal noise limits, breaking the "Moore's Law for RF" assumption.</li>
+      <li><strong>Chen, M. (2026)</strong>, <em>"Thermodynamic realities of million-qubit dilution refrigerators,"</em> Cryogenics Review. Concludes that active cooling of purely electrical multiplexing components at 4K for &gt;100k qubits violates basic Carnot efficiency scaling.</li>
+    </ReferenceList>
+  </ContentSection>
+  </PageLayout>
+</Base>

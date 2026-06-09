@@ -1,0 +1,221 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  id?: string;
+  className?: string;
+}
+
+const { title, description, id, className = "" } = Astro.props;
+---
+
+<div class={`interactive-board-container ${className}`} id={id}>
+  <div class="board-header">
+    <div class="board-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
+    </div>
+    <div class="board-title-group">
+      <h4>{title}</h4>
+      <p>{description}</p>
+    </div>
+  </div>
+  
+  <div class="board-content">
+    <slot />
+  </div>
+
+  <div class="board-guide-panel" style="display: none;">
+    <div class="guide-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <span>Physical Insights</span>
+    </div>
+    <p class="guide-text"></p>
+  </div>
+</div>
+
+<script is:inline>
+  document.querySelectorAll('.interactive-board-container').forEach(board => {
+    const guidePanel = board.querySelector('.board-guide-panel');
+    const guideText = board.querySelector('.guide-text');
+    if (!guidePanel || !guideText) return;
+
+    board.addEventListener('click', (e) => {
+      const button = e.target.closest('button');
+      if (!button) return;
+
+      const explanation = button.getAttribute('data-explanation');
+      if (explanation) {
+        guideText.textContent = explanation;
+        guidePanel.style.display = 'block';
+        guidePanel.style.animation = 'none';
+        void guidePanel.offsetWidth; // Trigger reflow
+        guidePanel.style.animation = 'fadeInSlideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+      }
+    });
+
+    const activeBtn = board.querySelector('button.active');
+    if (activeBtn) {
+      const explanation = activeBtn.getAttribute('data-explanation');
+      if (explanation) {
+        guideText.textContent = explanation;
+        guidePanel.style.display = 'block';
+      }
+    }
+  });
+</script>
+
+<style>
+  .interactive-board-container {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 0px;
+    padding: 1.5rem;
+    margin: 2.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .interactive-board-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: var(--accent);
+    opacity: 0.8;
+  }
+
+  .board-header { 
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .board-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--surface-hover);
+    color: var(--accent);
+    border: 1px solid var(--border-light);
+    border-radius: 0px;
+    flex-shrink: 0;
+  }
+
+  .board-title-group h4 { 
+    margin: 0 0 0.25rem 0; 
+    color: var(--ink); 
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .board-title-group p { 
+    margin: 0; 
+    font-size: 0.95rem; 
+    color: var(--text-main); 
+    line-height: 1.4;
+  }
+  
+  .board-content {
+    margin-top: 1rem;
+  }
+
+  /* Global styles for interactive board elements */
+  :global(.board-controls),
+  :global(.pulse-controls),
+  :global(.stv-controls),
+  :global(.echo-controls),
+  :global(.iq-controls) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+  }
+
+  :global(.board-content button) {
+    background: var(--surface-alt);
+    border: 1px solid var(--border-light);
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    transition: all 0.15s ease;
+  }
+  
+  :global(.board-content button:hover:not(:disabled)) {
+    background: var(--surface-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  :global(.board-content button:active:not(:disabled)) {
+    transform: translateY(1px);
+  }
+
+  :global(.board-content button.active) {
+    background: var(--accent);
+    color: #000 !important;
+    border-color: var(--accent);
+  }
+
+  :global(.board-content button:disabled) {
+    background: var(--surface);
+    color: var(--text-muted);
+    border-color: var(--border);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  /* Guide Panel Styles */
+  .board-guide-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--border-light);
+    border-left: 4px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1.5rem;
+    border-radius: 0px;
+    animation: fadeInSlideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+  .guide-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .guide-text {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.55;
+  }
+
+  @keyframes fadeInSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

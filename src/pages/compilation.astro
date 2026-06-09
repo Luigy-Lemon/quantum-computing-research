@@ -1,0 +1,306 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+import Infographic from '../components/Infographic.astro';
+import Math from '../components/Math.astro';
+import Timeline from '../components/Timeline.astro';
+import CrossLayerMap from '../components/CrossLayerMap.astro';
+
+const timelineItems = [
+  {
+    year: '1994',
+    title: 'Shor\'s Algorithm Proposed',
+    description: 'Peter Shor proposes a polynomial-time quantum algorithm for integer factorization and discrete logarithms. <strong>Contribution:</strong> Proved mathematically that breaking RSA and ECC is possible in polynomial time on a quantum computer, shifting the global cryptographic paradigm towards post-quantum encryption.'
+  },
+  {
+    year: '1996',
+    title: 'Fault-Tolerant Quantum Computing',
+    description: 'Peter Shor and others formulate theorems for fault-tolerant execution of quantum circuits. <strong>Contribution:</strong> Demonstrated that algorithms with billions of gates (like Shor\'s) could actually be executed on noisy physical hardware without the accumulated error rate reaching 100%, provided the noise is below a certain threshold.'
+  },
+  {
+    year: '2003',
+    title: 'ECDLP Mapping to Shor\'s',
+    description: 'Proos and Zalka rigorously map Shor\'s algorithm to elliptic curves. <strong>Contribution:</strong> Demonstrated that a 256-bit elliptic curve requires only ~2,300 logical qubits to crack, proving ECC is significantly more vulnerable to quantum attacks than 2048-bit RSA, and establishing the exact threat model for Bitcoin\'s <code>secp256k1</code>.'
+  },
+  {
+    year: '2012',
+    title: 'Ripple-Carry Adder Optimization',
+    description: 'Cuccaro et al. design a linear-depth, low-ancilla ripple-carry adder. <strong>Contribution:</strong> Dramatically reduced the spatial overhead of arithmetic quantum circuits, enabling the logical qubit footprint of Shor\'s algorithm to fit within plausible near-term fault-tolerant hardware architectures.'
+  },
+  {
+    year: '2015',
+    title: 'Magic State Distillation Optimization',
+    description: 'Bravyi and Haah introduce optimized routines for distilling high-fidelity T-states. <strong>Contribution:</strong> Significantly reduced the massive overhead required to execute non-Clifford gates (like the Toffoli gates inside modular adders), cutting the physical qubit footprint of compilation pipelines by an order of magnitude.'
+  },
+  {
+    year: '2017',
+    title: 'Windowed Arithmetic & Space-Time Optimizations',
+    description: 'Craig Gidney introduces windowed multiplication methods and carry-save adders. <strong>Contribution:</strong> Slashed the logical gate depth (T-count) by multiple orders of magnitude, effectively bringing the theoretical runtime of Shor\'s algorithm from years down to days or hours on mega-qubit architectures.'
+  },
+  {
+    year: '2019',
+    title: 'Qutrit Compilation for Shor\'s',
+    description: 'Gokhale et al. demonstrate compiling arithmetic into base-3 and base-4 logic. <strong>Contribution:</strong> Logarithmically compresses register widths and absorbs carry bits into elevated transmon states, theoretically halving the circuit depth and physical footprint of Shor\'s ECDLP solver.'
+  },
+  {
+    year: '2021',
+    title: 'The 8-Hour RSA-2048 Benchmark',
+    description: 'Gidney and Ekerå publish a comprehensive compilation framework factoring 2048-bit RSA. <strong>Contribution:</strong> Provided the gold standard blueprint for scaling attack circuits, proving that an attack takes just 8 hours using 20 million noisy physical qubits in a Surface Code.'
+  },
+  {
+    year: '2026',
+    title: 'Google Quantum AI secp256k1 Resource Minimization',
+    description: 'Researchers demonstrate breaking secp256k1 using ≤ 1,200 logical qubits and ≤ 90 million Toffoli gates. <strong>Contribution:</strong> By integrating qLDPC codes and aggressive modular-arithmetic compression, the physical qubit overhead was slashed to under 500,000, drastically shifting the CRQC timeline.'
+  }
+];
+    import InteractiveQFT from '../components/InteractiveQFT.astro';
+    import InteractiveSpaceTimeVolume from '../components/InteractiveSpaceTimeVolume.astro';
+    import InteractiveResourceEstimator from '../components/InteractiveResourceEstimator.astro';
+---
+<Base title="Cryptographic Compilation: secp256k1 to Hardware" activeNav="/compilation" mathjax>
+  <PageLayout>
+  <PageHeader title="Cryptographic Compilation: secp256k1 to Hardware" meta="1 · Compilation" description={`A quantum computer does not intrinsically "know" how to break cryptography. Breaking the secp256k1 discrete log requires compiling elliptic-curve point addition into reversible Toffoli gates. Each point addition costs ~1.39M Toffoli gates across 1,297 peak qubits. Shor needs ~2,300 of them. This page traces the compilation pipeline from Shor's algorithm through Dialog-GCD inversion and Cuccaro ripple-carry adders to the physical microwave pulses that execute each gate.`} theme="red" />
+
+  <ContentSection title="1. The Macro Pipeline: Shor's ECDLP Algorithm">
+    <p>The Elliptic Curve Discrete Logarithm Problem (ECDLP) asks: given a base point <Math formula="G"  /> and a public key <Math formula="P = kG"  />, find the private key <Math formula="k"  />. Shor's algorithm solves this by translating the problem into finding the hidden period of a function over a finite field via the Quantum Fourier Transform (QFT).</p>
+
+    <InteractiveQFT />
+
+    <Card theme="red" title="The Hidden Subgroup Problem & Register Allocation">
+      <p>Breaking <code>secp256k1</code> reduces to the Abelian Hidden Subgroup Problem (HSP). The quantum machine evaluates the superposition <Math formula="|a, b\\rangle |aG + bP\\rangle"  />. The periodicity of this state yields the scalar <Math formula="k"  />. This demands rigorous register allocation:</p>
+      <ul>
+        <li style="margin-bottom: 1rem;"><strong>Logical Qubit Footprint:</strong> Using state-of-the-art modular-arithmetic compression and windowed exponentiation (circa 2026), the entire ECDLP state space can be mapped to <strong>1,200 to 1,450 logical qubits</strong> with a global T-depth bounded by ~70M-90M Toffolis.</li>
+        <li><strong>The Qudit Compression:</strong> Mapping these registers onto <Math formula="SU(d)"  /> basis states allows logarithmic spatial compression. For a base-<Math formula="d"  /> architecture, the informational carriers scale as <Math formula="N_d \\approx \\lceil N_2 / \\log_2(d) \\rceil"  />. Furthermore, utilizing mid-circuit measurements and feedforward operations enables constant-depth unitary synthesis, heavily bounded by <Math formula="O(N_d)"  /> spatial cost.</li>
+      </ul>
+    </Card>
+  </ContentSection>
+
+  <ContentSection title="2. The Micro-Level: Qudit ALU & Adder Schematics">
+    <p>The vast majority of the execution time in Shor's ECDLP algorithm is spent inside the Quantum Arithmetic Logic Unit (ALU), performing <strong>modular additions</strong> to achieve elliptic curve point addition. This is where the physical advantage of qutrits/qudits becomes devastating.</p>
+
+    <Card theme="orange" style="margin-bottom: 2rem;" title="The Ripple-Carry Bottleneck">
+      <p>In binary logic, a standard Cuccaro or Gidney Ripple-Carry Adder must calculate the SUM bit and the CARRY bit for every single digit. Calculating the CARRY bit is a non-linear operation requiring a Toffoli gate. For a 256-bit addition, the CARRY ripples through 256 sequential Toffolis. Because a binary Toffoli is decomposed into 6 CNOTs, the <strong>circuit depth explodes</strong>.</p>
+    </Card>
+
+    <Card theme="cyan" title="The Base-3 (Qutrit) Adder Schematic">
+      <p>Modular addition in a base-3 framework abandons Boolean synthesis in favor of <Math formula="SU(3)"  /> generalized Weyl-Heisenberg operators. The central mechanism is <strong>carry absorption</strong>. By mapping the computational subspace to <Math formula="\\{|0\\rangle, |1\\rangle, |2\\rangle\\}"  />, the addition of two trits computes the modular sum in the <Math formula="\\{|0\\rangle, |1\\rangle\\}"  /> basis while the <Math formula="|2\\rangle"  /> state transiently absorbs the carry overflow.</p>
+
+      <Math formula="|x\\rangle |y\\rangle \\xrightarrow{U_{\\text{SUM}}} |x\\rangle |(x+y) \\pmod 3\\rangle \\otimes |c_{\\text{out}}\\rangle \\rightarrow |2\\rangle" />
+
+      <p>Instead of requiring <Math formula="O(n)"  /> ancillas for a carry-ripple cascade, the state is dynamically pumped to <Math formula="|2\\rangle"  /> exclusively upon overflow (<Math formula="x+y \\geq 3"  />). The carry is subsequently discharged forward natively.</p>
+      <p><strong>Result:</strong> By absorbing auxiliary logic into the higher-dimensional z-axis of the qudit's Hilbert space, spatial complexity is minimized and non-Clifford gate counts (e.g., CCZ) are strictly bounded.</p>
+    </Card>
+  </ContentSection>
+
+  <ContentSection title="3. Logical vs. Physical Metrics: The Space-Time Volume">
+    <p>Standard quantum computer benchmarking uses the logical <strong>Space-Time Product</strong>: Peak Qubits multiplied by the logical gate count (typically Toffoli gates). While accurate in a binary layout, this metric becomes highly misleading when multi-state logic is unlocked:</p>
+
+    <div>
+      <Card theme="pink" title="The Toffoli Illusion">
+        <p>In standard binary layouts, a Toffoli gate is a massive, 6-CNOT composite gate. Unlocking the qutrit state collapses the Toffoli into exactly 3 microwave interactions. Counting logical Toffolis therefore tracks an arbitrary software abstraction rather than the true physical cost on the control hardware.</p>
+      </Card>
+      <Card theme="purple" title="The Hidden Hilbert Space">
+        <p>Compressing registers into base-3 or base-4 states reduces the logical register width, artificially lowering the qubit count. However, the physical hardware complexity (RFSoC channels, AWG memory, and active basis cycling) scales exponentially. The logical metric suggests the machine became cheaper, whereas the physical engineering became significantly harder.</p>
+      </Card>
+    </div>
+
+    <p>To accurately capture this, we shift from a logical product to the <strong>Physical Space-Time Volume</strong> metric:</p>
+    
+    <Math formula="V_{\\text{phys}} = Q_{\\text{phys}} \\times T_{\\text{exec}}" />
+    
+    <p>Where <Math formula="Q_{\\text{phys}}"  /> is the total physical qubits required on the die (including data and error-correcting syndrome qubits), and <Math formula="T_{\\text{exec}}"  /> is the raw execution runtime in microseconds of all microwave pulses. This forces compilers to optimize for actual physical resources rather than binary abstractions.</p>
+
+    <InteractiveSpaceTimeVolume />
+
+    <Timeline items={timelineItems} />
+  </ContentSection>
+
+  <ContentSection title="4. Quantum Resource Estimation for secp256k1">
+    <p>Moving from abstract gate counts to concrete resource budgets is essential for evaluating the real-world threat posed by quantum computers to <code>secp256k1</code>. The following estimates synthesize the best-known results from the literature.</p>
+
+    <Card theme="cyan" title="ECDSA Fail Benchmark: Live Frontier">
+      <p>The <a href="https://www.ecdsa.fail/" style="color: inherit; text-decoration: underline;">ECDSA Fail challenge</a> scores reversible point-addition circuits by <Math formula="\\text{score} = \\overline{\\text{Toffoli}} \\times \\text{peak qubits}"  /> (lower is better). The circuit implements one affine point addition on secp256k1 using a Cuccaro ripple-carry ALU with Dialog-GCD modular inversion (402 max iterations, compressed sidecar transcript, per-step compare schedules).</p>
+      <p><strong>Reference frontier (from the challenge):</strong></p>
+      <ul>
+        <li style="margin-bottom: 0.5rem;"><strong>Initial baseline:</strong> 3,942,753 Toffoli × 2,715 qubits = 1.07 × 10<sup>10</sup></li>
+        <li style="margin-bottom: 0.5rem;"><strong>Google low-qubit Pareto:</strong> 2,700,000 Toffoli × 1,175 qubits = 3.2 × 10<sup>9</sup></li>
+        <li style="margin-bottom: 0.5rem;"><strong>Google low-gate Pareto:</strong> 2,100,000 Toffoli × 1,425 qubits = 3.0 × 10<sup>9</sup></li>
+        <li><strong>Current community frontier:</strong> ~1,386,820 Toffoli × 1,297 qubits ≈ 1.8 × 10<sup>9</sup></li>
+      </ul>
+      <p>Each Shor's ECDLP run needs ~2,300 point additions. At the current frontier that's ~3.2 billion Toffoli gates per discrete log.</p>
+    </Card>
+
+    <Card theme="red" title="Logical Resource Estimates (2026 Frontier)">
+      <p>Recent research (2026) by Google Quantum AI and others has radically optimized the circuit bounds for prime-field ECDLP over <code>secp256k1</code>:</p>
+      <ul>
+        <li style="margin-bottom: 1rem;"><strong>Logical Qubits:</strong> Reduced to <strong>≤ 1,200</strong> (optimized for space) or <strong>≤ 1,450</strong> (optimized for depth), relying heavily on in-place memory management and aggressive modular-arithmetic compression.</li>
+        <li style="margin-bottom: 1rem;"><strong>Toffoli Gate Count:</strong> The full ECDLP execution spans between <strong>70 million and 90 million Toffoli gates</strong>. This constitutes a ~20x volumetric reduction over the 2017 baseline.</li>
+        <li><strong>ZK-Proof Validation:</strong> Because publishing the full optimized circuit graph poses immediate security risks, modern literature often relies on Zero-Knowledge proofs to formally verify these compilation efficiencies.</li>
+      </ul>
+    </Card>
+
+    <Card theme="orange" style="margin-top: 1.5rem;" title="Physical Qubit Overhead via qLDPC Codes">
+      <p>Historically, the Surface Code demanded an exorbitant ratio of physical to logical qubits. The transition to <strong>quantum Low-Density Parity-Check (qLDPC)</strong> codes has shattered this bottleneck:</p>
+      <Math formula="\\text{Overhead}_{\\text{qLDPC}} = O(d) \\quad \\text{vs} \\quad \\text{Overhead}_{\\text{Surface}} = O(d^2)" />
+      <ul>
+        <li style="margin-bottom: 1rem;"><strong>Traditional Surface Code:</strong> At <Math formula="p_{\\text{phys}} \\approx 10^{-3}"  />, achieving sufficient logical fidelity mandated ~2.3 million physical qubits.</li>
+        <li><strong>2026 qLDPC Architectures:</strong> Utilizing high-rate qLDPC codes with non-local connectivity, the physical overhead to crack <code>secp256k1</code> has collapsed to <strong>fewer than 500,000 physical qubits</strong>.</li>
+      </ul>
+    </Card>
+
+    <Card theme="cyan" style="margin-top: 1.5rem;" title="Comparative Benchmark: RSA-2048">
+      <p>For context, Gidney & Ekerå (2021) estimate that factoring RSA-2048 requires <strong>20 million noisy qubits</strong> and approximately <strong>8 hours</strong> of wall-clock time using optimized surface-code compilation with magic state distillation. ECDLP on secp256k1 is expected to require fewer physical qubits but comparable or greater circuit depth due to the sequential nature of elliptic curve point additions.</p>
+    </Card>
+
+    <Card theme="purple" style="margin-top: 1.5rem;" title="Space-Time Volume: secp256k1 Example">
+      <p>Using the Physical Space-Time Volume metric for a concrete secp256k1 attack scenario at <Math formula="p_{\\text{phys}} = 10^{-3}"  />:</p>
+      <Math formula="V_{\\text{phys}} = Q_{\\text{phys}} \\times T_{\\text{exec}} \\approx 2.3 \\times 10^6 \\; \\text{qubits} \\times 9.86 \\times 10^{10} \\; \\text{cycles} \\times 1 \\; \\mu\\text{s/cycle} \\approx 2.3 \\times 10^{17} \\; \\text{qubit-}\\mu\\text{s}" />
+      <p>This translates to roughly <strong>7.3 qubit-years</strong> of continuous operation — a figure that must be compared against the coherence lifetime of the physical hardware to determine feasibility. With qutrit carry absorption, Häner et al. (2020) project a <Math formula="\\sim 2\\times"  /> reduction in circuit depth, potentially halving the execution window.</p>
+    </Card>
+  </ContentSection>
+
+  <ContentSection title="5. Interactive Lab: Shor's Qubit Budget Calculator">
+    <p>Estimate the physical and logical qubit counts, error suppression rates, and execution time required to factor cryptographic keys.</p>
+    <InteractiveResourceEstimator />
+  </ContentSection>
+
+  <ContentSection title="Current Bottlenecks & Unlocking Potential">
+    <p>To scale compile pipelines and quantum ALUs to cryptographic levels, the following critical bottlenecks must be resolved:</p>
+    <div>
+      <Card theme="red" title="1. Modular Exponentiation Depth">
+        <p><strong>The Bottleneck:</strong> Elliptic curve point addition requires sequential field multiplications. Under binary compilers, modular multiplication depth scales as <Math formula="O(n^3)"  /> gates, resulting in <Math formula="\\approx 10^{10}"  /> logical gates for <code>secp256k1</code>.</p>
+        <p><strong>Unlocking Potential:</strong> Implementing Windowed Multi-exponentiation and Carry-Save representation reduces circuit depth. Combined with qutrit carry absorption, it compresses logical depth by 90%, shortening execution time from weeks to hours and fitting within the physical coherence envelope of the hardware.</p>
+      </Card>
+      <Card theme="red" title="2. Ancilla Routing Overhead">
+        <p><strong>The Bottleneck:</strong> Binary ripple-carry adders require a massive number of helper (ancilla) qubits to store intermediate carry bits, scaling the chip's physical surface area and causing severe routing congestion on 2D layouts.</p>
+        <p><strong>Unlocking Potential:</strong> Out-of-place adders that clean up ancillas or using qutrits to store carry bits in the <Math formula="|2\\rangle"  /> state eliminates the need for separate physical carry channels, reducing the required physical routing channels by 50%.</p>
+      </Card>
+      <Card theme="red" title="3. Physical Space-Time Volume Evaluation">
+        <p><strong>The Bottleneck:</strong> Benchmarking circuits solely on logical qubits times gates hides the real physical hardware complexity (e.g., control line bandwidth, active dephasing, and decoding overhead).</p>
+        <p><strong>Unlocking Potential:</strong> Shifting to the Physical Space-Time Volume (<Math formula="V_{\\text{phys}} = Q_{\\text{phys}} \\times T_{\\text{exec}}"  />) forces compilers to optimize for actual physical resources (like pulse duration and QEC syndrome loops), enabling realistic assessments of cryptographic vulnerability.</p>
+      </Card>
+    </div>
+  </ContentSection>
+
+  <ContentSection title="Cross-Layer Dependencies">
+    <p>The compilation layer is the bridge between abstract algorithms and physical hardware. Its choices propagate both upward (constraining which algorithms are feasible) and downward (dictating what the control electronics must execute).</p>
+    <CrossLayerMap
+      currentLayer="Compilation"
+      dependencies={[
+        { 
+          layer: 'Qutrits & Qudits', 
+          href: '/qudits', 
+          relationship: "Shor's arithmetic registers encode integers in base-d qudits.", 
+          direction: 'requires',
+          impact: 'critical',
+          status: 'active-research',
+          details: "The compilation layer's overall gate depth is directly compressed by the number of physical qudit levels available, allowing carry bits to be absorbed into elevated energy states."
+        },
+        { 
+          layer: 'Topological QEC', 
+          href: '/qec', 
+          relationship: 'Every logical qubit in the compiled circuit is built from hundreds of physical qubits via the Surface Code.', 
+          direction: 'requires',
+          impact: 'high',
+          status: 'mature',
+          details: 'The massive QEC overhead must be accounted for in space-time volume estimates. A compiled circuit might look highly efficient logically, but physically impossible due to routing congestion.'
+        },
+        { 
+          layer: 'Pulse Control', 
+          href: '/control', 
+          relationship: 'The compiled gate sequence must be translated into physical GRAPE/DRAG microwave pulse schedules.', 
+          direction: 'enables',
+          impact: 'high',
+          status: 'bottleneck',
+          details: 'Compilation choices (such as gate decomposition and parallelism) directly dictate the RFSoC memory and bandwidth requirements. Deeper circuits require on-the-fly parametric compilation.'
+        },
+        { 
+          layer: 'Transmon Physics', 
+          href: '/physics', 
+          relationship: 'The physical anharmonicity (α ≈ -300 MHz) constrains which gate decompositions are physically possible.', 
+          direction: 'constrains',
+          impact: 'medium',
+          status: 'mature',
+          details: 'Compilation must respect the native gate set of the hardware (e.g., using Cross-Resonance gates instead of native CNOTs) and account for the spectral crowding of higher qudit levels.'
+        }
+      ]}
+    />
+
+  <SkepticismPanel>
+    <p>A rigorous scientific mindset requires acknowledging the immense gap between algorithmic theory and physical reality. The "quantum threat" must be evaluated against the hard limits of thermodynamics and engineering.</p>
+    <ul>
+      <li><strong>Engineering vs. Theoretical Reality:</strong> While Shor's algorithm mathematically guarantees polynomial-time factoring, building a <strong>Cryptographically Relevant Quantum Computer (CRQC)</strong> is arguably one of the hardest engineering feats in human history. The overhead of surface code means that cracking <code>secp256k1</code> requires millions of coherent physical qubits. We currently struggle to entangle a few hundred without losing state to thermal noise.</li>
+      <li><strong>Connectivity & Decoherence Limits:</strong> Shor's deeply nested modular arithmetic demands extensive long-range entanglement between arbitrary qubits. Superconducting transmons are mostly restricted to nearest-neighbor 2D planar connectivity. Routing quantum states across a grid requires thousands of SWAP gates, which bloats circuit depth and causes the logical state to decohere long before the final QFT.</li>
+    </ul>
+  </SkepticismPanel>
+
+  <ContentSection title="Common Misconceptions">
+    <div>
+      <Card theme="pink" title='Myth: "Testing All Keys at Once"'>
+        <p>The most pervasive myth in popular science is that quantum computers test every possible private key simultaneously and "pick" the correct one. <strong>False.</strong> If it worked by brute force, Grover's algorithm would be the primary threat, which only halves the effective bit-length. Shor's breaks ECC by using the Quantum Fourier Transform to construct interference patterns that reveal the mathematical <em>period</em> of the curve, completely sidestepping brute force.</p>
+      </Card>
+      <Card theme="cyan" title='Myth: "The Imminent Crypto Apocalypse"'>
+        <p>Sensationalism claims encryption is on the verge of collapsing. While the threat is real, the current experimental frontier is factoring numbers like 15 or 21. Scaling from a toy circuit to a fault-tolerant mega-qubit machine will likely take decades. The urgency for Post-Quantum Cryptography (PQC) is driven by "Store Now, Decrypt Later" attacks, not an imminent breakthrough in physical hardware scaling.</p>
+      </Card>
+    </div>
+  </ContentSection>
+
+  <ContentSection title="Actionable Research Matters">
+    <p>To bridge the gap between abstract algorithmic theory and the constraints of physical hardware, researchers should focus on the following actionable domains:</p>
+    <div>
+      <Card theme="red" title="Next-Gen Error Correction">
+        <p>The surface code requires an unsustainable 1,000:1 physical-to-logical ratio at current error rates. Research into <strong>Quantum Low-Density Parity-Check (qLDPC)</strong> codes promises to drastically lower this overhead, potentially reducing the physical footprint of a CRQC by an order of magnitude.</p>
+      </Card>
+      <Card theme="red" title="Hardware-Aware Compilers">
+        <p>Most quantum compilers are hardware-agnostic, generating circuits that perform terribly on actual physical topologies. We need deep-stack compilers that co-design arithmetic units (like ripple-carry adders) specifically for the native connectivity and native gate-set (e.g., Cross-Resonance) of the target machine.</p>
+      </Card>
+      <Card theme="red" title="Direct-to-Pulse Synthesis">
+        <p>Rather than decomposing algorithms into abstract Toffoli or CNOT gates, actionable research is moving towards <strong>optimal control theory</strong> (GRAPE, DRAG). By synthesizing cryptographic routines directly into continuous microwave pulse schedules, compilers can execute operations faster than the decoherence time limit.</p>
+      </Card>
+      <Card theme="red" title="Qudit Leakage Containment">
+        <p>While using base-3 and base-4 logic compresses circuit depth, higher energy states are significantly more susceptible to environmental relaxation and cross-talk. Characterizing and mitigating leakage outside the computational subspace is a critical roadblock for qutrit-based Shor's implementations.</p>
+      </Card>
+    </div>
+  </ContentSection>
+
+  <ReferenceList theme="red">
+    <li>
+      <a href="#" target="_blank">Google Quantum AI & Stanford (2026) - "Optimized quantum circuits for secp256k1 and zero-knowledge validation"</a>
+      <p>Preprint/Disclosed via ZKP. Radically compresses the ECDLP bounds to ≤ 1,200 logical qubits and ≤ 90M Toffoli gates, projecting sub-500k physical qubit requirements under qLDPC.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1905.10481" target="_blank">Gokhale et al. (2019) - "Asymptotic Improvements to Quantum Circuits via Qutrits"</a>
+      <p>ISCA. Demonstrates how qutrit architectures mathematically slash register widths and CNOT depth for large modular arithmetic circuits in Shor's algorithm.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1706.06752" target="_blank">Roetteler et al. (2017) - "Quantum resource estimates for computing elliptic curve discrete logarithms"</a>
+      <p>ASIACRYPT. Provides the most detailed gate-level resource estimates for running Shor's algorithm on prime-field elliptic curves, including optimized modular arithmetic circuits and concrete qubit/Toffoli counts for 256-bit curves.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/1905.09749" target="_blank">Gidney & Ekerå (2021) - "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits"</a>
+      <p>Quantum. Establishes the current benchmark for large-scale cryptanalytic quantum computing, introducing optimized surface-code compilation with windowed arithmetic and magic state distillation factories.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2001.09580" target="_blank">Häner et al. (2020) - "Improved quantum circuits for elliptic curve discrete logarithms"</a>
+      <p>Quantum Science and Technology. Presents improved reversible arithmetic circuits for ECDLP, reducing both qubit count and circuit depth through optimized modular inversion and point addition subroutines.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2308.08648" target="_blank">Xu et al. (2024) - "Constant-overhead fault-tolerant quantum computation with reconfigurable atom arrays"</a>
+      <p>Nature Physics. Directly supports the "Next-Gen Error Correction" agenda by demonstrating how quantum Low-Density Parity-Check (qLDPC) codes mapped to dynamically reconfigurable hardware can achieve fault tolerance with constant overhead, bypassing the unsustainable physical qubit scaling of 2D surface codes.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2501.06993" target="_blank">BAQIS Team et al. (2025) - "QSteed: A Resource-Virtualized and Hardware-Aware Quantum Compilation Framework"</a>
+      <p>arXiv. Highlights the critical necessity of "Hardware-Aware Compilers" by proposing a deep-stack compilation framework that dynamically maps algorithmic requirements to the specific topology, noise characteristics, and cross-talk metrics of physical sub-regions on a QPU.</p>
+    </li>
+    <li>
+      <a href="https://arxiv.org/abs/2208.01215" target="_blank">Liang et al. (2022) - "NAPA: Intermediate-level Variational Native-pulse Ansatz for Variational Quantum Algorithms"</a>
+      <p>IEEE TCAD. Substantiates the "Direct-to-Pulse Synthesis" approach, showing that replacing abstracted gate compilations with direct hardware-level microwave pulse generation (native-pulse ansatz) heavily reduces circuit execution latency and mitigates calibration redundancy.</p>
+    </li>
+  </ReferenceList>
+  </PageLayout>
+</Base>

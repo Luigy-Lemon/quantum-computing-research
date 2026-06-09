@@ -1,0 +1,207 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard>
+  <div class="stv-header">
+    <h4>Physical Space-Time Volume ($V&#123;phys&#125;$)</h4>
+    <p>Compare how different algorithmic approaches and error correction distances affect the physical resources required to factor secp256k1.</p>
+  </div>
+  
+  <div class="stv-controls">
+    <button class="stv-btn active" data-type="binary">Standard Binary (d=27)</button>
+    <button class="stv-btn" data-type="qutrit">Qutrit Assisted (d=27)</button>
+    <button class="stv-btn" data-type="noisy">High-Fidelity Gates (d=11)</button>
+  </div>
+
+  <div class="stv-visualizer">
+    <div class="stv-cube-container">
+      <div class="stv-cube" id="stv-cube">
+        <div class="cube-face front"></div>
+        <div class="cube-face back"></div>
+        <div class="cube-face right"></div>
+        <div class="cube-face left"></div>
+        <div class="cube-face top"></div>
+        <div class="cube-face bottom"></div>
+      </div>
+    </div>
+    
+    <div class="stv-stats">
+      <div class="stat-row">
+        <span class="stat-label">Physical Qubits ($Q&#123;phys&#125;$):</span>
+        <span class="stat-value text-red" id="stv-qubits">3.4M</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Execution Time ($T&#123;exec&#125;$):</span>
+        <span class="stat-value text-blue" id="stv-time">24 Hours</span>
+      </div>
+      <div class="stat-row total-vol">
+        <span class="stat-label">Total Volume ($V&#123;phys&#125;$):</span>
+        <span class="stat-value text-purple" id="stv-total">81.6M Q-Hours</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stv-info">
+    <strong id="stv-title" class="text-red">Standard Binary Execution:</strong>
+    <span id="stv-desc">Using standard ripple-carry adders and binary Toffolis. The massive CNOT depth results in a long execution time, while the high d=27 surface code inflates the physical qubit footprint.</span>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .stv-visualizer {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: center;
+    background: var(--surface-alt);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 2rem;
+  }
+
+  .stv-cube {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-15deg) rotateY(45deg);
+    transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .cube-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(244, 63, 94, 0.2);
+    border: 2px solid rgba(244, 63, 94, 0.8);
+    transition: all 0.8s;
+  }
+  
+  .front  { transform: translateZ(50px); }
+  .back   { transform: rotateY(180deg) translateZ(50px); }
+  .right  { transform: rotateY(90deg) translateZ(50px); }
+  .left   { transform: rotateY(-90deg) translateZ(50px); }
+  .top    { transform: rotateX(90deg) translateZ(50px); }
+  .bottom { transform: rotateX(-90deg) translateZ(50px); }
+  
+  .stv-stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border-light);
+  }
+  .total-vol {
+    border-bottom: none;
+    background: var(--surface-hover);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+  
+  .stat-label { font-weight: bold; color: var(--text-main); }
+  .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold; }
+  
+  .stv-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-hover);
+    border-radius: 4px;
+    border-left: 4px solid #f43f5e;
+    font-size: 0.95rem;
+  }
+  .text-red { color: #e11d48; }
+  .text-blue { color: #0284c7; }
+  .text-purple { color: #7e22ce; }
+  
+  @media (max-width: 600px) {
+    .stv-visualizer { flex-direction: column; }
+  }
+</style>
+
+<script>
+  const btns = document.querySelectorAll('.stv-btn');
+  const cube = document.getElementById('stv-cube');
+  const faces = document.querySelectorAll('.cube-face');
+  const qVal = document.getElementById('stv-qubits');
+  const tVal = document.getElementById('stv-time');
+  const totalVal = document.getElementById('stv-total');
+  const title = document.getElementById('stv-title');
+  const desc = document.getElementById('stv-desc');
+  const infoPanel = document.querySelector('.stv-info');
+  
+  const scenarios = {
+    'binary': {
+      width: 120, height: 160, color: 'rgba(244, 63, 94, 0.2)', border: 'rgba(244, 63, 94, 0.8)',
+      q: '3.4M', t: '24 Hours', vol: '81.6M Q-Hours',
+      title: 'Standard Binary Execution:',
+      desc: 'Using standard ripple-carry adders and binary Toffolis. The massive CNOT depth results in a long execution time, while the high d=27 surface code inflates the physical qubit footprint.',
+      theme: '#e11d48'
+    },
+    'qutrit': {
+      width: 120, height: 70, color: 'rgba(168, 85, 247, 0.2)', border: 'rgba(168, 85, 247, 0.8)',
+      q: '3.4M', t: '10.5 Hours', vol: '35.7M Q-Hours',
+      title: 'Qutrit Assisted Execution:',
+      desc: 'By utilizing the |2⟩ state for carry-absorption, the algorithm requires the same physical footprint but the total circuit depth is slashed by over 50%, shrinking the temporal axis of the volume.',
+      theme: '#7e22ce'
+    },
+    'noisy': {
+      width: 50, height: 160, color: 'rgba(14, 165, 233, 0.2)', border: 'rgba(14, 165, 233, 0.8)',
+      q: '540K', t: '24 Hours', vol: '12.9M Q-Hours',
+      title: 'High-Fidelity Hardware (d=11):',
+      desc: 'If physical gate errors drop from 0.1% to 0.01%, the required surface code distance drops from d=27 to d=11. The temporal depth remains the same, but the physical area shrinks drastically.',
+      theme: '#0284c7'
+    }
+  };
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      btns.forEach(b => {
+        b.classList.remove('active');
+        b.style.color = '';
+      });
+      const target = e.target;
+      target.classList.add('active');
+      
+      const type = target.getAttribute('data-type');
+      const data = scenarios[type];
+      
+      target.style.color = data.theme;
+      
+      // Update cube dimensions
+      cube.style.width = `${data.width}px`;
+      cube.style.height = `${data.height}px`;
+      
+      // Update face transforms based on new dimensions
+      const zOffset = data.width / 2;
+      faces[0].style.transform = `translateZ(${zOffset}px)`;
+      faces[1].style.transform = `rotateY(180deg) translateZ(${zOffset}px)`;
+      faces[2].style.transform = `rotateY(90deg) translateZ(${zOffset}px)`;
+      faces[3].style.transform = `rotateY(-90deg) translateZ(${zOffset}px)`;
+      faces[4].style.transform = `rotateX(90deg) translateZ(${data.height/2}px)`;
+      faces[5].style.transform = `rotateX(-90deg) translateZ(${data.height/2}px)`;
+      
+      // Update colors
+      faces.forEach(f => {
+        f.style.background = data.color;
+        f.style.borderColor = data.border;
+      });
+      
+      // Update text
+      qVal.textContent = data.q;
+      tVal.textContent = data.t;
+      totalVal.textContent = data.vol;
+      title.textContent = data.title;
+      title.style.color = data.theme;
+      desc.textContent = data.desc;
+      infoPanel.style.borderLeftColor = data.theme;
+    });
+  });
+</script>

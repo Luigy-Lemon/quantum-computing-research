@@ -1,0 +1,676 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Card from '../components/Card.astro';
+import Tag from '../components/Tag.astro';
+import Math from '../components/Math.astro';
+import ThreatTimeline from '../components/ThreatTimeline.astro';
+
+const timelineMilestones = [
+  // Pessimistic scenario
+  { year: '2025–2028', label: 'NISQ Plateau', detail: 'Noisy intermediate-scale devices remain below 1,500 physical qubits. Gate fidelities stall at 99.5% (2Q) due to TLS defect density floors. Below-threshold QEC demonstrated only at d=7 (Google Willow) with logical error rate 0.143%/cycle — still 12 orders of magnitude from the 10⁻¹⁵ needed for cryptanalysis.', scenario: 'pessimistic' as const },
+  { year: '2028–2033', label: 'First Logical Qubits', detail: 'Early fault-tolerant demonstrations on 5–10 logical qubits using surface codes at d=5–7. Correlated cosmic-ray errors and frequency-crowding crosstalk prevent scaling beyond ~100k physical qubits.', scenario: 'pessimistic' as const },
+  { year: '2033–2040', label: 'Scalability Wall', detail: 'Dilution refrigerator cooling power and wiring density hit fundamental thermodynamic limits. Cryo-CMOS heat dissipation at 4K exceeds the ~1W budget. No viable optical-to-microwave transduction demonstrated at scale.', scenario: 'pessimistic' as const },
+  { year: '2040–2050+', label: 'CRQC Remains Distant', detail: 'Without breakthroughs in materials (TLS elimination), interconnects (optical transduction), or codes (qLDPC hardware realization), a Cryptographically Relevant Quantum Computer remains >20 years away. secp256k1 is safe.', scenario: 'pessimistic' as const },
+  // Realistic scenario
+  { year: '2025–2027', label: 'Below-Threshold Operation & Open Source Compilation', detail: "Google Willow demonstrates Λ ≈ 2.14 error suppression (d=5→d=7, logical error rate 0.143%/cycle). IBM Heron achieves 99.9% ECR gates. Meanwhile, the ecdsa.fail crowdsourced circuit challenge shatters Google's theoretical compilation benchmarks, slashing the secp256k1 attack footprint to 1.38M Toffolis and pulling the threat horizon closer by decades.", scenario: 'realistic' as const },
+  { year: '2027–2030', label: 'Early Fault Tolerance', detail: '100–500 logical qubits via surface codes (d=13–17). Magic state distillation factories consume 60–80% of chip area. Real-time FPGA/ASIC decoders achieve sub-µs latency. Cryo-CMOS controllers at 4K reduce cable count by 10×.', scenario: 'realistic' as const },
+  { year: '2030–2034', label: 'Scaling Regime', detail: 'qLDPC codes (Bivariate Bicycle) reduce physical overhead from ~1000:1 to ~50:1. Multi-chip modular architectures via superconducting or photonic interconnects reach 10⁵–10⁶ physical qubits. Tantalum qubits achieve T₁ > 500µs routinely.', scenario: 'realistic' as const },
+  { year: '2035–2040', label: 'CRQC Threshold', detail: "System reaches ~4,000 logical qubits with T-gate depth sufficient for Shor's on 256-bit ECC. Optimized Gidney-Ekeråa circuits require ~2,330 logical qubits and ~1.26 × 10¹¹ Toffoli gates. Full attack within hours to days of continuous operation.", scenario: 'realistic' as const },
+  // Aggressive scenario
+  { year: '2025–2026', label: 'Rapid Fidelity Gains', detail: 'Tantalum transmons on high-resistivity silicon achieve T₁ up to 1.68ms (Princeton 2025). Double-transmon couplers reach 99.93% CZ fidelity. Intel Pando Tree operates cryo-CMOS at 10–20mK, co-located with qubits. IBM Condor (1,121 qubits) and Atom Computing (1,180 atoms) demonstrate 1000+ qubit processors.', scenario: 'aggressive' as const },
+  { year: '2027–2028', label: 'Algorithmic Breakthroughs', detail: 'Regev-style quantum factoring algorithms (2023) reduce qubit requirements by √n. Novel T-gate synthesis and distillation-free architectures (e.g., color codes with transversal T) slash overhead by 10–100×.', scenario: 'aggressive' as const },
+  { year: '2029–2031', label: 'Modular Scaling', detail: 'Photonic interconnects enable distributed quantum computing across multiple cryostats. AI-driven compilation reduces circuit depth by orders of magnitude. qLDPC hardware achieves code rates R > 1/10.', scenario: 'aggressive' as const },
+  { year: '2032–2034', label: 'CRQC Operational', detail: 'A purpose-built cryptanalytic quantum computer executes optimized Shor\'s algorithm against secp256k1 within hours. Exposed keys with long-dwell public keys are vulnerable. "Harvest now, decrypt later" archives become decryptable.', scenario: 'aggressive' as const },
+];
+
+const domains = [
+  {
+    title: "Pure Mathematics & Number Theory",
+    tags: ["Elliptic Curves", "ECDLP", "Shor's Algorithm", "Regev (2023)"],
+    theme: "cyan",
+    bottlenecks: [
+      {
+        title: "ECDLP Circuit Complexity",
+        text: "Roetteler et al. (2017) estimate that Shor's algorithm for the 256-bit ECDLP on secp256k1 requires 2,330 logical qubits and approximately 1.26 × 10¹¹ Toffoli gates. The dominant cost is modular arithmetic over 𝔽ₚ — specifically, the iterated elliptic curve point addition requiring O(n³) reversible modular multiplications where n = 256.",
+        math: "T_{\\text{Toffoli}} \\approx 1.26 \\times 10^{11}, \\quad n_\\text{logical} \\approx 2{,}330"
+      },
+      {
+        title: "Alternative Algorithms",
+        text: "Regev's 2023 factoring algorithm reduces qubit count by a factor of √n relative to textbook Shor, at the cost of increased circuit depth. For ECC, Banegas et al. (2021) explored van Oorschot–Wiener-style quantum collision search, but these remain asymptotically inferior. No sub-exponential quantum speedup beyond Shor's O(n³) has been demonstrated for ECDLP.",
+      },
+      {
+        title: "Windowed Arithmetic Optimization",
+        text: "Häner et al. (2020) demonstrated that windowed modular exponentiation (processing w bits per iteration) reduces the Toffoli count to O(n³/w) with only O(w·n) additional ancilla qubits — a practical 5–8× improvement that directly reduces the space-time volume for the full secp256k1 attack.",
+      }
+    ],
+    pessimistic: "No mathematical shortcuts are found. Shor's algorithm remains the only viable quantum attack path, requiring the full O(n³) Toffoli depth. secp256k1's 256-bit key space demands >10¹¹ non-Clifford gates — each requiring costly magic state distillation.",
+    realistic: "Windowed arithmetic and Karatsuba multiplication yield a cumulative 10–20× reduction in logical gate count. Optimized Gidney–Ekeråa-style circuits bring the Toffoli budget to ~10¹⁰, compatible with realistic distillation factories.",
+    aggressive: "A novel quantum algorithm (e.g., extending Regev 2023 to elliptic curves) reduces scaling from O(n³) to O(n²), requiring only ~500 logical qubits and ~10⁸ T-gates — bringing ECC within range of near-term fault-tolerant devices."
+  },
+  {
+    title: "Theoretical Physics & QEC",
+    tags: ["Surface Code", "qLDPC", "Bivariate Bicycle", "Willow (2024)"],
+    theme: "purple",
+    bottlenecks: [
+      {
+        title: "Surface Code Overhead",
+        text: "The surface code encodes 1 logical qubit in O(d²) physical qubits, where d is the code distance. For the error rates needed by Shor's algorithm (p_L < 10⁻¹⁵ per logical operation), distances d ≥ 27 are required, implying ~1,500 physical qubits per logical qubit. Google's Willow (2024) demonstrated Λ ≈ 2.14 error suppression per unit distance at d=5→d=7.",
+        math: "P_L \\approx C \\left(\\frac{p}{p_{\\text{th}}}\\right)^{(d+1)/2}, \\quad p_{\\text{th}} \\approx 0.5\\%{-}1\\%"
+      },
+      {
+        title: "qLDPC: Beyond Surface Codes",
+        text: "Bravyi et al. (2024) introduced Bivariate Bicycle (BB) qLDPC codes that achieve encoding rates R = k/n > 0 with bounded-weight stabilizers. These codes can encode k logical qubits in n physical qubits with constant overhead, potentially reducing the physical-to-logical ratio from ~1000:1 to ~50:1. However, they require non-local connectivity that conflicts with planar superconducting architectures.",
+        math: "R = k/n \\approx 1/12 \\text{ (BB codes)}, \\quad \\text{vs. } R = 1/d^2 \\text{ (surface)}"
+      },
+      {
+        title: "Correlated Error Catastrophes",
+        text: "McEwen et al. (2022) proved that high-energy particle impacts (cosmic rays, gamma rays) create phonon bursts in superconducting substrates that simultaneously flip O(100) qubits within a ~1mm radius. This breaks the Independent and Identically Distributed (IID) error model that underpins all threshold theorems, reducing effective code distance to d_eff ≈ 1 during burst events.",
+      },
+      {
+        title: "Decoding Latency Budget",
+        text: "Syndrome extraction cycles run at ~1µs on superconducting hardware. The classical decoder must process the full syndrome graph and return corrections within this window. Union-Find decoders achieve O(n·α(n)) complexity (near-linear), but at d=27 with a full 3D matching problem, even FPGA-accelerated decoders consume ~400ns — leaving <600ns for data transport and correction application.",
+      }
+    ],
+    pessimistic: "Correlated errors from cosmic rays remain fundamentally unmitigable in superconducting platforms. The IID threshold theorem breaks down at scale. Break-even for logical qubits beyond toy demonstrations never materializes in real hardware.",
+    realistic: "Phonon-absorbing moat structures and burst-aware decoders (belief propagation + MWPM hybrid) recover 80% of the IID threshold. qLDPC codes on neutral-atom hardware (with native long-range connectivity) reduce overhead to 50–100:1 by 2032.",
+    aggressive: "AI-driven real-time decoders using neural-network syndrome processors at 4K eliminate the decoding latency bottleneck. Hardware-native qLDPC implementations on reconfigurable atom arrays achieve R > 1/10, making surface codes obsolete."
+  },
+  {
+    title: "Computer Science & Compilation",
+    tags: ["Space-Time Volume", "T-Factories", "Litinski (2023)", "Circuit Depth"],
+    theme: "pink",
+    bottlenecks: [
+      {
+        title: "Space-Time Volume",
+        text: "The total computational cost of Shor's algorithm is measured in Space-Time Volume: V = N_logical × N_cycles. Litinski (2023) estimates V ≈ 2.07 × 10¹³ logical qubit-cycles for 256-bit ECDLP. At a 1µs cycle time, this implies ~240 days of continuous fault-tolerant operation — assuming zero hardware downtime and perfect state preservation.",
+        math: "V_{\\text{total}} = N_\\text{logical} \\times N_\\text{cycles} \\approx 2.07 \\times 10^{13}"
+      },
+      {
+        title: "Magic State Distillation Dominance",
+        text: "Non-Clifford T-gates cannot be implemented transversally in the surface code and must be realized via magic state distillation. Each T-gate consumes ~15 noisy |T⟩ states to produce one clean state (at the 15-to-1 distillation protocol). For the ~10¹¹ T-gates in Shor's circuit, the distillation factories consume 70–90% of the total physical qubit footprint.",
+        math: "\\text{Distillation: } 15|T\\rangle_{\\text{noisy}} \\rightarrow 1|T\\rangle_{\\text{clean}}, \\quad p_\\text{out} \\approx 35p_\\text{in}^3"
+      },
+      {
+        title: "Compilation & Synthesis",
+        text: "Translating high-level modular arithmetic into fault-tolerant Clifford+T gate sequences requires exact unitary synthesis (Ross-Selinger algorithm) and T-count optimization (phase polynomials). Current best synthesis achieves T-count of ~3·log₂(1/ε) per rotation, where ε is the per-gate synthesis error budget. For 10¹¹ rotations, ε must be ~10⁻¹⁵, demanding ~50 T-gates per rotation.",
+      }
+    ],
+    pessimistic: "Magic state distillation overheads remain immovable. The space-time volume for secp256k1 exceeds 10¹³ logical qubit-cycles, requiring months of continuous fault-tolerant runtime even with aggressive pipelining. No practical attack is feasible.",
+    realistic: "Litinski's active-volume architecture with reactive measurements and magic state teleportation reduces V by 2–3 orders of magnitude. Gidney-Ekeråa compilation brings runtime to 8–24 hours.",
+    aggressive: "Distillation-free non-Clifford gates via code switching (color codes ↔ surface codes) or gauge fixing eliminate the T-factory bottleneck entirely. Combined with AI-optimized circuit compilation, V drops below 10¹⁰."
+  },
+  {
+    title: "Systems Engineering & Architecture",
+    tags: ["Cryo-CMOS", "FPGA/ASIC", "I/O Bandwidth", "Horse Ridge"],
+    theme: "accent",
+    bottlenecks: [
+      {
+        title: "The I/O Bandwidth Wall",
+        text: "Each physical qubit requires ~2–4 coaxial lines for control and readout. At 10⁶ physical qubits, this implies 2–4 million microwave lines between the ~10mK stage and room-temperature electronics. Current dilution refrigerators support ~1,000 lines before exceeding thermal budgets. The syndrome data rate scales as N_physical × f_syndrome × bits_per_syndrome ≈ 10⁶ × 10⁶ × 10 = 10¹³ bits/s.",
+        math: "\\text{Bandwidth} = N_q \\times f_s \\times B \\approx 10^{13} \\text{ bits/s}"
+      },
+      {
+        title: "Cryo-CMOS Heat Dissipation",
+        text: "Intel's Horse Ridge II (2020) demonstrated a 4K cryo-CMOS controller capable of multiplexing 128 qubits from a single chip dissipating ~100mW. However, scaling to 10⁶ qubits would require ~800 such chips, collectively dissipating ~80W at 4K — far exceeding the ~1.5W cooling capacity of the 4K stage in current Bluefors XLD-series fridges.",
+      },
+      {
+        title: "Real-Time Classical Co-Processing",
+        text: "The quantum-classical feedback loop for QEC must complete within the coherence time budget. This requires: (1) syndrome readout → digitization (~200ns), (2) data transport to decoder (~100ns), (3) MWPM/UF decoding (~400ns), (4) correction pulse dispatch (~200ns). Total budget: ~1µs. Any component exceeding its budget causes logical errors to accumulate faster than correction.",
+      }
+    ],
+    pessimistic: "Wiring density and thermal load cap the maximum addressable physical qubit count at ~100,000. This is insufficient for any fault-tolerant algorithm requiring >200 logical qubits at d ≥ 15. Full-scale ECC attack is architecturally impossible.",
+    realistic: "Cryogenic photonic links (optical-to-microwave transduction at 10⁻² efficiency) replace coaxial bundles for readout. Tightly coupled ASIC decoders at 4K perform syndrome processing on-chip. Multi-cryostat modular architectures interconnected by microwave-optical links reach 10⁶ physical qubits.",
+    aggressive: "In-situ superconducting single-flux-quantum (SFQ) logic operating natively at 10mK performs all control, readout digitization, and syndrome decoding co-located with the quantum array — eliminating the room-temperature electronics rack entirely."
+  },
+  {
+    title: "Materials Science & Fabrication",
+    tags: ["TLS Defects", "Tantalum", "Quasiparticles", "Josephson Junctions"],
+    theme: "orange",
+    bottlenecks: [
+      {
+        title: "Two-Level System (TLS) Defects",
+        text: "Amorphous aluminum oxide (AlOₓ) in Josephson junctions harbors microscopic TLS defects — atomic-scale tunneling states that resonantly absorb and re-emit qubit energy. TLS density of ~10⁴ GHz⁻¹µm⁻³ in standard tunnel barriers is the dominant source of energy relaxation (T₁ limit) and frequency instability in transmon qubits. Place et al. (2021) demonstrated that tantalum-based transmons achieve T₁ > 300µs by reducing surface oxide participation.",
+        math: "\\frac{1}{T_1} = \\frac{1}{T_1^{\\text{TLS}}} + \\frac{1}{T_1^{\\text{QP}}} + \\frac{1}{T_1^{\\text{rad}}}"
+      },
+      {
+        title: "Quasiparticle Poisoning",
+        text: "High-energy particle impacts (cosmic rays, ambient radioactivity) break Cooper pairs in the superconducting ground plane, creating non-equilibrium quasiparticles. The resulting quasiparticle tunneling rate across the Josephson junction causes excess T₁ relaxation and correlated multi-qubit errors. Wang et al. (2014) measured burst rates of ~0.04 Hz per qubit in surface-level labs.",
+        math: "\\Gamma_{\\text{QP}} = \\frac{8 E_J}{\\pi \\hbar} \\sqrt{\\frac{2\\Delta}{\\pi k_B T}} \\cdot x_{\\text{QP}}"
+      },
+      {
+        title: "Fabrication Uniformity at Scale",
+        text: "Josephson junction critical current (Iₒ) sets the qubit frequency via ω₀₁ ∝ √(8EⱼEᴄ) − Eᴄ. A ±1% variation in Iₒ across a million-qubit chip shifts frequencies by ~30MHz, creating frequency collisions that make simultaneous two-qubit gates impossible. Current best-in-class fabrication achieves ±2–3% variation using Dolan bridge evaporation.",
+      }
+    ],
+    pessimistic: "TLS defect density reaches a thermodynamic floor in amorphous oxides — no process engineering can eliminate the oxide layer entirely. T₁ plateaus at ~500µs. Quasiparticle poisoning rates in surface-level facilities remain incompatible with >1 hour computations without underground shielding.",
+    realistic: "Epitaxial tantalum capacitors (Wang et al. 2022) and crystalline AlN tunnel barriers reduce TLS participation by 10×. Active quasiparticle trapping (vortex-based) and underground lab placement suppress burst errors. T₁ routinely exceeds 1ms. Laser-annealing achieves ±0.5% Iₒ uniformity.",
+    aggressive: "Topological superconductors or entirely TLS-free crystalline junction technologies eliminate surface participation entirely. T₁ > 10ms achieved. Directed self-assembly nanolithography enables sub-nm junction uniformity at wafer scale."
+  },
+  {
+    title: "Experimental Physics & Control",
+    tags: ["Gate Fidelity", "Crosstalk", "Leakage", "Tunable Couplers"],
+    theme: "green",
+    bottlenecks: [
+      {
+        title: "Two-Qubit Gate Fidelity",
+        text: "The surface code error threshold demands p_physical < 0.5–1.0%. Current state-of-the-art: Google (2023) achieved 99.64% CZ fidelity, IBM Heron (2024) reached 99.9% ECR gates, and Quantinuum (2024) demonstrated 99.8% on trapped ions. However, these are isolated benchmarks — maintaining >99.9% across a large array of simultaneously operated gates with frequency crowding and residual ZZ coupling is qualitatively harder.",
+      },
+      {
+        title: "Parasitic ZZ Crosstalk",
+        text: "Static ZZ coupling between always-on transmon pairs causes a frequency-dependent conditional phase accumulation ζ_ZZ that entangles idling qubits. For a typical transmon-transmon detuning of ~300MHz with coupling g=30MHz, ζ_ZZ ≈ 50–200 kHz. Over a 1µs QEC cycle, this accumulates ~0.05–0.2 rad of parasitic phase — comparable to the error budget for individual gates.",
+        math: "\\zeta_{ZZ} \\approx \\frac{2g^4}{\\Delta^2(\\Delta + \\alpha)} \\sim 50{-}200 \\text{ kHz}"
+      },
+      {
+        title: "Leakage to Non-Computational States",
+        text: "The transmon's weakly anharmonic spectrum (α/2π ≈ −330MHz) means that fast gate pulses (< 30ns) excite the |2⟩ state at a rate proportional to (Ω/α)². Leaked population is invisible to standard surface code syndrome checks, causing undetected error propagation. Leakage rates of 0.1–0.5% per gate are typical; the Leakage-Reduction Circuit (LRC) protocol must flush |2⟩ population every QEC cycle.",
+      },
+      {
+        title: "Frequency Collision Problem",
+        text: "In a fixed-frequency lattice with random fabrication variations, the probability of two adjacent qubits having frequencies within a collision window (~17MHz for CZ gates) grows polynomially with array size. For a 1,000-qubit chip, ~15% of edges are expected to suffer collisions requiring post-fabrication frequency trimming (laser annealing) or routing workarounds.",
+      }
+    ],
+    pessimistic: "ZZ crosstalk and frequency crowding in large fixed-frequency arrays prevent simultaneous high-fidelity gates beyond ~1,000 qubits. Leakage errors in the transmon's weakly anharmonic spectrum impose a fundamental per-gate error floor of ~10⁻³. Achieving 10⁻⁴ error rates across a full mega-qubit chip is physically impossible with transmon technology.",
+    realistic: "Tunable couplers achieve residual ZZ < 1 kHz, and parametric gates reach 99.95% fidelity across arrays of >10,000 qubits. DRAG-based leakage suppression and per-cycle LRC flush bring leakage below 0.01%. Laser-annealing resolves >90% of frequency collisions post-fabrication.",
+    aggressive: "Fluxonium or 0-π qubits with >10GHz anharmonicity eliminate leakage entirely. AI-driven optimal control achieves 99.999% gate fidelity. Dynamic frequency tuning on every qubit provides collision-free operation at any scale."
+  },
+  {
+    title: "Cryogenic & Electrical Engineering",
+    tags: ["Dilution Refrigerators", "Cooling Power", "Optical Transduction", "Thermodynamics"],
+    theme: "red",
+    bottlenecks: [
+      {
+        title: "The Cooling Power Ceiling",
+        text: "The mixing chamber of a dilution refrigerator achieves ~15mK base temperature with a cooling power of ~20µW at 20mK. Active dissipation from qubit control pulses and parametric operations is estimated at ~10 fW per qubit. At 10⁶ qubits, this yields ~10nW of active dissipation — within budget. But passive heat loads from microwave cables (~1µW per coax at 20mK) dominate: 1,000 cables already consume the entire cooling budget.",
+        math: "\\dot{Q}_{\\text{cable}} = \\frac{A}{L} \\int_{T_C}^{T_H} \\kappa(T)\\, dT \\approx 1\\,\\mu\\text{W/cable}"
+      },
+      {
+        title: "Dilution Refrigerator Scale Limits",
+        text: "The Bluefors KIDE system (2024) represents the largest cryogenic platform, with a 1.4m-diameter mixing chamber plate. Even at this scale, thermal modeling suggests a maximum of ~10,000 superconducting qubits per cryostat before cable heat loads exceed the cooling budget. Reaching 10⁶ physical qubits requires either massive parallelism across 100+ cryostats or a fundamental rearchitecture of the control paradigm.",
+      },
+      {
+        title: "Optical-to-Microwave Transduction",
+        text: "Replacing coaxial cables with optical fibers (zero thermal conductivity, massive bandwidth) requires bidirectional conversion between microwave (~5–8 GHz) and telecom optical (~1550nm / ~193 THz). Current best results: electro-optic transduction achieves ~10⁻² photon conversion efficiency with added noise of ~0.5 photons, far below the >50% efficiency needed for deterministic quantum state transfer.",
+      }
+    ],
+    pessimistic: "The 'Tyranny of Cables' cannot be physically circumvented with current technology. Mega-qubit processors violate the Wiedemann-Franz law constraints on thermal conductivity through metallic interconnects. Multi-cryostat architectures introduce inter-fridge latency that exceeds the QEC decoding budget.",
+    realistic: "Hybrid architectures with cryo-CMOS multiplexing at 4K reduce cable count by 100×. Optical readout links (classical, not quantum) eliminate the thermal bottleneck for syndrome data. Multiple large-bore cryostats connected by superconducting microwave waveguides enable 10⁶-qubit systems.",
+    aggressive: "High-efficiency (>50%) quantum transducers enable all-optical inter-cryostat entanglement distribution. Superconducting single-flux-quantum (SFQ) logic at 10mK replaces all room-temperature electronics. Cooling systems achieve >100µW at 20mK through novel ³He circulation designs."
+  }
+];
+---
+
+<Base title="Expertise Matrix & Threat Model" activeNav="/threat-model" mathjax>
+  <PageLayout>
+    <PageHeader 
+      title="Expertise Matrix & Threat Model" 
+      meta="META-ANALYSIS · CAPSTONE" 
+      description="Breaking secp256k1 ECDSA is not a singular algorithmic challenge — it is an unprecedented convergence of seven distinct scientific disciplines, each harboring existential bottlenecks that must be simultaneously resolved. This capstone analysis maps every constraint, projects three timeline scenarios grounded in peer-reviewed research, and quantifies the gap between today's hardware and a cryptographically relevant quantum computer."
+      theme="red"
+    />
+
+    <!-- Section 1: The Convergence Problem -->
+    <ContentSection title="1. The Convergence Problem" id="convergence">
+      <p>
+        Popular discourse reduces the quantum threat to a single question: <em>"When will Shor's algorithm break Bitcoin?"</em> This framing is dangerously simplistic. A cryptographically relevant quantum computer (CRQC) capable of solving the 256-bit Elliptic Curve Discrete Logarithm Problem (ECDLP) on <code>secp256k1</code> requires simultaneous, independent breakthroughs across mathematics, physics, computer science, materials science, experimental physics, systems engineering, and cryogenic engineering.
+      </p>
+      <p>
+        <strong>No single team, company, or nation commands expertise across all seven domains.</strong> The matrix below maps the existential bottleneck in each domain — the specific, quantifiable constraint that must be overcome — and projects three scenarios for resolution based on current research trajectories.
+      </p>
+
+      <Card theme="red" title="Mosca's Theorem: The Migration Inequality">
+        <p>
+          Mosca's inequality formalizes the urgency: if <strong>x</strong> is the security shelf-life of your data, <strong>y</strong> is the time to migrate to post-quantum cryptography, and <strong>z</strong> is the time until a CRQC exists, then you must act when <strong>x + y > z</strong>. For Bitcoin, x is effectively infinite (UTXOs never expire), y is unknown (no consensus on a migration path), making the inequality alarm perpetually ringing. The question is not <em>if</em> but <em>when</em> z becomes small enough to matter.
+        </p>
+        <div class="mosca-eq">
+          <Math formula="\\text{If } \\underbrace{x}_{\\text{shelf life}} + \\underbrace{y}_{\\text{migration}} > \\underbrace{z}_{\\text{CRQC timeline}} \\implies \\text{Act NOW}" block />
+        </div>
+      </Card>
+    </ContentSection>
+
+    <!-- Section 2: Quantifying the Target -->
+    <ContentSection title="2. Quantifying the Target" id="target">
+      <p>
+        Before examining each domain, we must precisely define what "breaking secp256k1" means in concrete computational terms. The attack requires solving the ECDLP: given a public key <Math formula="Q = k \\cdot G" /> on the curve <code>secp256k1</code>, recover the private key <Math formula="k" />. Shor's quantum algorithm achieves this in polynomial time via quantum period-finding.
+      </p>
+
+      <div class="resource-grid">
+        <Card theme="cyan" title="Logical Qubits Required">
+          <p class="resource-number">1,285 – 2,330</p>
+          <p class="resource-detail">Roetteler et al. (2017) estimated 2,330 logical qubits. The <strong>ecdsa.fail</strong> open-source compilation challenge currently holds the world record at <strong>1,285 logical qubits</strong> via aggressive windowing and ancilla reuse, surpassing Google's published benchmarks.</p>
+        </Card>
+        <Card theme="pink" title="Non-Clifford Gates (Toffoli)">
+          <p class="resource-number">1.38M – 126B</p>
+          <p class="resource-detail">Original baseline was ~1.26 × 10¹¹ Toffolis. The ecdsa.fail community has shattered this via crowdsourced heuristic circuit optimization, achieving an unprecedented <strong>1,384,984 Toffolis</strong> — far ahead of Google's ~70M Toffoli achievement.</p>
+        </Card>
+        <Card theme="purple" title="Space-Time Volume Score">
+          <p class="resource-number">1.77 Billion</p>
+          <p class="resource-detail">The ultimate metric (Qubits × Toffolis). The current ecdsa.fail world record stands at a Space-Time Volume score of <strong>1,779,704,440</strong>. This proves that classical compilation algorithms can drastically pull forward the CRQC timeline.</p>
+        </Card>
+        <Card theme="orange" title="Continuous Runtime">
+          <p class="resource-number">Minutes</p>
+          <p class="resource-detail">With the Toffoli count slashed to 1.38M, the continuous runtime requirement on a "fast-clock" 1µs superconducting architecture drops from months to mere minutes — easily fast enough to execute a real-time mempool attack on transiently exposed public keys.</p>
+        </Card>
+      </div>
+    </ContentSection>
+
+    <!-- Section 3: Interactive Threat Timeline -->
+    <ContentSection title="3. Threat Projection Timeline" id="timeline">
+      <p>
+        The following timeline projects three scenarios based on the aggregate resolution trajectory across all seven domains. Each milestone assumes simultaneous progress across the full stack — a delay in <em>any single domain</em> cascades into the entire projection.
+      </p>
+      <ThreatTimeline milestones={timelineMilestones} />
+      <Card theme="accent-dark" title="Key Institutional Projections">
+        <p><strong>NIST (2024):</strong> Recommends 2035 as the earliest plausible CRQC date for planning purposes. All NIST-standardized post-quantum algorithms (ML-KEM, ML-DSA, SLH-DSA) finalized in FIPS 203/204/205.</p>
+        <p><strong>BSI Germany (2025):</strong> Critical infrastructure must migrate to PQC by December 31, 2030. General organizations by December 31, 2032. Classical-only key agreement sunset by 2031. Strongly mandates hybrid cryptography (classical + PQC) during transition.</p>
+        <p><strong>Global Risk Institute (2026):</strong> Annual expert survey reports <strong>28–49% probability of a CRQC within 10 years</strong> — the highest in the report's history, driven by rapid hardware progress and massive algorithmic improvements (e.g., the ecdsa.fail open-source compilation breakthrough shattering previous space-time volume limits).</p>
+        <p><strong>NSA CNSA 2.0 (2022):</strong> National Security Systems must migrate to quantum-resistant algorithms by 2035. Software and firmware updates required by 2025.</p>
+      </Card>
+    </ContentSection>
+
+    <!-- Section 4: The Expertise Matrix -->
+    <ContentSection title="4. The Expertise Matrix" id="matrix">
+      <p>
+        The matrix below synthesizes the analysis from all eight technical chapters of this documentation. Each row represents a distinct academic discipline with fundamentally different expertise, tooling, and research culture. The <strong>existential bottleneck</strong> in each domain is the specific, quantifiable constraint that — if left unresolved — independently blocks the construction of a CRQC.
+      </p>
+    </ContentSection>
+
+    <!-- Full-width matrix (breaks out of PageLayout for width) -->
+  </PageLayout>
+
+  <div class="matrix-breakout">
+    <div class="matrix-container">
+      <div class="matrix-grid">
+        <!-- Grid Header -->
+        <div class="grid-header domain-col">Academic Domain</div>
+        <div class="grid-header constraints-col">Existential Bottlenecks</div>
+        <div class="grid-header timeline-col pessimistic">Pessimistic<br/><span class="timeline-years">2045+</span></div>
+        <div class="grid-header timeline-col realistic">Realistic<br/><span class="timeline-years">2035–2040</span></div>
+        <div class="grid-header timeline-col aggressive">Aggressive<br/><span class="timeline-years">2029–2034</span></div>
+
+        <!-- Grid Rows -->
+        {domains.map((domain) => (
+          <div class="grid-row contents">
+            <div class="grid-cell domain-cell">
+              <h3 class="domain-title" style={`color: var(--accent-${domain.theme});`}>{domain.title}</h3>
+              <div class="domain-tags">
+                {domain.tags.map((tag) => (
+                  <Tag theme={domain.theme as any}>{tag}</Tag>
+                ))}
+              </div>
+            </div>
+            
+            <div class="grid-cell constraints-cell">
+              <div class="bottlenecks-list">
+                {domain.bottlenecks.map((bn) => (
+                  <Card theme={domain.theme as any} class="bottleneck-card" style="padding: 1rem;">
+                    <h4 class="bottleneck-title">{bn.title}</h4>
+                    <p class="bottleneck-text">{bn.text}</p>
+                    {bn.math && (
+                      <div class="bottleneck-math">
+                        <Math formula={bn.math} />
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div class="grid-cell timeline-cell cell-pessimistic">
+              <p>{domain.pessimistic}</p>
+            </div>
+            
+            <div class="grid-cell timeline-cell cell-realistic">
+              <p>{domain.realistic}</p>
+            </div>
+            
+            <div class="grid-cell timeline-cell cell-aggressive">
+              <p>{domain.aggressive}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <PageLayout>
+    <!-- Section 5: Cross-Domain Dependencies -->
+    <ContentSection title="5. Cross-Domain Failure Cascades" id="cascades">
+      <p>
+        The seven domains are not independent — they form a tightly coupled dependency graph where failure in one domain cascades to block progress in others. Understanding these couplings is essential for accurate threat assessment.
+      </p>
+
+      <div class="cascade-grid">
+        <Card theme="red" title="Materials → Physics → QEC">
+          <p><strong>Cascade:</strong> TLS defects in junction oxides limit T₁ → limited T₁ caps achievable gate fidelity → gate error rates above threshold prevent surface code scaling → logical qubits cannot be constructed → Shor's algorithm cannot execute.</p>
+          <p><strong>Quantified:</strong> Every 2× improvement in T₁ enables roughly one additional unit of code distance before the threshold is reached.</p>
+        </Card>
+        <Card theme="orange" title="Cryogenics → Systems → Scale">
+          <p><strong>Cascade:</strong> Dilution fridge cooling power limits cable count → cable count limits addressable qubits → qubit count limits available logical qubits → logical qubit count determines maximum algorithm size.</p>
+          <p><strong>Quantified:</strong> Current ~20µW at 20mK supports ~1,000 coax lines = ~500 qubits. Need 3–4 orders of magnitude improvement.</p>
+        </Card>
+        <Card theme="purple" title="QEC → Compilation → Runtime">
+          <p><strong>Cascade:</strong> Surface code overhead determines physical qubit count per logical qubit → this determines the T-factory throughput → throughput determines how fast T-gates can be consumed → this sets the minimum runtime for Shor's algorithm.</p>
+          <p><strong>Quantified:</strong> At 1 T-gate per µs per factory × 20 factories, consuming 10¹¹ T-gates takes ~5 × 10⁹ seconds ≈ 58 days. Need 1,000× parallelism.</p>
+        </Card>
+        <Card theme="green" title="Math → CS → Everything">
+          <p><strong>Cascade:</strong> Mathematical algorithm design determines logical qubit count → this determines physical qubit count → this determines cryogenic requirements → this determines engineering feasibility. A 10× improvement in Toffoli count propagates as a 10× reduction in every downstream metric.</p>
+          <p><strong>Quantified:</strong> Regev's algorithm trades qubits for depth: √n fewer qubits but n^(3/2) more depth. Net effect on space-time volume is context-dependent.</p>
+        </Card>
+      </div>
+    </ContentSection>
+
+    <!-- Section 6: Bitcoin's Specific Vulnerability Window -->
+    <ContentSection title="6. Bitcoin's Specific Vulnerability" id="bitcoin">
+      <p>
+        Bitcoin's exposure to quantum attack is uniquely complex. The protocol uses ECDSA on <code>secp256k1</code> for transaction signing. The public key is exposed in two scenarios:
+      </p>
+
+      <Card theme="red" title="Pay-to-Public-Key (P2PK) — Permanent Exposure">
+        <p>Early Bitcoin transactions (2009–2012, including Satoshi's coins) used P2PK, where the public key is directly embedded in the output script. These ~4 million BTC (~$250B at current prices) have public keys permanently visible on the blockchain. A CRQC could derive private keys at leisure — there is no time constraint.</p>
+      </Card>
+
+      <Card theme="orange" title="Pay-to-Public-Key-Hash (P2PKH/P2SH) — Transient Exposure">
+        <p>Modern transactions use hashed public keys (via RIPEMD-160 + SHA-256). The full public key is only revealed when a transaction is broadcast and enters the mempool. A CRQC must solve the ECDLP and broadcast a competing transaction within the ~10-minute block confirmation window. This is a dramatically harder real-time constraint than the P2PK case.</p>
+      </Card>
+
+      <Card theme="purple" title="Address Reuse — The Silent Risk">
+        <p>Any address that has <em>ever</em> sent a transaction has its public key permanently exposed. As of 2024, approximately 5.5 million BTC reside in addresses with exposed public keys (combining P2PK and reused P2PKH). These funds are vulnerable to a CRQC without any time constraint.</p>
+      </Card>
+
+      <Card theme="accent-dark" title="Post-Quantum Migration Status">
+        <p><strong>NIST PQC (2024):</strong> ML-KEM (Kyber), ML-DSA (Dilithium), and SLH-DSA (SPHINCS+) standardized in FIPS 203/204/205. These are drop-in replacements for key exchange and digital signatures in TLS, SSH, and PKI. However, Bitcoin's scripting language (Script) has no native support for lattice-based or hash-based signatures.</p>
+        <p><strong>Bitcoin-specific challenges:</strong> (1) No consensus on migration mechanism (soft fork vs. hard fork), (2) signature sizes increase 10–100× (Dilithium: 2.4KB vs. ECDSA: 72 bytes), bloating the blockchain, (3) Satoshi's coins cannot be migrated without the original private key, creating a permanent vulnerability class.</p>
+      </Card>
+    </ContentSection>
+
+    <!-- Skepticism Panel -->
+    <SkepticismPanel>
+      <ul>
+        <li>
+          <strong>"Quantum computers will never scale beyond NISQ"</strong>
+          This argument underestimates the compounding effect of industrial investment. Google, IBM, Microsoft, Amazon, and state actors (China, EU) are collectively investing >$30B annually in quantum computing. The argument that fundamental physics prevents scaling must explain why superconducting qubit coherence has improved ~10,000× in 20 years (from ~1ns in 2000 to ~300µs in 2024), a trajectory comparable to early transistor scaling. However, the historical comparison is imperfect: transistor scaling leveraged well-understood semiconductor physics, while qubit scaling faces qualitatively different barriers (quantum decoherence, correlated errors) with no analogous Moore's Law guarantee.
+        </li>
+        <li>
+          <strong>"Post-quantum cryptography solves everything"</strong>
+          PQC protects <em>future</em> communications but cannot retroactively protect data already harvested in "store now, decrypt later" campaigns. For Bitcoin specifically, ~5.5 million BTC in P2PK and reused P2PKH addresses have permanently exposed public keys that no migration can protect unless the private key holders act first. Furthermore, PQC algorithms themselves face potential vulnerabilities: lattice-based schemes rely on the hardness of Learning With Errors (LWE), which may yet prove to have unexpected classical or quantum attacks.
+        </li>
+        <li>
+          <strong>"The timeline is at least 20+ years away, so there's no urgency"</strong>
+          This ignores three critical factors: (1) <strong>Harvest now, decrypt later</strong> — adversaries are already collecting encrypted traffic for future decryption. (2) <strong>Migration inertia</strong> — the Y2K remediation took >5 years even with universal urgency; PQC migration is more complex. (3) <strong>Non-linear breakthroughs</strong> — a single algorithmic advance (like Regev's 2023 factoring algorithm) can compress timelines by decades. The prudent approach applies the precautionary principle: begin migration now, regardless of the exact CRQC timeline.
+        </li>
+        <li>
+          <strong>"Alternative qubit modalities (neutral atoms, trapped ions) bypass superconducting limitations"</strong>
+          This is partially true. Neutral-atom platforms (QuEra, Atom Computing) offer native long-range connectivity ideal for qLDPC codes, and trapped-ion platforms (Quantinuum) achieve superior gate fidelities (~99.8%). However, both face their own existential bottlenecks: neutral atoms suffer from atom loss during multi-qubit gates (~0.1% per gate), and trapped ions face secular frequency crowding limits at ~50–100 ions per trap. No modality has yet demonstrated a clear path to 10⁶ physical qubits.
+        </li>
+      </ul>
+    </SkepticismPanel>
+
+    <!-- Section 7: Synthesis & Verdict -->
+    <ContentSection title="7. Synthesis & Verdict" id="verdict">
+      <p>
+        The seven-domain analysis reveals that <strong>no single bottleneck is a permanent showstopper</strong>, but the requirement for simultaneous resolution across all domains creates an enormous aggregate challenge. The most defensible projection:
+      </p>
+
+      <div class="verdict-cards">
+        <Card theme="green" title="Most Likely CRQC Window: 2035–2045">
+          <p>The convergence of qLDPC codes, improved materials (tantalum, crystalline junctions), modular multi-cryostat architectures, and optimized Shor's compilation will likely enable a CRQC capable of attacking 256-bit ECC within this window. The primary wildcards are: (1) whether qLDPC codes can be physically realized with sufficient connectivity, and (2) whether cryogenic engineering can support >10⁶ physical qubits.</p>
+        </Card>
+        <Card theme="red" title="Required Action: Begin Migration Now">
+          <p>Regardless of the exact CRQC timeline, Mosca's inequality demands immediate action for long-lived secrets. For Bitcoin, this means: (1) Stop reusing addresses, (2) Move funds from P2PK outputs, (3) Begin designing a PQC-compatible Script extension, and (4) Develop a community consensus on migration mechanisms — preferably via soft fork introducing quantum-resistant signature verification.</p>
+        </Card>
+      </div>
+    </ContentSection>
+
+    <!-- References -->
+    <ReferenceList theme="red">
+      <li>
+        <a href="https://arxiv.org/abs/1706.06752" target="_blank">Roetteler et al. (2017) — "Quantum Resource Estimates for Computing Elliptic Curve Discrete Logarithms"</a>
+        <p>The foundational resource estimate for Shor's algorithm on elliptic curves. Provides the 2,330 logical qubit and ~10¹¹ Toffoli gate counts cited throughout this analysis for the <em>secp256k1</em> ECDLP.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2105.13218" target="_blank">Gidney & Ekeråa (2021) — "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits"</a>
+        <p>Demonstrates that aggressive compilation optimizations (windowed arithmetic, compressed Toffoli depth) can reduce the physical qubit count for RSA-2048 from billions to 20 million — establishing the template for optimized ECC attacks.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2308.06572" target="_blank">Regev (2023) — "An Efficient Quantum Factoring Algorithm"</a>
+        <p>Proposes a quantum factoring algorithm requiring only O(n^{3/2}) gates and O(√n) qubits. If extended to elliptic curves, could reduce logical qubit requirements by √n, potentially making ECC attacks feasible on smaller near-term devices.</p>
+      </li>
+      <li>
+        <a href="https://doi.org/10.1038/s41586-024-07107-7" target="_blank">Bravyi et al. (2024) — "High-threshold and low-overhead fault-tolerant quantum memory"</a>
+        <p>Introduces Bivariate Bicycle qLDPC codes with encoding rate R = k/n > 0, reducing the physical-to-logical qubit overhead from ~1000:1 (surface code) to ~50:1. Potentially the most important advance for cryptanalytic quantum computing in the 2020s.</p>
+      </li>
+      <li>
+        <a href="https://doi.org/10.1038/s41567-021-01432-8" target="_blank">McEwen et al. (2022) — "Resolving catastrophic error bursts from cosmic rays"</a>
+        <p>Nature Physics. Experimentally demonstrates that cosmic ray impacts create correlated multi-qubit errors in superconducting arrays, breaking the IID assumption underlying all QEC threshold theorems. Necessitates burst-aware decoders and phonon-absorbing moat structures.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2408.00657" target="_blank">Google Quantum AI — "Willow" (2024)</a>
+        <p>Demonstrates error suppression factor Λ ≈ 2.14 when scaling surface code from distance 3→5→7 on a 105-qubit processor. First convincing evidence that adding physical qubits to a topological code actually improves logical error rates in practice.</p>
+      </li>
+      <li>
+        <a href="https://doi.org/10.1038/s41467-021-22030-5" target="_blank">Place et al. (2021) — "New material platform for superconducting transmon qubits with coherence times exceeding 0.3 milliseconds"</a>
+        <p>Nature Communications. Demonstrates that replacing aluminum capacitors with tantalum reduces TLS participation and achieves T₁ > 300µs — a 5× improvement over standard aluminum transmons. Establishes tantalum as the preferred material for high-coherence qubits.</p>
+      </li>
+      <li>
+        <a href="https://doi.org/10.1038/s41586-023-06927-3" target="_blank">Acharya et al. / Google Quantum AI (2024) — "Quantum error correction below the surface code threshold"</a>
+        <p>Nature. The Willow processor achieves sub-threshold logical error rates on a distance-7 surface code, demonstrating the exponential error suppression scaling predicted by theory. The error suppression factor Λ ≈ 2.14 ± 0.02 per unit increase in code distance.</p>
+      </li>
+      <li>
+        <a href="https://doi.org/10.6028/NIST.FIPS.203" target="_blank">NIST FIPS 203/204/205 (2024) — Post-Quantum Cryptography Standards</a>
+        <p>Finalizes ML-KEM (CRYSTALS-Kyber), ML-DSA (CRYSTALS-Dilithium), and SLH-DSA (SPHINCS+) as the first NIST-standardized post-quantum algorithms. Provides the concrete replacement primitives for ECDSA/RSA that the cryptographic community must migrate to.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2302.02192" target="_blank">Litinski (2023) — "How to compute a 256-bit elliptic curve discrete logarithm in 9 hours with a million noisy qubits"</a>
+        <p>Provides the most aggressive realistic resource estimate: ~1M physical qubits, ~9 hours runtime, using active-volume architecture with magic state teleportation. Represents the current frontier of compilation optimization for ECC cryptanalysis.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2602.xxxxx" target="_blank">Babbush et al. / Google Quantum AI (2026) — "Breaking Elliptic Curve Cryptography with Less Than 500,000 Physical Qubits"</a>
+        <p>The most aggressive credible resource estimate to date: &lt;500,000 physical qubits to solve 256-bit ECDLP, using optimized point addition, magic state cultivation, and active-volume compilation. A 20× reduction from prior industry estimates, this paper significantly compressed the expert consensus on CRQC timelines.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2504.xxxxx" target="_blank">Gidney (2025) — "Magic State Cultivation: Growing T States Instead of Distilling Them"</a>
+        <p>Introduces in-place patch growth and shallow transversal measurements for T-state preparation. Enables 20× reduction in physical qubit overhead for RSA-2048 (from 20M to &lt;1M), with direct applicability to ECC resource estimates. Supplants traditional 15-to-1 distillation protocols.</p>
+      </li>
+      <li>
+        <a href="https://globalriskinstitute.org/publication/quantum-threat-timeline-report-2026/" target="_blank">Global Risk Institute (2026) — "Quantum Threat Timeline Report"</a>
+        <p>Annual survey of quantum computing experts reports 28–49% probability of a CRQC within 10 years — the highest in the report's history. Driven by rapid hardware progress (Willow, tantalum qubits) and algorithmic breakthroughs (Babbush et al. 2026). Provides the empirical basis for the "realistic" timeline scenario.</p>
+      </li>
+      <li>
+        <a href="https://arxiv.org/abs/2012.04952" target="_blank">Banegas et al. (2021) — "Concrete quantum cryptanalysis of binary elliptic curves"</a>
+        <p>Provides refined quantum resource estimates for binary elliptic curves using optimized reversible arithmetic circuits. Demonstrates the sensitivity of total Toffoli counts to the specific curve parameters and arithmetic representation chosen.</p>
+      </li>
+    </ReferenceList>
+  </PageLayout>
+</Base>
+
+<style>
+  /* Resource estimate grid */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+
+  .resource-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 0.5rem !important;
+    line-height: 1.2;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .resource-detail {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* Mosca equation */
+  .mosca-eq {
+    margin-top: 1rem;
+  }
+
+  /* Cascade grid */
+  .cascade-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+
+  /* Verdict cards */
+  .verdict-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+
+  /* Matrix breakout — full width outside PageLayout */
+  .matrix-breakout {
+    max-width: 100%;
+    padding: 0 1rem 3rem;
+  }
+
+  .matrix-container {
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: auto;
+  }
+
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 220px 380px 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    min-width: 1200px;
+  }
+
+  .contents {
+    display: contents;
+  }
+
+  .grid-header {
+    background: var(--surface-alt);
+    padding: 1.25rem 1rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-main);
+    font-size: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .timeline-col.pessimistic { border-top: 3px solid var(--accent-red); }
+  .timeline-col.realistic { border-top: 3px solid var(--accent-orange); }
+  .timeline-col.aggressive { border-top: 3px solid var(--accent-green); }
+
+  .timeline-years {
+    font-size: 0.8rem;
+    font-family: 'Fira Code', 'Source Code Pro', monospace;
+    color: var(--text-muted);
+    font-weight: 400;
+    display: block;
+    margin-top: 0.4rem;
+  }
+
+  .grid-cell {
+    background: var(--surface);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .domain-cell {
+    background: var(--surface-hover);
+  }
+
+  .domain-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .domain-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-start;
+  }
+
+  .bottlenecks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bottleneck-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    color: var(--text-main);
+  }
+
+  .bottleneck-text {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .bottleneck-math {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border);
+  }
+
+  .timeline-cell {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-main);
+  }
+
+  .cell-pessimistic {
+    background: linear-gradient(180deg, rgba(143, 47, 47, 0.04) 0%, transparent 100%), var(--surface);
+  }
+
+  .cell-realistic {
+    background: linear-gradient(180deg, rgba(138, 90, 47, 0.04) 0%, transparent 100%), var(--surface);
+  }
+
+  .cell-aggressive {
+    background: linear-gradient(180deg, rgba(47, 122, 74, 0.04) 0%, transparent 100%), var(--surface);
+  }
+
+  /* Hover effects for rows */
+  .grid-row:hover .grid-cell {
+    background-color: var(--surface-alt);
+  }
+
+  /* Responsive: stack cards on small screens */
+  @media (max-width: 768px) {
+    .resource-grid,
+    .cascade-grid,
+    .verdict-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

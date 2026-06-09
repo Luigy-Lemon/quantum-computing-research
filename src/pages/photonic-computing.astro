@@ -1,0 +1,154 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+import Math from '../components/Math.astro';
+import Card from '../components/Card.astro';
+import InteractiveHongOuMandel from '../components/InteractiveHongOuMandel.astro';
+import InteractiveFBQC from '../components/InteractiveFBQC.astro';
+---
+
+<Base title="Photonic Quantum Computing" activeNav="/photonic-computing" mathjax>
+  <PageLayout>
+    <PageHeader meta="ALTERNATIVE MODALITIES" 
+      title="Photonic Quantum Computing: Deconstructing the All-Optical Stack"
+    />
+    
+    <ContentSection title="The Room-Temperature Illusion">
+      <p>
+        If optical photons are completely immune to room-temperature thermal noise, and we already have a massive global fiber-optic telecommunications infrastructure, why did the quantum industry spend the last 25 years building incredibly complex, 15mK superconducting microwave circuits? Why didn't we just build an all-optical quantum computer from day one?
+      </p>
+      <p>
+        The answer comes down to a brutal, fundamental law of physics: <strong>Photons do not interact with each other.</strong>
+      </p>
+      <p>
+        If you shine two laser beams at each other, they pass right through one another. To build a quantum computer, you need <strong>entanglement</strong>, which requires a 2-qubit gate (like a CNOT or CZ). A 2-qubit gate fundamentally requires the state of Qubit A to alter the state of Qubit B. Because photons do not carry charge or rest mass, they cannot "feel" each other. 
+      </p>
+      <p>
+        To build an optical quantum computer, engineers must completely abandon the traditional "circuit model" of computing. Instead of forcing photons to interact directly, we force them to interfere probabilistically at beam splitters.
+      </p>
+    </ContentSection>
+
+    <ContentSection title="The Quantum Foundation: The Hong-Ou-Mandel Effect">
+      <p>
+        The only way to make photons "interact" is to exploit their bosonic nature through quantum interference. The <strong>Hong-Ou-Mandel (HOM) effect</strong> occurs when two perfectly identical photons enter a 50:50 beam splitter at the exact same time. The probability amplitudes of them both passing through or both reflecting exactly cancel each other out due to destructive interference.
+      </p>
+      <Math formula="\\hat{a}_{in}^\\dagger \\hat{b}_{in}^\\dagger |0,0\\rangle \\rightarrow \\frac{1}{2} \\left( (\\hat{a}_{out}^\\dagger + i\\hat{b}_{out}^\\dagger)(i\\hat{a}_{out}^\\dagger + \\hat{b}_{out}^\\dagger) \\right) |0,0\\rangle = \\frac{i}{2} \\left( (\\hat{a}_{out}^\\dagger)^2 + (\\hat{b}_{out}^\\dagger)^2 \\right) |0,0\\rangle" />
+      <p>
+        The cross terms (one photon in each output port) vanish. Consequently, both photons "bunch" and exit together from the same random port. This interference is the bedrock mechanism for entangling photonic qubits.
+      </p>
+      
+      <InteractiveHongOuMandel />
+
+    </ContentSection>
+
+    <ContentSection title="Deconstructing the All-Optical Stack">
+      <p>
+        Because we cannot build a simple optical "transistor" or deterministic 2-qubit gate, Photonic Quantum Computing relies on a radically different paradigm known as <strong>Measurement-Based Quantum Computing (MBQC)</strong>.
+      </p>
+
+      <Card theme="blue" title="1. The Source: Spontaneous Parametric Down-Conversion (SPDC)">
+        <p>
+          You cannot use a standard laser, which outputs a "coherent state"—a statistical Poisson distribution of photons. Photonic computing requires deterministic Single-Photon Sources. We rely on non-linear crystals (like Lithium Niobate). When pumped by a high-energy laser, a tiny fraction of pump photons split into two entangled lower-energy photons (Signal and Idler) via SPDC. 
+        </p>
+        <p>
+          However, SPDC is probabilistic. Generating millions of perfectly identical, indistinguishable photons on demand remains a monumental engineering bottleneck. Modern architectures heavily multiplex thousands of SPDC sources with optical switches to "herald" and capture single photons when they randomly appear.
+        </p>
+      </Card>
+
+      <Card theme="orange" title="2. The Logic: Cluster States & Interferometers">
+        <p>
+          Instead of wires and gates, the "CPU" of a photonic quantum computer is a massive silicon-photonics chip covered in millions of microscopic <strong>Mach-Zehnder Interferometers (MZIs)</strong>. According to the <strong>KLM protocol (2001)</strong>, you can achieve universal computing using only linear optics, provided you accept that gates only succeed probabilistically.
+        </p>
+        <p>
+          To make the computation deterministic, we use MBQC (Raussendorf & Briegel). We first weave a massive, highly entangled 3D lattice of photons called a "Cluster State". Computation is then performed simply by measuring specific photons in specific bases, carving a path of logic through the cluster state block.
+        </p>
+      </Card>
+
+      <Card theme="red" title="3. The Detectors: The Return to the Cryostat">
+        <p>
+          The most ironic part of "room-temperature" optical quantum computing is the readout. You must detect single photons with >99% efficiency to maintain fault tolerance. Standard room-temperature photodiodes or Avalanche Photodiodes (APDs) are too noisy. 
+        </p>
+        <p>
+          The only detectors capable of this are <strong>Superconducting Nanowire Single-Photon Detectors (SNSPDs)</strong>. Because SNSPDs are made of superconducting metals (like Niobium Nitride), they must be operated inside a cryostat at roughly <strong>1 to 4 Kelvin</strong>. Thus, a commercial optical quantum computer still requires a massive cryogenic infrastructure, proving that we can never truly escape the <em>cryogenic toll</em>.
+        </p>
+      </Card>
+    </ContentSection>
+
+    <ContentSection title="Fusion-Based Quantum Computing (FBQC)">
+      <p>
+        To commercialize MBQC, modern optical architectures (notably PsiQuantum) have evolved into <strong>Fusion-Based Quantum Computing (FBQC)</strong>. Instead of trying to build one monolithic cluster state, the system continuously generates tiny, manageable "Resource States" (e.g., 6-photon entangled rings). 
+      </p>
+      <p>
+        These resource states are routed through a network of beam splitters where adjacent photons are measured together (a "Type-II Fusion"). The measurement is destructive—it kills the two photons—but the entanglement is teleported to the surviving photons, stitching the small rings together into a massive logical fabric in spacetime.
+      </p>
+
+      <InteractiveFBQC />
+    </ContentSection>
+
+    <ContentSection title="Chronology of Photonic Quantum Milestones">
+      <div style="border-left: 2px solid var(--border); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">1987</strong>
+          <h4 style="margin: 0.25rem 0;">The Hong-Ou-Mandel Effect</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Hong, Ou, and Mandel demonstrate two-photon quantum interference using a beam splitter, proving photons can "bunch" and interact purely via quantum statistics.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2001</strong>
+          <h4 style="margin: 0.25rem 0;">The KLM Protocol</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">E. Knill, R. Laflamme, and G. Milburn publish their foundational <em>Nature</em> paper proving that universal quantum computing is possible using only linear optics, single-photon sources, and photodetectors.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2006</strong>
+          <h4 style="margin: 0.25rem 0;">Measurement-Based Quantum Computing (MBQC)</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Raussendorf establishes the Cluster State model, allowing probabilistic optical logic to be replaced by deterministic single-photon measurements on a pre-entangled grid.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2021</strong>
+          <h4 style="margin: 0.25rem 0;">Fusion-Based Quantum Computing (FBQC)</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">PsiQuantum publishes the FBQC architecture, proposing a scalable pathway by fusing small 6-photon resource states rather than generating monolithic cluster states.</p>
+        </div>
+        <div>
+          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2024</strong>
+          <h4 style="margin: 0.25rem 0;">Integrated Silicon Photonics & GKP States</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Startups pivot heavily to commercial semiconductor foundries (GlobalFoundries, TSMC) to etch millions of optical components, focusing on GKP (Gottesman-Kitaev-Preskill) continuous-variable states to natively combat photon loss.</p>
+        </div>
+      </div>
+    </ContentSection>
+
+    <SkepticismPanel>
+      <ul>
+        <li>
+          <strong>The Photon Loss Budget:</strong> The Achilles' heel of optical quantum computing is loss. Every time a photon passes through a fiber, waveguide, or optical switch, it risks being absorbed. The probability of survival is given by the transmissivity equation <Math formula="T = 10^{-\\alpha L / 10}" inline={true} />, where <Math formula="\\alpha" inline={true} /> is the attenuation coefficient. In FBQC, if the aggregate component loss exceeds just <strong>1% to 2%</strong>, the parity checks of the topological code fail. Current fiber-to-chip coupling losses (~10%) drastically outpace this strict threshold.
+        </li>
+        <li>
+          <strong>The Spatial Overhead & Delay Lines:</strong> Superconducting qubits are computed in the time-domain (you apply pulses to a stationary qubit over time). Photonic computers compute in the space-domain (photons physically fly through the chip at the speed of light). To synchronize photons generated at different times, they must be spooled into "Delay Lines". Delaying a photon for just 1 millisecond requires roughly <strong>200 kilometers</strong> of optical fiber. A fully fault-tolerant optical machine requires warehouses filled with fiber spools just to act as "memory".
+        </li>
+        <li>
+          <strong>Fabrication Variance:</strong> The HOM effect demands perfectly identical photons. The microscopic MZIs etched into the silicon must be geometrically perfect down to the nanometer. If one waveguide is slightly wider than its pair, the effective refractive index changes, shifting the phase velocity. The photons become distinguishable, and the interference vanishes.
+        </li>
+      </ul>
+      <p>
+        <strong>Conclusion:</strong> Optical quantum computers successfully trade the ambient thermal noise vulnerabilities of transmons for extreme hardware overhead, unyielding fabrication tolerances, and a mathematically unforgiving photon loss budget.
+      </p>
+    </SkepticismPanel>
+
+    <ReferenceList theme="orange">
+      <li>
+        <strong>"Measurement of subpicosecond time intervals between two photons by interference,"</strong> Hong, C. K., Ou, Z. Y., & Mandel, L. <em>Physical Review Letters</em> (1987). The original HOM effect demonstration.
+      </li>
+      <li>
+        <strong>"A scheme for efficient quantum computation with linear optics,"</strong> Knill, E., Laflamme, R., & Milburn, G. J. <em>Nature</em> (2001). The foundational KLM protocol proving scalable quantum computing is possible using only linear optical elements.
+      </li>
+      <li>
+        <strong>"A One-Way Quantum Computer,"</strong> Raussendorf, R., & Briegel, H. J. <em>Physical Review Letters</em> (2001). Introduces the cluster state Measurement-Based Quantum Computing (MBQC) model.
+      </li>
+      <li>
+        <strong>"Fusion-based quantum computation,"</strong> Bartolucci, S., et al. (PsiQuantum). <em>Nature Communications</em> (2023/2021 preprint). Introduces the resource state fusion architecture.
+      </li>
+    </ReferenceList>
+  </PageLayout>
+</Base>

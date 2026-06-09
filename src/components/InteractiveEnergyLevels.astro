@@ -1,0 +1,101 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+import HoverInfoPanel from './HoverInfoPanel.astro';
+---
+<InteractiveBoard className="energy-container" title="Transmon Energy Levels (Anharmonicity)" description="Hover over the energy states and transitions to see the effect of anharmonicity.">
+  
+  <div class="energy-graphic">
+    <svg viewBox="0 0 500 300" width="100%" height="100%" class="energy-svg">
+      <defs>
+        <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M 0 0 L 6 3 L 0 6 z" fill="var(--accent-orange)" />
+        </marker>
+        <filter id="glow-level">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Potential Well (Cosine shape for Transmon) -->
+      <path d="M 50 20 Q 250 350 450 20" fill="none" stroke="var(--border)" stroke-width="3" stroke-dasharray="8 4" />
+      
+      <!-- Energy Levels -->
+      <g class="comp-group hoverable" data-info="Ground State |0⟩: The lowest energy state of the transmon qubit.">
+        <line x1="170" y1="240" x2="330" y2="240" stroke="var(--text-main)" stroke-width="3" class="e-level" />
+        <text x="150" y="245" class="level-label">|0⟩</text>
+      </g>
+      
+      <g class="comp-group hoverable" data-info="First Excited State |1⟩: The computational transition |0⟩ → |1⟩ occurs at frequency f₀₁.">
+        <line x1="140" y1="160" x2="360" y2="160" stroke="var(--accent)" stroke-width="3" class="e-level" />
+        <text x="120" y="165" class="level-label">|1⟩</text>
+      </g>
+      
+      <g class="comp-group hoverable" data-info="Second Excited State |2⟩: The transition |1⟩ → |2⟩ occurs at frequency f₁₂. Because f₁₂ < f₀₁, we can isolate the |0⟩ → |1⟩ transition without leaking into |2⟩.">
+        <line x1="110" y1="90" x2="390" y2="90" stroke="var(--accent-purple)" stroke-width="3" class="e-level" />
+        <text x="90" y="95" class="level-label">|2⟩</text>
+      </g>
+
+      <g class="comp-group hoverable" data-info="Third Excited State |3⟩: Higher energy levels become closer together due to the cosine potential.">
+        <line x1="85" y1="35" x2="415" y2="35" stroke="var(--text-muted)" stroke-width="2" class="e-level" />
+        <text x="65" y="40" class="level-label">|3⟩</text>
+      </g>
+
+      <!-- Transitions -->
+      <g class="comp-group hoverable" data-info="Computational Transition (f₀₁): This is the target frequency (e.g., 5.0 GHz) used to drive qubit operations.">
+        <line x1="220" y1="240" x2="220" y2="165" stroke="var(--accent-cyan)" stroke-width="3" marker-end="url(#arrowhead)" class="transition-arrow" />
+        <text x="210" y="205" class="trans-label" text-anchor="end">f₀₁</text>
+      </g>
+
+      <g class="comp-group hoverable" data-info="Leakage Transition (f₁₂): This transition occurs at f₀₁ - α. The difference α (~300 MHz) is the anharmonicity.">
+        <line x1="280" y1="160" x2="280" y2="95" stroke="var(--accent-orange)" stroke-width="3" marker-end="url(#arrowhead)" class="transition-arrow" />
+        <text x="290" y="130" class="trans-label" text-anchor="start">f₁₂ = f₀₁ - α</text>
+      </g>
+      
+      <!-- Annotations -->
+      <path d="M 230 160 Q 250 140 250 160" fill="none" stroke="transparent" /> <!-- spacing -->
+    </svg>
+  </div>
+  
+  <HoverInfoPanel defaultText="Hover over energy levels or transitions to explore the Duffing oscillator physics." />
+</InteractiveBoard>
+
+<style>
+  .energy-graphic {
+    background: var(--surface-alt);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .level-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    fill: var(--text-main);
+  }
+  .trans-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    fill: var(--text-main);
+  }
+  .e-level {
+    transition: all 0.2s ease;
+  }
+  .transition-arrow {
+    transition: all 0.2s ease;
+  }
+  
+  .hoverable {
+    cursor: pointer;
+  }
+  .hoverable:hover .e-level {
+    stroke-width: 5;
+    filter: url(#glow-level);
+  }
+  .hoverable:hover .transition-arrow {
+    stroke-width: 5;
+    filter: url(#glow-level);
+  }
+</style>

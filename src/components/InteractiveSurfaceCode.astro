@@ -1,0 +1,495 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard className="surface-code-container" title="Topological Surface Code Architecture" description="Explore how stabilizers detect errors using a high-performance Canvas rendering engine. Select an error type, click on data qubits to inject errors, and run the matching decoder loop to locate and correct them.">
+  
+  <div class="board-controls">
+    <button id="btn-clear" class="board-btn">Clear Lattice</button>
+    <button id="btn-inject-x" class="board-btn" style="color: #ea580c; border-color: #ea580c;">Inject Pauli X (Bit-flip)</button>
+    <button id="btn-inject-z" class="board-btn" style="color: #0284c7; border-color: #0284c7;">Inject Pauli Z (Phase-flip)</button>
+    <button id="btn-inject-leak" class="board-btn" style="color: #e11d48; border-color: #e11d48;">Inject Leakage (|2⟩)</button>
+    <button id="btn-decode" class="board-btn" style="color: #059669; border-color: #059669; font-weight: bold;">Decode & Correct (MWPM)</button>
+  </div>
+
+  <div class="qec-layout">
+    <div class="qec-lattice-container">
+      <canvas id="surface-canvas" width="460" height="460"></canvas>
+    </div>
+
+    <div class="qec-math-panel">
+      <h5>Active Stabilizer Math</h5>
+      <div class="stabilizer-math-box" id="stabilizer-math-box">
+        Hover over a stabilizer node (X or Z) to inspect its quantum measurement loop.
+      </div>
+      
+      <div class="qec-stats">
+        <div class="qec-stat-card">
+          <div class="qec-stat-num text-magenta" id="qec-errors-val">0</div>
+          <div class="qec-stat-lbl">Active Syndromes</div>
+        </div>
+        <div class="qec-stat-card">
+          <div class="qec-stat-num text-cyan" id="qec-status-val">Nominal</div>
+          <div class="qec-stat-lbl">Code Status</div>
+        </div>
+        <div class="qec-stat-card">
+          <div class="qec-stat-num text-green" id="qec-cycles-val">0</div>
+          <div class="qec-stat-lbl">Correction Cycles</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="board-info" style="margin-top: 1rem;">
+    <strong id="qec-title" class="text-green">Surface Code Lattice:</strong>
+    <span id="qec-desc">This is a simplified 5x5 (Distance-3) grid of qubits. The grey <strong>Data qubits (D)</strong> hold your actual quantum information. The green/blue <strong>Measure qubits (X/Z)</strong> constantly check their 4 neighboring Data qubits for errors without destroying the quantum state. Try hovering over an X or Z node to see its connections!</span>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .qec-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 1.5rem 0;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .qec-layout {
+      grid-template-columns: 1.1fr 1fr;
+    }
+  }
+  .qec-lattice-container {
+    display: flex;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  canvas {
+    max-width: 100%;
+    height: auto;
+    cursor: pointer;
+  }
+  
+  .board-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .board-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+  }
+  .board-btn.active, .board-btn:hover {
+    background: var(--surface-alt);
+    border-color: var(--text-main);
+  }
+
+  .qec-math-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    height: 100%;
+    justify-content: space-between;
+  }
+  .qec-math-panel h5 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+  .stabilizer-math-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.8rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--text-main);
+    min-height: 85px;
+    line-height: 1.55;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qec-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+  .qec-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.6rem;
+    text-align: center;
+    border-radius: var(--radius);
+  }
+  .qec-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+  .qec-stat-lbl {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .text-green { color: var(--accent-green); }
+  .text-blue { color: var(--accent); }
+  .text-red { color: var(--accent-red); }
+  .text-orange { color: var(--accent-orange); }
+  .text-magenta { color: var(--accent-pink); }
+  .text-cyan { color: var(--accent-cyan); }
+</style>
+
+<script>
+  function initSurfaceCode() {
+    const canvas = document.getElementById('surface-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Simplified distance-3 code uses a 5x5 array for clarity (instead of a cluttered 9x9)
+    const gridSize = 5;
+    const padding = 40;
+    const spacing = (canvas.width - padding * 2) / (gridSize - 1);
+    const nodeRadius = 26;
+
+    interface Node {
+      r: number;
+      c: number;
+      x: number;
+      y: number;
+      isData: boolean;
+      type: 'D' | 'X' | 'Z';
+      state: 'clean' | 'x-err' | 'z-err' | 'leak' | 'alert' | 'blinded';
+      hover: boolean;
+    }
+
+    let nodes: Node[] = [];
+    let correctionCycles = 0;
+    let currentMode = 'hover'; // 'hover', 'inject-x', 'inject-z', 'inject-leak'
+
+    // Initialize nodes
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        const isData = (r + c) % 2 === 0;
+        const type = isData ? 'D' : (r % 2 !== 0 ? 'X' : 'Z');
+        nodes.push({
+          r, c,
+          x: padding + c * spacing,
+          y: padding + r * spacing,
+          isData,
+          type,
+          state: 'clean',
+          hover: false
+        });
+      }
+    }
+
+    let animationId: number;
+    let time = 0;
+    let matchingPaths: {x1: number, y1: number, x2: number, y2: number}[] = [];
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += 0.05;
+
+      // Draw connections
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#e2e8f0';
+      nodes.forEach(n => {
+        if (!n.isData) return;
+        // Connect to neighbors
+        const neighbors = nodes.filter(neighbor => 
+          !neighbor.isData && Math.abs(neighbor.r - n.r) + Math.abs(neighbor.c - n.c) === 1
+        );
+        neighbors.forEach(neighbor => {
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(neighbor.x, neighbor.y);
+          
+          if (n.hover || neighbor.hover) {
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+          } else if ((n.state === 'alert' || neighbor.state === 'alert' || n.state === 'blinded' || neighbor.state === 'blinded') && n.state !== 'clean') {
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 3;
+          } else {
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 2;
+          }
+          ctx.stroke();
+        });
+      });
+
+      // Draw MWPM paths if any
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#10b981';
+      ctx.shadowColor = '#10b981';
+      ctx.shadowBlur = 10;
+      matchingPaths.forEach(path => {
+        ctx.beginPath();
+        ctx.moveTo(path.x1, path.y1);
+        ctx.lineTo(path.x2, path.y2);
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+
+      // Draw nodes
+      nodes.forEach(n => {
+        ctx.beginPath();
+        let drawX = n.x;
+        let drawY = n.y;
+        let radius = nodeRadius;
+
+        if (n.hover) radius += 3;
+
+        // Visual states
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+
+        if (n.isData) {
+          ctx.fillStyle = '#f8fafc';
+          if (n.state === 'x-err') {
+            ctx.fillStyle = '#ffedd5';
+            ctx.strokeStyle = '#f97316';
+            radius += Math.sin(time * 3) * 2;
+          } else if (n.state === 'z-err') {
+            ctx.fillStyle = '#e0f2fe';
+            ctx.strokeStyle = '#0284c7';
+            radius += Math.sin(time * 3) * 2;
+          } else if (n.state === 'leak') {
+            ctx.fillStyle = '#ffe4e6';
+            ctx.strokeStyle = '#e11d48';
+            drawX += (Math.random() - 0.5) * 3;
+            drawY += (Math.random() - 0.5) * 3;
+          }
+        } else {
+          if (n.type === 'X') {
+            ctx.fillStyle = '#dcfce7';
+            ctx.strokeStyle = '#22c55e';
+          } else {
+            ctx.fillStyle = '#e0f2fe';
+            ctx.strokeStyle = '#0ea5e9';
+          }
+          
+          if (n.state === 'alert') {
+            ctx.fillStyle = '#fef08a';
+            ctx.strokeStyle = '#eab308';
+            radius += 2;
+            ctx.shadowColor = '#eab308';
+            ctx.shadowBlur = 15;
+          } else if (n.state === 'blinded') {
+            ctx.fillStyle = '#cbd5e1';
+            ctx.strokeStyle = '#64748b';
+            ctx.globalAlpha = 0.5;
+          }
+        }
+
+        ctx.arc(drawX, drawY, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+
+        ctx.fillStyle = n.isData ? '#475569' : (n.type === 'X' ? '#15803d' : '#0369a1');
+        if (n.state === 'alert') ctx.fillStyle = '#a16207';
+        if (n.state === 'blinded') ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 16px "Fira Code", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        let text = n.type;
+        if (n.state === 'x-err') text = 'X';
+        if (n.state === 'z-err') text = 'Z';
+        if (n.state === 'leak') text = '2';
+        if (n.state === 'alert') text = '!';
+        if (n.state === 'blinded') text = '?';
+        ctx.fillText(text, drawX, drawY);
+      });
+
+      animationId = requestAnimationFrame(draw);
+    }
+    
+    draw();
+
+    // Interaction handling
+    const titleEl = document.getElementById('qec-title');
+    const descEl = document.getElementById('qec-desc');
+    const mathBox = document.getElementById('stabilizer-math-box');
+    const errVal = document.getElementById('qec-errors-val');
+    const statVal = document.getElementById('qec-status-val');
+    const cycVal = document.getElementById('qec-cycles-val');
+
+    function updateStats() {
+      const activeSyndromes = nodes.filter(n => n.state === 'alert').length;
+      if (errVal) errVal.textContent = activeSyndromes.toString();
+
+      const hasLeakage = nodes.some(n => n.state === 'leak');
+      
+      if (statVal) {
+        if (hasLeakage) {
+          statVal.textContent = 'Blinded (Leakage)';
+          statVal.className = 'qec-stat-num text-red';
+        } else if (activeSyndromes > 0) {
+          statVal.textContent = 'Errors Detected';
+          statVal.className = 'qec-stat-num text-orange';
+        } else {
+          statVal.textContent = 'Nominal';
+          statVal.className = 'qec-stat-num text-cyan';
+        }
+      }
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      // Adjust mouse coordinates based on CSS scaling
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      let hovered = false;
+      nodes.forEach(n => {
+        const dist = Math.hypot(n.x - x, n.y - y);
+        n.hover = dist < nodeRadius * 1.5;
+        if (n.hover && !n.isData && mathBox) {
+          hovered = true;
+          if (n.type === 'Z') {
+            mathBox.innerHTML = `<div><strong>Z-Measure Qubit (S<sub>Z</sub>)</strong></div><div style="font-size:0.75rem;margin-top:0.25rem;">Checks parity of: Z<sub>1</sub>⊗Z<sub>2</sub>⊗Z<sub>3</sub>⊗Z<sub>4</sub></div><div style="font-size:0.75rem;color:#0ea5e9;margin-top:0.4rem;">Look at the highlighted connections! This node will alert you if any of its connected Data qubits suffer a <strong>Bit-flip (X)</strong> error.</div>`;
+          } else {
+            mathBox.innerHTML = `<div><strong>X-Measure Qubit (S<sub>X</sub>)</strong></div><div style="font-size:0.75rem;margin-top:0.25rem;">Checks parity of: X<sub>1</sub>⊗X<sub>2</sub>⊗X<sub>3</sub>⊗X<sub>4</sub></div><div style="font-size:0.75rem;color:#10b981;margin-top:0.4rem;">Look at the highlighted connections! This node will alert you if any of its connected Data qubits suffer a <strong>Phase-flip (Z)</strong> error.</div>`;
+          }
+        }
+      });
+      if (!hovered && mathBox) {
+        mathBox.textContent = 'Hover over a Measure node (X or Z) to see which Data qubits it protects.';
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      nodes.forEach(n => n.hover = false);
+      if (mathBox) mathBox.textContent = 'Hover over a Measure node (X or Z) to see which Data qubits it protects.';
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      const target = nodes.find(n => Math.hypot(n.x - x, n.y - y) < nodeRadius * 1.5);
+      if (!target || !target.isData || currentMode === 'hover') return;
+
+      // Clear existing paths
+      matchingPaths = [];
+      nodes.forEach(n => { if (n.state !== 'leak' && n.state !== 'x-err' && n.state !== 'z-err') n.state = 'clean'; });
+
+      if (currentMode === 'inject-x') {
+        target.state = 'x-err';
+        // Alert adjacent Z stabilizers
+        nodes.forEach(n => {
+          if (n.type === 'Z' && Math.abs(n.r - target.r) + Math.abs(n.c - target.c) === 1) n.state = 'alert';
+        });
+      } else if (currentMode === 'inject-z') {
+        target.state = 'z-err';
+        // Alert adjacent X stabilizers
+        nodes.forEach(n => {
+          if (n.type === 'X' && Math.abs(n.r - target.r) + Math.abs(n.c - target.c) === 1) n.state = 'alert';
+        });
+      } else if (currentMode === 'inject-leak') {
+        target.state = 'leak';
+        // Blind all adjacent stabilizers
+        nodes.forEach(n => {
+          if (!n.isData && Math.abs(n.r - target.r) + Math.abs(n.c - target.c) === 1) n.state = 'blinded';
+        });
+      }
+
+      updateStats();
+    });
+
+    function setMode(mode: string, title: string, desc: string, colorClass: string) {
+      currentMode = mode;
+      document.querySelectorAll('.board-btn').forEach(b => b.classList.remove('active'));
+      const btnMap: Record<string, string> = {'inject-x': 'btn-inject-x', 'inject-z': 'btn-inject-z', 'inject-leak': 'btn-inject-leak'};
+      if (btnMap[mode]) document.getElementById(btnMap[mode])?.classList.add('active');
+
+      if (titleEl) { titleEl.textContent = title; titleEl.className = colorClass; }
+      if (descEl) descEl.innerHTML = desc;
+    }
+
+    document.getElementById('btn-clear')?.addEventListener('click', () => {
+      nodes.forEach(n => n.state = 'clean');
+      matchingPaths = [];
+      setMode('hover', 'Surface Code Lattice:', 'This is a simplified 5x5 (Distance-3) grid of qubits. The grey <strong>Data qubits (D)</strong> hold your actual quantum information. The green/blue <strong>Measure qubits (X/Z)</strong> constantly check their 4 neighboring Data qubits for errors without destroying the quantum state. Try hovering over an X or Z node to see its connections!', 'text-green');
+      updateStats();
+    });
+
+    document.getElementById('btn-inject-x')?.addEventListener('click', () => setMode('inject-x', 'Injecting Pauli X (Bit-flip):', 'Click on any grey Data Qubit (D) to inject a Bit-flip error. Notice how the adjacent blue Z-Measure nodes immediately light up in yellow to detect it!', 'text-orange'));
+    document.getElementById('btn-inject-z')?.addEventListener('click', () => setMode('inject-z', 'Injecting Pauli Z (Phase-flip):', 'Click on any grey Data Qubit (D) to inject a Phase-flip error. Notice how the adjacent green X-Measure nodes immediately light up in yellow to detect it!', 'text-blue'));
+    document.getElementById('btn-inject-leak')?.addEventListener('click', () => setMode('inject-leak', 'Injecting Leakage Error:', 'Click on a Data Qubit to simulate microwave energy leaking to the |2⟩ state. This completely blinds the adjacent measure nodes (they turn grey and stop working!).', 'text-red'));
+
+    const btnDecode = document.getElementById('btn-decode') as HTMLButtonElement;
+    btnDecode?.addEventListener('click', () => {
+      const activeSyndromes = nodes.filter(n => n.state === 'alert');
+      const hasLeakage = nodes.some(n => n.state === 'leak');
+
+      if (activeSyndromes.length === 0 && !hasLeakage) {
+        setMode('hover', 'Nominal Lattice:', 'No errors to correct. The lattice is fully coherent.', 'text-green');
+        return;
+      }
+
+      btnDecode.disabled = true;
+      btnDecode.textContent = 'Running Decoder...';
+
+      if (activeSyndromes.length >= 2) {
+        // Draw a simple path between first two syndromes to simulate MWPM
+        const s1 = activeSyndromes[0];
+        const s2 = activeSyndromes[1];
+        matchingPaths.push({ x1: s1.x, y1: s1.y, x2: s2.x, y2: s2.y });
+      }
+
+      setTimeout(() => {
+        correctionCycles++;
+        if (cycVal) cycVal.textContent = correctionCycles.toString();
+
+        if (hasLeakage) {
+          setMode('hover', 'LRU Leakage Reset:', '⚡ <strong>Leakage Flushed:</strong> Standard MWPM was blinded. Run a Leakage Reduction Unit (LRU) swap pulse sequence to dump leaked energy from |2⟩ back to |0⟩, restoring stabilizer visibility.', 'text-green');
+        } else {
+          setMode('hover', 'Decoder Success:', '✅ <strong>MWPM Solved:</strong> Minimum Weight Perfect Matching successfully paired active syndrome nodes, traced the error chain paths, and applied virtual Pauli corrections.', 'text-green');
+        }
+
+        nodes.forEach(n => n.state = 'clean');
+        matchingPaths = [];
+        btnDecode.disabled = false;
+        btnDecode.textContent = 'Decode & Correct (MWPM)';
+        updateStats();
+      }, 1000);
+    });
+
+  }
+
+  initSurfaceCode();
+  document.addEventListener('astro:page-load', initSurfaceCode);
+</script>

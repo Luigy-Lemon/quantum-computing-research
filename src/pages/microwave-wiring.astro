@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import SkepticismPanel from '../components/SkepticismPanel.astro';
+import ReferenceList from '../components/ReferenceList.astro';
+
+import Card from '../components/Card.astro';
+import Math from '../components/Math.astro';
+import Tag from '../components/Tag.astro';
+---
+
+<Base title="Microwave Coaxial Wiring" activeNav="/microwave-wiring" mathjax>
+  <PageLayout>
+  <PageHeader 
+    title="Microwave Coaxial Wiring"
+    meta="System Component • Cryogenic Infrastructure"
+    description="Bridging the 300K environment to the 10mK quantum plane involves a brutal cascade of thermal attenuation. We deconstruct the thermodynamic impossibilities of scaling superconducting coaxial lines without overwhelming cooling power."
+    theme="blue"
+  />
+
+  <ContentSection title="The Thermodynamic Nightmare of Coaxial Cabling">
+    <p>
+      Scaling superconducting quantum processors to fault-tolerant levels (<Math formula="10^5 - 10^6"  /> qubits) demands an unprecedented I/O infrastructure. Currently, each transmon qubit requires between 2 and 3 dedicated microwave lines (drive, flux, and readout) bridging room temperature (300 K) down to the mixing chamber (10 mK).
+    </p>
+    <p>
+      State-of-the-art Dilution Refrigerators (DR) provide cooling power strictly limited to the order of <strong>10–15 <Math formula="\\mu"  />W at 10 mK</strong>. The brute-force approach of routing hundreds of thousands of superconducting Niobium-Titanium (NbTi) or Cupro-Nickel (CuNi) coaxial cables directly into the DR is thermodynamically impossible due to passive heat leaks and active dissipation.
+    </p>
+  </ContentSection>
+
+  <ContentSection title="Passive Heat Leak: Fourier's Law">
+    <p>
+      Even when idling, coaxial cables relentlessly conduct heat from higher temperature stages down to the mixing chamber. According to Fourier's law of thermal conduction, the parasitic heat flow <Math formula="\\dot{Q}"  /> through a cable of length <Math formula="L"  /> and cross-sectional area <Math formula="A"  /> is defined as:
+    </p>
+    <div>
+      <Math formula=" \\dot{Q} = \\frac{A}{L} \\int_{T_{\\text{cold}}}^{T_{\\text{hot}}} k(T) \\, dT " />
+    </div>
+    <p>
+      Where <Math formula="k(T)"  /> is the strongly temperature-dependent thermal conductivity. For <Math formula="10^6"  /> cables, the aggregated cross-sectional area <Math formula="A_{\\text{total}}"  /> becomes immense. Even utilizing specialized superconducting alloys like NbTi with poor thermal conductivity, the aggregate passive heat load <Math formula="\\dot{Q}_{\\text{total}}"  /> rapidly exceeds <Math formula="10^4"  /> <Math formula="\\mu"  />W, catastrophically quenching the dilution refrigerator.
+    </p>
+  </ContentSection>
+
+  <ContentSection title="Johnson-Nyquist Noise & Attenuation Dissipation">
+    <p>
+      The 300K laboratory environment introduces massive thermal blackbody radiation. To prevent Johnson-Nyquist noise from decohering the qubits at the quantum limit, incoming microwave signals must be heavily attenuated (typically <Math formula="\\sim 60"  /> dB cascaded across the 4K, 100mK, and 10mK stages). The thermal noise power <Math formula="P_N"  /> is given by:
+    </p>
+    <div>
+      <Math formula=" P_N = k_B T B " />
+    </div>
+    <p>
+      While necessary to satisfy <Math formula="k_B T \\ll \\hbar \\omega"  />, attenuation fundamentally operates by converting microwave energy into phonons (heat). During active gate operations, these attenuators dissipate the active pulse energy directly into the cryogenic stages. For <Math formula="10^5"  /> qubits under continuous dynamic decoupling or QEC cycles, the dynamic heat dissipation from control pulses alone will independently exceed the millikelvin thermal budget by orders of magnitude.
+    </p>
+  </ContentSection>
+
+  <SkepticismPanel>
+    <p>
+      Several alternative architectures have been proposed in recent cutting-edge literature to bypass the coaxial cabling bottleneck. However, each introduces severe secondary complications:
+    </p>
+    <Card>
+      <strong>1. Cryogenic CMOS (Cryo-CMOS)</strong>
+      <p><em>Literature Context:</em> Move DACs/ADCs to the 4K stage to multiplex signals digitally before routing analog tones to 10mK (e.g., <em>Patra et al., 2025</em>).</p>
+      <p><strong>Skepticism:</strong> Current Cryo-CMOS dissipates <Math formula="\\sim 1-5"  /> mW per qubit. Even at 4K (which has slightly more cooling power, <Math formula="\\sim 1-2"  /> W), a million qubits translates to kilowatts of localized heat generation. This remains fundamentally incompatible with practical He-3/He-4 dry fridges without boiling the coolant.</p>
+    </Card>
+
+    <Card>
+      <strong>2. Microwave-to-Optical Transduction</strong>
+      <p><em>Literature Context:</em> Deliver signals via multiplexed optical fibers coupled to 10mK electro-optic modulators, replacing massive coax bundles entirely (e.g., <em>Lecocq et al., 2024</em>).</p>
+      <p><strong>Skepticism:</strong> Optical fibers solve thermal conduction, but the electro-optic conversion efficiency at 10mK remains notoriously low (<Math formula="\\sim 10^{-4}"  />). The extreme optical pump power required generates stray infrared photons, breaking Cooper pairs and causing widespread quasiparticle poisoning across the quantum chip.</p>
+    </Card>
+
+    <Card>
+      <strong>3. Superconducting Flux Quantum (SFQ) Logic</strong>
+      <p><em>Literature Context:</em> Utilize classical superconducting digital logic at 20mK to generate control pulses locally (e.g., <em>Holmes et al., 2026</em>).</p>
+      <p><strong>Skepticism:</strong> SFQ possesses strictly zero static dissipation. However, its dynamic power <Math formula="P_{\\text{dyn}} \\approx I_c \\Phi_0 f"  /> scales linearly with clock frequency. Generating high-fidelity analog microwave envelopes (e.g., DRAG pulses) via digital-to-analog SFQ logic requires multi-gigahertz clock rates, pushing dynamic dissipation well beyond the 15 <Math formula="\\mu"  />W limits of the mixing chamber.</p>
+    </Card>
+  </SkepticismPanel>
+  </PageLayout>
+</Base>

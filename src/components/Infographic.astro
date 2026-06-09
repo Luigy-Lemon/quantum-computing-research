@@ -1,0 +1,32 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  invert?: boolean;
+  style?: string;
+  imgStyle?: string;
+}
+
+const {
+  src,
+  alt,
+  caption,
+  invert = false,
+  style = '',
+  imgStyle = '',
+} = Astro.props;
+
+const bg = invert ? 'var(--surface-alt, #f1f3f8)' : 'var(--surface, #ffffff)';
+const containerStyle = `text-align: center; padding: 1.5rem; border-radius: var(--radius, 8px); background: ${bg}; border: 1px solid var(--border, #dde1ea); ${style}`;
+const filterStyle = invert ? 'filter: none; ' : '';
+const finalImgStyle = `max-width: 100%; border-radius: 4px; ${filterStyle}${imgStyle}`;
+---
+<div class="svg-container" style={containerStyle}>
+  <img src={src} alt={alt} style={finalImgStyle} loading="lazy" decoding="async" />
+  {caption && (
+    <p style={`font-size: 0.85rem; margin-top: 1rem; color: var(--text-muted, #6b7085); line-height: 1.5; margin-bottom: 0;`}>
+      <em>Source: {caption}</em>
+    </p>
+  )}
+</div>

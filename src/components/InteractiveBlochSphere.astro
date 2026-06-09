@@ -1,0 +1,561 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard id="lab" title="Qubit State & Bloch Sphere Sandbox" description="Interactively manipulate the polar angle θ and azimuthal phase angle φ to trace the state vector |ψ⟩ on the Bloch Sphere. Use the presets or trigger real-time control dynamics simulations.">
+  
+  <div class="bs-layout">
+    <div class="bs-inputs-panel">
+      <div class="bs-slider-group">
+        <label>
+          <span>Polar Angle θ (Superposition):</span>
+          <span class="value-display"><span id="bs-theta-val">0.50</span> π</span>
+        </label>
+        <input type="range" id="bs-theta" min="0" max="3.14159" step="0.01" value="1.57079" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>|0⟩ (0)</span>
+          <span>|+⟩ (π/2)</span>
+          <span>|1⟩ (π)</span>
+        </div>
+      </div>
+
+      <div class="bs-slider-group">
+        <label>
+          <span>Azimuthal Angle φ (Phase):</span>
+          <span class="value-display"><span id="bs-phi-val">0.00</span> π</span>
+        </label>
+        <input type="range" id="bs-phi" min="0" max="6.28318" step="0.01" value="0" class="neon-slider" />
+        <div class="slider-ticks">
+          <span>+X (0)</span>
+          <span>+Y (π/2)</span>
+          <span>-X (π)</span>
+          <span>-Y (3π/2)</span>
+        </div>
+      </div>
+
+      <div class="bs-presets-group">
+        <label>State Presets:</label>
+        <div class="bs-btn-group">
+          <button class="bs-preset-btn" id="bs-p-0">|0⟩ Ground</button>
+          <button class="bs-preset-btn" id="bs-p-1">|1⟩ Excited</button>
+          <button class="bs-preset-btn active" id="bs-p-plus">|+⟩ Superposition</button>
+          <button class="bs-preset-btn" id="bs-p-i">|+i⟩ Phase</button>
+        </div>
+      </div>
+
+      <div class="bs-presets-group" style="margin-top: 0.5rem;">
+        <label>Control Dynamics Simulation:</label>
+        <div class="bs-btn-group">
+          <button class="bs-preset-btn" id="bs-sim-rabi" style="color: var(--accent); border-color: var(--accent);">Drive Rabi (π Pulse)</button>
+          <button class="bs-preset-btn" id="bs-sim-dephase" style="color: var(--accent-pink); border-color: var(--accent-pink);">Dephase (T2* Decay)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bs-visual-panel">
+      <div class="bloch-sphere-flex">
+        <div class="bloch-container">
+          <svg id="bs-bloch" viewBox="0 0 220 220" width="220" height="220">
+            <!-- Rendered dynamically -->
+          </svg>
+        </div>
+        
+        <div class="bloch-math-card">
+          <h5>State wavefunction</h5>
+          <div class="math-eq" id="bs-state-eq">0.707|0⟩ + 0.707|1⟩</div>
+          
+          <div class="math-probs-grid">
+            <div class="prob-card">
+              <span class="prob-lbl">P(|0⟩)</span>
+              <span class="prob-val text-cyan" id="bs-p0">50%</span>
+            </div>
+            <div class="prob-card">
+              <span class="prob-lbl">P(|1⟩)</span>
+              <span class="prob-val text-magenta" id="bs-p1">50%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .bs-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .bs-layout {
+      grid-template-columns: 1.1fr 1.2fr;
+    }
+  }
+
+  .bs-inputs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .bs-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .bs-slider-group label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+  .value-display {
+    font-family: monospace;
+    color: var(--accent);
+  }
+
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    padding: 0 4px;
+  }
+
+  .neon-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(226, 232, 240, 0.8);
+    border-radius: 2px;
+    outline: none;
+  }
+  .neon-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
+  }
+
+  .bs-presets-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .bs-presets-group label {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+  .bs-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .bs-preset-btn {
+    flex: 1;
+    min-width: 90px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .bs-preset-btn:hover:not(:disabled) {
+    background: var(--surface-alt);
+    border-color: var(--text-muted);
+  }
+  .bs-preset-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+  }
+  .bs-preset-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .bs-visual-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .bloch-sphere-flex {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .bloch-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+  }
+
+  .bloch-math-card {
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .bloch-math-card h5 {
+    margin: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .math-eq {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .math-probs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .prob-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .prob-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+  .prob-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-family: monospace;
+  }
+
+  .text-cyan { color: #0891b2; }
+  .text-magenta { color: #c026d3; }
+</style>
+
+<script>
+  function initBlochSphere() {
+    const thetaSlider = document.getElementById('bs-theta') as HTMLInputElement;
+    const phiSlider = document.getElementById('bs-phi') as HTMLInputElement;
+    const svg = document.getElementById('bs-bloch');
+    
+    const p0Btn = document.getElementById('bs-p-0');
+    const p1Btn = document.getElementById('bs-p-1');
+    const pPlusBtn = document.getElementById('bs-p-plus');
+    const pIBtn = document.getElementById('bs-p-i');
+
+    const simRabi = document.getElementById('bs-sim-rabi') as HTMLButtonElement;
+    const simDephase = document.getElementById('bs-sim-dephase') as HTMLButtonElement;
+
+    if (!svg || !thetaSlider || !phiSlider) return;
+
+    let isRunningSim = false;
+    let traceHistory: { x: number; y: number; z: number }[] = [];
+
+    function selectPreset(btn: HTMLElement, t: number, p: number) {
+      if (isRunningSim) return;
+      document.querySelectorAll('.bs-preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      thetaSlider.value = t.toString();
+      phiSlider.value = p.toString();
+      traceHistory = [];
+      update(1.0);
+    }
+
+    if (p0Btn) p0Btn.onclick = () => selectPreset(p0Btn, 0, 0);
+    if (p1Btn) p1Btn.onclick = () => selectPreset(p1Btn, Math.PI, 0);
+    if (pPlusBtn) pPlusBtn.onclick = () => selectPreset(pPlusBtn, Math.PI / 2, 0);
+    if (pIBtn) pIBtn.onclick = () => selectPreset(pIBtn, Math.PI / 2, Math.PI / 2);
+
+    // Rabi Drive Simulation
+    if (simRabi) {
+      simRabi.onclick = () => {
+        if (isRunningSim) return;
+        isRunningSim = true;
+        simRabi.disabled = true;
+        simDephase.disabled = true;
+        thetaSlider.disabled = true;
+        phiSlider.disabled = true;
+
+        thetaSlider.value = '0';
+        phiSlider.value = '0';
+        traceHistory = [];
+
+        let currentTheta = 0;
+        const targetTheta = Math.PI;
+        const duration = 90; // frames
+        let frame = 0;
+
+        function step() {
+          frame++;
+          currentTheta = (frame / duration) * targetTheta;
+          thetaSlider.value = currentTheta.toString();
+
+          // Save current state coordinates
+          const x = Math.sin(currentTheta);
+          const y = 0;
+          const z = Math.cos(currentTheta);
+          traceHistory.push({ x, y, z });
+
+          update(1.0);
+
+          if (frame < duration) {
+            requestAnimationFrame(step);
+          } else {
+            isRunningSim = false;
+            simRabi.disabled = false;
+            simDephase.disabled = false;
+            thetaSlider.disabled = false;
+            phiSlider.disabled = false;
+            document.querySelectorAll('.bs-preset-btn').forEach(b => b.classList.remove('active'));
+            p1Btn?.classList.add('active');
+          }
+        }
+        step();
+      };
+    }
+
+    // Dephase Simulation
+    if (simDephase) {
+      simDephase.onclick = () => {
+        if (isRunningSim) return;
+        isRunningSim = true;
+        simRabi.disabled = true;
+        simDephase.disabled = true;
+        thetaSlider.disabled = true;
+        phiSlider.disabled = true;
+
+        thetaSlider.value = (Math.PI / 2).toString(); // Start on equator
+        phiSlider.value = '0';
+        traceHistory = [];
+
+        let currentPhi = 0;
+        let lenFactor = 1.0;
+        const duration = 120; // frames
+        let frame = 0;
+
+        function step() {
+          frame++;
+          currentPhi = frame * 0.15; // rotate rapidly
+          phiSlider.value = (currentPhi % (2 * Math.PI)).toString();
+          lenFactor = Math.exp(-frame / 35); // decay exponentially
+
+          const x = lenFactor * Math.sin(Math.PI / 2) * Math.cos(currentPhi);
+          const y = lenFactor * Math.sin(Math.PI / 2) * Math.sin(currentPhi);
+          const z = 0;
+          traceHistory.push({ x, y, z });
+
+          update(lenFactor);
+
+          if (frame < duration && lenFactor > 0.02) {
+            requestAnimationFrame(step);
+          } else {
+            isRunningSim = false;
+            simRabi.disabled = false;
+            simDephase.disabled = false;
+            thetaSlider.disabled = false;
+            phiSlider.disabled = false;
+            thetaSlider.value = (Math.PI / 2).toString();
+            phiSlider.value = '0';
+            update(0.0); // complete dephased (mixed state)
+          }
+        }
+        step();
+      };
+    }
+
+    function update(lenFactor = 1.0) {
+      const theta = parseFloat(thetaSlider.value);
+      const phi = parseFloat(phiSlider.value);
+
+      const thetaVal = document.getElementById('bs-theta-val');
+      const phiVal = document.getElementById('bs-phi-val');
+      if (thetaVal) thetaVal.textContent = (theta / Math.PI).toFixed(2);
+      if (phiVal) phiVal.textContent = (phi / Math.PI).toFixed(2);
+
+      const cosHalf = Math.cos(theta / 2);
+      const sinHalf = Math.sin(theta / 2);
+
+      // Probabilities represent projection onto computational basis
+      // For mixed states (lenFactor < 1), we linearly interpolate towards 50/50
+      const p0Val = 0.5 + 0.5 * lenFactor * (cosHalf * cosHalf - sinHalf * sinHalf);
+      const p1Val = 1 - p0Val;
+
+      const p0Disp = document.getElementById('bs-p0');
+      const p1Disp = document.getElementById('bs-p1');
+      if (p0Disp) p0Disp.textContent = `${Math.round(p0Val * 100)}%`;
+      if (p1Disp) p1Disp.textContent = `${Math.round(p1Val * 100)}%`;
+
+      const c0 = (cosHalf * Math.sqrt(lenFactor)).toFixed(3);
+      const c1 = (sinHalf * Math.sqrt(lenFactor)).toFixed(3);
+
+      let stateString = '';
+      if (lenFactor < 0.15) {
+        stateString = 'ρ = 0.5|0⟩⟨0| + 0.5|1⟩⟨1|';
+      } else {
+        if (cosHalf > 0.01) stateString += `${c0}|0⟩`;
+        if (sinHalf > 0.01) {
+          let exponential = '';
+          if (phi > 0.05) {
+            const real = Math.cos(phi);
+            const imag = Math.sin(phi);
+            let sign = imag >= 0 ? '+' : '-';
+            exponential = `(${real.toFixed(2)}${sign}${Math.abs(imag).toFixed(2)}i)`;
+          }
+          stateString += ` ${cosHalf > 0.01 ? '+' : ''} ${exponential ? exponential : ''}${c1}|1⟩`;
+        }
+      }
+      const eqDisp = document.getElementById('bs-state-eq');
+      if (eqDisp) eqDisp.textContent = stateString || '0|1⟩';
+
+      drawBloch(theta, phi, lenFactor);
+    }
+
+    function drawBloch(t: number, p: number, lenFactor = 1.0) {
+      const r = 85;
+      const cx = 110;
+      const cy = 110;
+      const pitch = 0.22;
+      const yaw = -0.78;
+
+      const x3 = Math.sin(t) * Math.cos(p);
+      const y3 = Math.sin(t) * Math.sin(p);
+      const z3 = Math.cos(t);
+
+      // Project standard coordinates
+      const xRot = x3 * Math.cos(yaw) - y3 * Math.sin(yaw);
+      const yRot = x3 * Math.sin(yaw) * Math.sin(pitch) + y3 * Math.cos(yaw) * Math.sin(pitch) + z3 * Math.cos(pitch);
+
+      const targetX = cx + r * xRot * lenFactor;
+      const targetY = cy - r * yRot * lenFactor;
+
+      // Projection of axes
+      const xAxisX = cx + r * Math.cos(yaw + Math.PI/2) * 0.7;
+      const xAxisY = cy - r * Math.sin(yaw + Math.PI/2) * Math.sin(pitch) * 0.7;
+
+      const yAxisX = cx + r * Math.cos(yaw) * 0.8;
+      const yAxisY = cy - r * Math.sin(yaw) * Math.sin(pitch) * 0.8;
+
+      // Draw SVG elements
+      let svgContent = `
+        <defs>
+          <radialGradient id="sphere-shading" cx="40%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="70%" stop-color="#f8fafc" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.75"/>
+          </radialGradient>
+          <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+
+        <!-- Sphere background -->
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#sphere-shading)" />
+        <circle cx="${cx}" cy="${cy}" r="${r}" stroke="#64748b" stroke-width="0.8" fill="none" />
+        <ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r * Math.sin(pitch)}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" fill="none" />
+        
+        <!-- Z Axis -->
+        <line x1="${cx}" y1="${cy - r - 5}" x2="${cx}" y2="${cy + r + 5}" stroke="#475569" stroke-width="0.8" stroke-dasharray="2 2" />
+        
+        <!-- X Axis -->
+        <line x1="${cx}" y1="${cy}" x2="${xAxisX}" y2="${xAxisY}" stroke="#94a3b8" stroke-width="1" />
+        <text x="${xAxisX - 8}" y="${xAxisY + 8}" fill="#64748b" font-size="7" font-family="monospace">x</text>
+
+        <!-- Y Axis -->
+        <line x1="${cx}" y1="${cy}" x2="${yAxisX}" y2="${yAxisY}" stroke="#94a3b8" stroke-width="1" />
+        <text x="${yAxisX + 8}" y="${yAxisY + 2}" fill="#64748b" font-size="7" font-family="monospace">y</text>
+      `;
+
+      // Render Trajectory Trace
+      if (traceHistory.length > 1) {
+        let pathStr = '';
+        traceHistory.forEach((pt, idx) => {
+          const rx = pt.x * Math.cos(yaw) - pt.y * Math.sin(yaw);
+          const ry = pt.x * Math.sin(yaw) * Math.sin(pitch) + pt.y * Math.cos(yaw) * Math.sin(pitch) + pt.z * Math.cos(pitch);
+          const px = cx + r * rx;
+          const py = cy - r * ry;
+
+          if (idx === 0) pathStr += `M ${px} ${py}`;
+          else pathStr += ` L ${px} ${py}`;
+        });
+        svgContent += `<path d="${pathStr}" stroke="rgba(244,63,94,0.5)" stroke-width="1" fill="none" stroke-dasharray="2 2" />`;
+      }
+
+      // Draw State Vector
+      svgContent += `
+        <!-- Shadow projection on equator -->
+        <line x1="${cx}" y1="${cy}" x2="${cx + r * xRot * lenFactor * (1 - Math.abs(z3))}" y2="${cy - r * yRot * lenFactor * (1 - Math.abs(z3)) * Math.sin(pitch)}" stroke="rgba(100,116,139,0.15)" stroke-width="0.8" stroke-dasharray="2 2" />
+
+        <!-- Bloch vector -->
+        <line x1="${cx}" y1="${cy}" x2="${targetX}" y2="${targetY}" stroke="#0ea5e9" stroke-width="2.5" filter="url(#glow-cyan)" />
+        <circle cx="${targetX}" cy="${targetY}" r="3.5" fill="#0ea5e9" filter="url(#glow-cyan)" />
+        
+        <!-- Pole labels -->
+        <text x="${cx}" y="${cy - r - 8}" fill="#334155" font-size="9" font-family="monospace" font-weight="700" text-anchor="middle">|0⟩</text>
+        <text x="${cx}" y="${cy + r + 14}" fill="#334155" font-size="9" font-family="monospace" font-weight="700" text-anchor="middle">|1⟩</text>
+        <text x="${targetX + (targetX > cx ? 8 : -8)}" y="${targetY + (targetY > cy ? 8 : -4)}" fill="#0ea5e9" font-size="10" font-family="monospace" font-weight="700" text-anchor="middle">|ψ⟩</text>
+      `;
+
+      svg.innerHTML = svgContent;
+    }
+
+    thetaSlider.addEventListener('input', () => {
+      document.querySelectorAll('.bs-preset-btn').forEach(b => b.classList.remove('active'));
+      traceHistory = [];
+      update(1.0);
+    });
+
+    phiSlider.addEventListener('input', () => {
+      document.querySelectorAll('.bs-preset-btn').forEach(b => b.classList.remove('active'));
+      traceHistory = [];
+      update(1.0);
+    });
+
+    update(1.0);
+  }
+
+  // Load
+  initBlochSphere();
+  document.addEventListener('astro:page-load', initBlochSphere);
+</script>

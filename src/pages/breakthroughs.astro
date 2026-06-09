@@ -1,0 +1,176 @@
+---
+import Base from '../layouts/Base.astro';
+import PageLayout from '../components/PageLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContentSection from '../components/ContentSection.astro';
+import Card from '../components/Card.astro';
+import Tag from '../components/Tag.astro';
+import Timeline from '../components/Timeline.astro';
+
+const timelineItems = [
+  {
+    year: '2025–2027',
+    title: 'Below-Threshold Operation',
+    description: 'Demonstrate active error suppression across code distances (e.g., d=5 to d=7). Achieve 99.9% two-qubit gate fidelities on superconducting or trapped-ion platforms.'
+  },
+  {
+    year: '2027–2030',
+    title: 'Early Fault Tolerance',
+    description: 'Realize 100–500 logical qubits via surface codes. Implement real-time FPGA/ASIC decoders with sub-µs latency. Deploy Cryo-CMOS controllers at the 4K stage to reduce cable counts by 10×.'
+  },
+  {
+    year: '2030–2034',
+    title: 'Scaling Regime via qLDPC & Interconnects',
+    description: 'Implement qLDPC codes (Bivariate Bicycle) to reduce physical-to-logical overhead from ~1000:1 to ~50:1. Multi-chip modular architectures via superconducting or photonic interconnects reach 10⁵–10⁶ physical qubits.'
+  },
+  {
+    year: '2035–2040',
+    title: 'CRQC Threshold',
+    description: 'System reaches ~4,000 logical qubits with T-gate depth sufficient for Shor\'s algorithm on 256-bit ECC. Full cryptanalytic attack executes within hours to days of continuous operation.'
+  }
+];
+
+const breakthroughs = [
+  {
+    title: "Optical-to-Microwave Transduction",
+    domain: "Cryogenic & Electrical Engineering",
+    description: "Resolves the I/O Bandwidth Wall & Cooling Power Ceiling. Replaces massive coaxial bundles with high-bandwidth, zero-heat-load optical fibers. Requires improving electro-optic transduction efficiency from 10⁻² to >50%.",
+  },
+  {
+    title: "Cryo-CMOS On-Chip Controllers",
+    domain: "Systems Engineering",
+    description: "Resolves the Room-Temperature Electronics scaling limit. Pushing multiplexed digital-to-analog converters (DACs) into the 4K or 15mK stages while staying under strict thermal budgets (e.g., ~1.5W at 4K).",
+  },
+  {
+    title: "Tantalum Qubits & Crystalline Tunnel Barriers",
+    domain: "Materials Science",
+    description: "Resolves TLS defect limits in amorphous oxides. Switching from standard aluminum oxides to epitaxial tantalum or crystalline AlN tunnel barriers to achieve consistent T₁ > 1ms coherence times.",
+  },
+  {
+    title: "Hardware-Native qLDPC Codes",
+    domain: "Theoretical Physics & QEC",
+    description: "Resolves the massive physical-to-logical Surface Code overhead. Integrating long-range connections required for Bivariate Bicycle codes into planar layouts or using neutral-atom shuttling.",
+  },
+  {
+    title: "Sub-µs AI-Driven Syndrome Decoders",
+    domain: "Computer Science",
+    description: "Resolves the Decoding Latency Budget. Utilizing dedicated ASIC neural-network processors directly at the 4K stage to solve Minimum Weight Perfect Matching (MWPM) graphs in < 1µs.",
+  },
+  {
+    title: "Tunable Couplers & Fluxonium Qubits",
+    domain: "Experimental Physics",
+    description: "Resolves parasitic ZZ crosstalk and leakage errors. Moving beyond standard fixed-frequency transmons to heavily anharmonic circuits that eliminate leakage to the |2⟩ state.",
+  },
+  {
+    title: "Windowed Arithmetic Compilation",
+    domain: "Mathematics & Number Theory",
+    description: "Resolves the O(n³) Toffoli depth barrier for Shor's algorithm. Radically shrinking space-time volume through optimized synthesis and Regev-style parallelization reductions.",
+  }
+];
+
+const domains = [
+  {
+    title: "Pure Mathematics & Number Theory",
+    tags: ["Elliptic Curves", "Shor's Algorithm", "Regev's Reduction"],
+    focus: "Exploring novel sub-exponential reductions for ECDLP or parallelized factoring variants that scale better than O(n³). Reducing the massive Toffoli gate footprint through advanced windowed modular arithmetic."
+  },
+  {
+    title: "Theoretical Physics & QEC",
+    tags: ["qLDPC", "Burst-Aware Decoders", "Surface Codes"],
+    focus: "Developing fault-tolerant protocols that are resilient to correlated cosmic-ray bursts. Moving from low-rate 2D surface codes to high-rate quantum Low-Density Parity-Check (qLDPC) codes."
+  },
+  {
+    title: "Materials Science & Fabrication",
+    tags: ["TLS Defects", "Tantalum Transmons", "Epitaxy"],
+    focus: "Eliminating amorphous oxide participation in Josephson Junctions. Investigating crystalline AlN and discovering new superconducting geometries to break through the 1ms T₁ coherence plateau."
+  },
+  {
+    title: "Systems Engineering & Architecture",
+    tags: ["Cryo-CMOS", "Optical Interconnects", "SFQ Logic"],
+    focus: "Designing cryogenic processors capable of handling 10¹³ bits/s syndrome streams at 4K. Pioneering deterministic microwave-to-telecom optical transducers for inter-fridge connectivity."
+  },
+  {
+    title: "Computer Science & Compilation",
+    tags: ["Distillation-Free Gates", "Magic State Factories", "Circuit Synthesis"],
+    focus: "Minimizing the Space-Time Volume. Optimizing T-gate counts through exact unitary synthesis and discovering distillation-free architectures (e.g., topological color codes with transversal T-gates)."
+  }
+];
+---
+
+<Base title="Technological Breakthroughs" activeNav="/breakthroughs">
+  <PageLayout>
+    <PageHeader 
+      title="Milestones & Breakthroughs" 
+      subtitle="A priority-ranked roadmap of the critical technological bottlenecks and scientific domains required to achieve a Cryptographically Relevant Quantum Computer."
+    />
+
+    <ContentSection id="breakthroughs" title="Priority Ranked Technological Breakthroughs">
+      <p class="intro-text">
+        Scaling from noisy, intermediate-scale systems to fault-tolerant mega-qubit arrays cannot be achieved through sheer engineering force. The following breakthroughs are ranked by their criticality to averting the hardware scaling wall.
+      </p>
+
+      <ol class="breakthrough-list">
+        {breakthroughs.map((b) => (
+          <li>
+            <strong>{b.title}</strong>
+            <div style="margin: 0.5rem 0;">
+              <Tag text={b.domain} />
+            </div>
+            <p>{b.description}</p>
+          </li>
+        ))}
+      </ol>
+    </ContentSection>
+
+    <ContentSection id="milestones" title="Target Milestones">
+      <p class="intro-text">
+        Based on our threat model projections, the following timeline outlines the required evolution of the quantum stack from near-term demonstrations to a CRQC capable of breaking secp256k1.
+      </p>
+      
+      <Timeline items={timelineItems} />
+    </ContentSection>
+
+    <ContentSection id="domains" title="Subject Domains to Explore">
+      <p class="intro-text">
+        Achieving these breakthroughs requires profound, cross-disciplinary research. To accelerate progress, investments must be distributed across these distinct academic and engineering domains.
+      </p>
+
+      <ul class="domain-list">
+        {domains.map((d) => (
+          <li>
+            <strong>{d.title}</strong>
+            <div style="margin: 0.5rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              {d.tags.map((tag) => <Tag text={tag} />)}
+            </div>
+            <p>{d.focus}</p>
+          </li>
+        ))}
+      </ul>
+    </ContentSection>
+  </PageLayout>
+</Base>
+<style>
+  .intro-text {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    max-width: 800px;
+  }
+  .breakthrough-list, .domain-list {
+    margin-left: 1.5rem;
+    color: var(--text-main);
+  }
+  .breakthrough-list li, .domain-list li {
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  .breakthrough-list li strong, .domain-list li strong {
+    font-size: 1.25rem;
+    color: var(--accent);
+  }
+  .breakthrough-list p, .domain-list p {
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+  }
+</style>

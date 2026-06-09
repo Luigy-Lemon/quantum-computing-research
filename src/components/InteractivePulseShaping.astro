@@ -1,0 +1,487 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard id="lab" title="Microwave Pulse Shaping & Leakage Sandbox" description="Compare how different analog microwave pulse shapes and widths affect the state transition of a transmon and mitigate leakage to the |2⟩ state.">
+  
+  <div class="pulse-controls-row">
+    <div class="pulse-controls">
+      <button class="pulse-btn active" data-pulse="square">Square Wave</button>
+      <button class="pulse-btn" data-pulse="gaussian">Standard Gaussian</button>
+      <button class="pulse-btn" data-pulse="drag">DRAG / GRAPE</button>
+    </div>
+    
+    <div class="pulse-slider-container">
+      <div class="pulse-slider-group">
+        <label>
+          <span>Pulse Width (σ):</span>
+          <span class="value-display"><span id="pulse-dur-val">10</span> ns</span>
+        </label>
+        <input type="range" id="pulse-dur" min="4" max="25" value="10" class="neon-slider" />
+      </div>
+    </div>
+  </div>
+
+  <div class="pulse-visual">
+    <div class="pulse-chart">
+      <div class="axis y-axis">Amplitude / Power</div>
+      <div class="axis x-axis">Time / Frequency</div>
+      
+      <!-- Chart Canvas -->
+      <canvas id="pulse-canvas" width="400" height="200"></canvas>
+    </div>
+    
+    <div class="state-result">
+      <h5>Subspace Population</h5>
+      
+      <div class="state-bar-container">
+        <div class="state-label">|0⟩ (Ground)</div>
+        <div class="state-bar"><div class="fill fill-0" id="fill-0"></div></div>
+        <div class="state-pct" id="pct-0">0%</div>
+      </div>
+      <div class="state-bar-container">
+        <div class="state-label">|1⟩ (Target)</div>
+        <div class="state-bar"><div class="fill fill-1" id="fill-1"></div></div>
+        <div class="state-pct text-green font-bold" id="pct-1">0%</div>
+      </div>
+      <div class="state-bar-container">
+        <div class="state-label text-purple">|2⟩ Leakage</div>
+        <div class="state-bar"><div class="fill fill-2" id="fill-2"></div></div>
+        <div class="state-pct text-purple font-bold" id="pct-2">0%</div>
+      </div>
+
+      <div class="pulse-metrics-mini">
+        <div class="mini-metric">
+          <span class="mini-lbl">Fidelity</span>
+          <span class="mini-val text-green" id="pulse-fid-val">95.5%</span>
+        </div>
+        <div class="mini-metric">
+          <span class="mini-lbl">Bandwidth</span>
+          <span class="mini-val text-cyan" id="pulse-bw-val">40 MHz</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pulse-info">
+    <strong id="pulse-title" class="text-pink">Square Wave (Naive):</strong>
+    <span id="pulse-desc">A raw on/off pulse has infinite frequency harmonics (due to the sharp edges). These harmonics inadvertently drive the transmon from |1⟩ into the |2⟩ state, ruining the computation.</span>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .pulse-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .pulse-slider-container {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .pulse-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .pulse-slider-group label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.85rem;
+  }
+  .value-display {
+    font-family: monospace;
+    color: var(--accent);
+  }
+
+  .neon-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(226, 232, 240, 0.8);
+    border-radius: 2px;
+    outline: none;
+  }
+  .neon-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
+  }
+
+  .pulse-visual {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    align-items: stretch;
+  }
+  
+  .pulse-chart {
+    flex: 2;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1rem 1.5rem 1.5rem;
+    min-height: 200px;
+  }
+  #pulse-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  
+  .axis {
+    position: absolute;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+  .y-axis { top: 12px; left: 5px; font-size: 7px; }
+  .x-axis { bottom: 3px; left: 50%; transform: translateX(-50%); font-size: 7px; }
+  
+  .state-result {
+    flex: 1.1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--surface-alt);
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .state-result h5 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .state-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .state-label { width: 90px; font-size: 0.8rem; font-weight: 600; color: var(--text-main); }
+  .state-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(226, 232, 240, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .fill { height: 100%; width: 0%; transition: width 0.3s ease-out; }
+  .fill-0 { background: #3b82f6; }
+  .fill-1 { background: #10b981; }
+  .fill-2 { background: #ef4444; }
+  .state-pct { width: 45px; text-align: right; font-family: monospace; font-size: 0.85rem; color: var(--text-primary); }
+  
+  .pulse-metrics-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .mini-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .mini-lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+  .mini-val { font-size: 1.1rem; font-weight: 800; font-family: monospace; }
+
+  .text-purple { color: #a855f7; }
+  .font-bold { font-weight: bold; }
+  
+  .pulse-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-alt);
+    border-radius: 4px;
+    border-left: 4px solid #d946ef;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.4;
+  }
+  .text-pink { color: #d946ef; }
+  .text-green { color: #16a34a; }
+  .text-cyan { color: #0891b2; }
+  
+  @media (max-width: 768px) {
+    .pulse-visual { flex-direction: column; }
+  }
+</style>
+
+<script>
+  function initPulseShaping() {
+    const canvas = document.getElementById('pulse-canvas') as HTMLCanvasElement;
+    const durSlider = document.getElementById('pulse-dur') as HTMLInputElement;
+    const btns = document.querySelectorAll('.pulse-btn');
+    const f0 = document.getElementById('fill-0');
+    const f1 = document.getElementById('fill-1');
+    const f2 = document.getElementById('fill-2');
+    const p0 = document.getElementById('pct-0');
+    const p1 = document.getElementById('pct-1');
+    const p2 = document.getElementById('pct-2');
+    const title = document.getElementById('pulse-title');
+    const desc = document.getElementById('pulse-desc');
+    const infoPanel = document.querySelector('.pulse-info') as HTMLElement;
+    const fidVal = document.getElementById('pulse-fid-val');
+    const bwVal = document.getElementById('pulse-bw-val');
+    
+    if (!canvas || !durSlider) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let currentType = 'square';
+
+    function update() {
+      const duration = parseInt(durSlider.value);
+      const durDisplay = document.getElementById('pulse-dur-val');
+      if (durDisplay) durDisplay.textContent = duration.toString();
+
+      let leakage = 0;
+      let ground = 2; // small remnant ground state
+      let bandwidth = Math.round(400 / duration);
+      
+      if (currentType === 'square') {
+        leakage = 15.0 / Math.sqrt(duration);
+      } else if (currentType === 'gaussian') {
+        leakage = 12.0 / duration;
+      } else {
+        leakage = 0.8 / duration;
+      }
+
+      leakage = Math.max(0.05, leakage);
+      const excited = 100 - leakage - ground;
+      const fidelity = excited;
+
+      if (f0 && p0) { f0.style.width = `${ground}%`; p0.textContent = `${ground.toFixed(0)}%`; }
+      if (f1 && p1) { f1.style.width = `${excited.toFixed(1)}%`; p1.textContent = `${excited.toFixed(1)}%`; }
+      if (f2 && p2) { f2.style.width = `${leakage.toFixed(1)}%`; p2.textContent = `${leakage.toFixed(1)}%`; }
+
+      if (fidVal) fidVal.textContent = `${fidelity.toFixed(1)}%`;
+      if (bwVal) bwVal.textContent = `${bandwidth} MHz`;
+
+      if (title && desc && infoPanel) {
+        if (currentType === 'square') {
+          title.textContent = 'Square Wave (Naive):';
+          desc.innerHTML = `⚠️ Square pulses generate <strong>high-frequency sidelobes</strong> that overlap the \\(|1\\rangle\\rightarrow|2\\rangle\\) transition (4.7 GHz), leaking state information out of the system (<strong>${leakage.toFixed(2)}% leakage</strong>).`;
+          if (window.MathJax) { window.MathJax.typesetPromise([desc]); }
+          infoPanel.style.borderLeftColor = '#ef4444';
+          title.style.color = '#ef4444';
+        } else if (currentType === 'gaussian') {
+          title.textContent = 'Standard Gaussian:';
+          desc.innerHTML = `Smoothing the envelope limits the bandwidth. Spectral tails are suppressed, reducing leakage to <strong>${leakage.toFixed(2)}%</strong>. However, short gate times still cause spillover due to spectral crowding.`;
+          infoPanel.style.borderLeftColor = '#f59e0b';
+          title.style.color = '#d97706';
+        } else {
+          title.textContent = 'DRAG Optimized (Derivative Q-phase):';
+          desc.innerHTML = `🌟 <strong>DRAG Calibration (Derivative Removal by Adiabatic Gate)</strong>: By adding a derivative pulse (<span style="color:#0ea5e9">cyan</span>) in the Quadrature (Q) channel, we introduce quantum interference that cancels out the \\(|2\\rangle\\) transition. Leakage falls to a secure <strong>${leakage.toFixed(2)}%</strong>.`;
+          if (window.MathJax) { window.MathJax.typesetPromise([desc]); }
+          infoPanel.style.borderLeftColor = '#10b981';
+          title.style.color = '#059669';
+        }
+      }
+
+      drawPulse(currentType, duration);
+    }
+
+    function drawPulse(type: string, dur: number) {
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = 200;
+      ctx.clearRect(0, 0, w, h);
+
+      // Split canvas: Left is Time Domain Envelope, Right is FFT Frequency Spectrum
+      const midX = w * 0.48;
+
+      // 1. Draw Time Domain Envelope (Left half)
+      const cy = h / 2 + 10;
+      const startX = 15;
+      const endX = midX - 15;
+      const len = endX - startX;
+      const center = startX + len / 2;
+      const maxAmp = 50;
+
+      // Baseline zero
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(startX, cy);
+      ctx.lineTo(endX, cy);
+      ctx.stroke();
+
+      ctx.font = 'bold 8px monospace';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('TIME ENVELOPE', startX, 20);
+
+      // Draw trace
+      ctx.lineWidth = 2;
+      if (type === 'square') {
+        ctx.strokeStyle = '#f97316'; // Orange
+        ctx.beginPath();
+        ctx.moveTo(startX, cy);
+        ctx.lineTo(center - dur * 3.5, cy);
+        ctx.lineTo(center - dur * 3.5, cy - maxAmp);
+        ctx.lineTo(center + dur * 3.5, cy - maxAmp);
+        ctx.lineTo(center + dur * 3.5, cy);
+        ctx.lineTo(endX, cy);
+        ctx.stroke();
+      } else {
+        // Gaussian I Channel (Pink)
+        ctx.strokeStyle = '#d946ef';
+        ctx.beginPath();
+        ctx.moveTo(startX, cy);
+        for (let x = startX; x <= endX; x++) {
+          const t = (x - center) / (dur * 2.5);
+          const env = Math.exp(-t * t);
+          ctx.lineTo(x, cy - env * maxAmp);
+        }
+        ctx.stroke();
+
+        // Q-channel (Derivative for DRAG)
+        if (type === 'drag') {
+          ctx.beginPath();
+          ctx.strokeStyle = '#0ea5e9'; // Cyan for Q-channel
+          ctx.moveTo(startX, cy);
+          for (let x = startX; x <= endX; x++) {
+            const t = (x - center) / (dur * 2.5);
+            const env = Math.exp(-t * t);
+            const deriv = -2 * t * env;
+            ctx.lineTo(x, cy - deriv * maxAmp * 0.7);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // 2. Draw Frequency Domain FFT Spectrum (Right half)
+      const oscLeft = midX + 15;
+      const oscWidth = w - oscLeft - 15;
+      const oscCenterY = h - 30;
+      const oscHeight = h - 60;
+
+      // Split line
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(midX, 15); ctx.lineTo(midX, h - 15);
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('FFT POWER SPECTRUM |S(f)|', oscLeft, 20);
+
+      // Draw Grid & Axes
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.beginPath();
+      ctx.moveTo(oscLeft, oscCenterY);
+      ctx.lineTo(oscLeft + oscWidth, oscCenterY);
+      ctx.stroke();
+
+      // Frequencies: center is f01, left is f12
+      const f01X = oscLeft + oscWidth * 0.65;
+      const f12X = oscLeft + oscWidth * 0.25; // f12 = f01 - 300MHz
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(f01X, 30); ctx.lineTo(f01X, oscCenterY + 15);
+      ctx.moveTo(f12X, 30); ctx.lineTo(f12X, oscCenterY + 15);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = '6.5px monospace';
+      ctx.fillStyle = '#334155';
+      ctx.fillText('f_01 (5.0GHz)', f01X - 25, oscCenterY + 12);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillText('f_12 (4.7GHz)', f12X - 25, oscCenterY + 12);
+
+      // Plot FFT Curve
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+
+      const sigma_f = 12 / dur; // Bandwidth scales inversely with duration
+
+      if (type === 'square') {
+        ctx.strokeStyle = '#f97316';
+        // Sinc function
+        ctx.moveTo(oscLeft, oscCenterY);
+        for (let x = oscLeft; x <= oscLeft + oscWidth; x++) {
+          const f = (x - f01X) * 0.18 * dur * 0.3;
+          let amp = f === 0 ? 1 : Math.sin(f) / f;
+          amp = Math.abs(amp) * 80;
+          ctx.lineTo(x, oscCenterY - amp);
+        }
+        ctx.stroke();
+      } else if (type === 'gaussian') {
+        ctx.strokeStyle = '#d946ef';
+        ctx.moveTo(oscLeft, oscCenterY);
+        for (let x = oscLeft; x <= oscLeft + oscWidth; x++) {
+          const f = (x - f01X) / (sigma_f * 3);
+          const amp = Math.exp(-f * f) * 80;
+          ctx.lineTo(x, oscCenterY - amp);
+        }
+        ctx.stroke();
+      } else {
+        // DRAG: Gaussian envelope with a notch at f12
+        ctx.strokeStyle = '#10b981'; // Green
+        ctx.moveTo(oscLeft, oscCenterY);
+        for (let x = oscLeft; x <= oscLeft + oscWidth; x++) {
+          const f = (x - f01X) / (sigma_f * 3);
+          const baseAmp = Math.exp(-f * f);
+          // Zero notch factor at f12
+          const distToF12 = (x - f12X);
+          const notchFactor = Math.min(1.2, Math.abs(distToF12) / 12);
+          const amp = baseAmp * notchFactor * 80;
+          ctx.lineTo(x, oscCenterY - amp);
+        }
+        ctx.stroke();
+
+        // Highlight the Zero notch at f12
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(f12X, oscCenterY, 3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.font = 'bold 6px monospace';
+        ctx.fillText('NOTCH ZERO', f12X - 18, oscCenterY - 6);
+      }
+    }
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        btns.forEach(b => b.classList.remove('active'));
+        const target = e.currentTarget as HTMLButtonElement;
+        target.classList.add('active');
+        currentType = target.getAttribute('data-pulse') || 'square';
+        update();
+      });
+    });
+
+    durSlider.addEventListener('input', update);
+    update();
+
+    window.addEventListener('resize', update);
+  }
+
+  // Load
+  initPulseShaping();
+  document.addEventListener('astro:page-load', initPulseShaping);
+</script>

@@ -1,0 +1,47 @@
+---
+export interface Props {
+  title: string;
+  id?: string;
+}
+
+const { title, id } = Astro.props;
+---
+<section class="content-section" id={id}>
+  <h2 class="section-title">{title}</h2>
+  <div class="section-content">
+    <slot />
+  </div>
+</section>
+<style>
+  .content-section {
+    margin-bottom: 4rem;
+  }
+  .section-title {
+    font-size: 2rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
+  }
+  .section-content {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-main);
+  }
+  /* Style all paragraphs inside the content section automatically */
+  .section-content :global(p) {
+    margin-bottom: 1.5rem;
+  }
+  .section-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  .section-content :global(h3) {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+  }
+</style>

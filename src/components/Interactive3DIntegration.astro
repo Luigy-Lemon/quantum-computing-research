@@ -1,0 +1,207 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+---
+<InteractiveBoard title="Heterogeneous 3D Integration" description="Hover over the layers to explore how modern quantum chips use flip-chip bonding to isolate qubits from noisy readout lines.">
+  
+  <div class="integration-visual">
+    <!-- Top Die (Interposer) -->
+    <div class="die-layer interposer-layer" id="layer-interposer">
+      <div class="die-label">Interposer Die (Silicon)</div>
+      <div class="cpw-lines">
+        <div class="cpw"></div><div class="cpw"></div><div class="cpw"></div>
+      </div>
+      <div class="tsv-group">
+        <div class="tsv"></div><div class="tsv"></div><div class="tsv"></div>
+      </div>
+    </div>
+    
+    <!-- Indium Bumps -->
+    <div class="bump-layer" id="layer-bumps">
+      <div class="bump"></div><div class="bump"></div><div class="bump"></div>
+    </div>
+    
+    <!-- Bottom Die (Qubit) -->
+    <div class="die-layer qubit-layer" id="layer-qubit">
+      <div class="die-label">Qubit Die (Sapphire)</div>
+      <div class="qubit-crosses">
+        <div class="qubit-cross"></div><div class="qubit-cross"></div><div class="qubit-cross"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="integration-info">
+    <strong id="integration-title" class="text-blue">Heterogeneous Stack:</strong>
+    <span id="integration-desc">By separating the noisy readout resonators from the highly sensitive Josephson Junctions, 3D integration preserves T1 coherence while allowing massive planar scaling.</span>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .integration-visual {
+    position: relative;
+    height: 300px;
+    margin-top: 2rem;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+  }
+  
+  .die-layer {
+    width: 280px;
+    height: 100px;
+    position: absolute;
+    transform: rotateX(60deg) rotateZ(-30deg);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 2px 5px 15px rgba(0,0,0,0.2);
+  }
+  
+  .interposer-layer {
+    top: 40px;
+    background: rgba(14, 165, 233, 0.15);
+    border: 2px solid #0ea5e9;
+    z-index: 3;
+  }
+  .interposer-layer:hover {
+    transform: rotateX(60deg) rotateZ(-30deg) translateZ(30px);
+    background: rgba(14, 165, 233, 0.3);
+    box-shadow: -5px 15px 30px rgba(14, 165, 233, 0.3);
+  }
+  
+  .bump-layer {
+    width: 200px;
+    position: absolute;
+    top: 135px;
+    transform: rotateX(60deg) rotateZ(-30deg);
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
+    transition: all 0.4s;
+    pointer-events: none;
+  }
+  .bump {
+    width: 15px;
+    height: 15px;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 176, 0, 0.15), transparent);
+    border-radius: 50%;
+    box-shadow: 1px 3px 5px rgba(0,0,0,0.3);
+  }
+  
+  .qubit-layer {
+    top: 130px;
+    background: rgba(168, 85, 247, 0.15);
+    border: 2px solid #a855f7;
+    z-index: 1;
+  }
+  .qubit-layer:hover {
+    transform: rotateX(60deg) rotateZ(-30deg) translateZ(-30px);
+    background: rgba(168, 85, 247, 0.3);
+    box-shadow: 2px 5px 15px rgba(168, 85, 247, 0.5);
+  }
+  
+  .die-label {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transform: rotateX(-60deg) rotateZ(30deg);
+  }
+  .interposer-layer .die-label { color: #0284c7; }
+  .qubit-layer .die-label { color: #7e22ce; top: auto; bottom: -25px; right: 0; left: auto; }
+  
+  .cpw-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80%;
+  }
+  .cpw {
+    height: 4px;
+    background: #0284c7;
+    width: 100%;
+    border-radius: 2px;
+  }
+  
+  .tsv-group {
+    position: absolute;
+    bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+  }
+  .tsv { width: 10px; height: 10px; background: #0ea5e9; border-radius: 50%; }
+  
+  .qubit-crosses {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+  }
+  .qubit-cross {
+    width: 20px;
+    height: 20px;
+    position: relative;
+  }
+  .qubit-cross::before, .qubit-cross::after {
+    content: ''; position: absolute; background: #7e22ce;
+  }
+  .qubit-cross::before { width: 100%; height: 6px; top: 7px; left: 0; }
+  .qubit-cross::after { height: 100%; width: 6px; left: 7px; top: 0; }
+  
+  .integration-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-hover);
+    border-radius: 4px;
+    border-left: 4px solid #64748b;
+    font-size: 0.95rem;
+  }
+  .text-blue { color: #0284c7; }
+  .text-purple { color: #7e22ce; }
+  .text-amber { color: #d97706; }
+</style>
+
+<script>
+  const layerInterposer = document.getElementById('layer-interposer');
+  const layerQubit = document.getElementById('layer-qubit');
+  const bumps = document.getElementById('layer-bumps');
+  const title = document.getElementById('integration-title');
+  const desc = document.getElementById('integration-desc');
+  const infoPanel = document.querySelector('.integration-info');
+  
+  if (layerInterposer) {
+    layerInterposer.addEventListener('mouseenter', () => {
+      title.textContent = 'Interposer Die (Silicon):';
+      title.className = 'text-blue';
+      desc.textContent = 'Contains all the "noisy" elements: Coplanar Waveguide (CPW) routing, readout resonators, and Purcell filters. By isolating these on a separate die, the qubits are protected from electromagnetic crosstalk and Purcell decay.';
+      infoPanel.style.borderLeftColor = '#0ea5e9';
+      bumps.style.transform = 'rotateX(60deg) rotateZ(-30deg) translateZ(15px)';
+    });
+    layerInterposer.addEventListener('mouseleave', resetInfo);
+    
+    layerQubit.addEventListener('mouseenter', () => {
+      title.textContent = 'Qubit Die (Sapphire/SOI):';
+      title.className = 'text-purple';
+      desc.textContent = 'A pristine, high-resistivity substrate containing nothing but ultra-pure Tantalum Josephson Junction transmons. Removing all routing wires from this layer minimizes Two-Level System (TLS) defect absorption, pushing T1 beyond 300 µs.';
+      infoPanel.style.borderLeftColor = '#a855f7';
+      bumps.style.transform = 'rotateX(60deg) rotateZ(-30deg) translateZ(-15px)';
+    });
+    layerQubit.addEventListener('mouseleave', resetInfo);
+  }
+  
+  function resetInfo() {
+    title.textContent = 'Heterogeneous Stack:';
+    title.className = '';
+    desc.textContent = 'By separating the noisy readout resonators from the highly sensitive Josephson Junctions, 3D integration preserves T1 coherence while allowing massive planar scaling.';
+    infoPanel.style.borderLeftColor = '#64748b';
+    bumps.style.transform = 'rotateX(60deg) rotateZ(-30deg)';
+  }
+</script>

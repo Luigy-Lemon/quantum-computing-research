@@ -1,0 +1,24 @@
+---
+interface Props {
+  theme?: 'cyan' | 'orange' | 'green' | 'red' | 'purple' | 'pink' | 'accent';
+  style?: string;
+}
+
+const { theme = 'accent', style = '' } = Astro.props;
+
+const themeStyles = {
+  cyan: { bg: 'rgba(8,145,178,0.08)', color: 'var(--accent-cyan)' },
+  orange: { bg: 'rgba(217,119,6,0.08)', color: 'var(--accent-orange)' },
+  green: { bg: 'rgba(5,150,105,0.08)', color: 'var(--accent-green)' },
+  red: { bg: 'rgba(220,38,38,0.08)', color: 'var(--accent-red)' },
+  purple: { bg: 'rgba(124,58,237,0.08)', color: 'var(--accent-purple)' },
+  pink: { bg: 'rgba(219,39,119,0.08)', color: 'var(--accent-pink)' },
+  accent: { bg: 'var(--accent-muted)', color: 'var(--accent)' },
+};
+
+const activeTheme = themeStyles[theme] || themeStyles.accent;
+const combinedStyle = `background: ${activeTheme.bg}; color: ${activeTheme.color}; ${style}`;
+---
+<span class="tag" style={combinedStyle}>
+  <slot />
+</span>

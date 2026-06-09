@@ -1,0 +1,135 @@
+---
+import InteractiveBoard from './InteractiveBoard.astro';
+
+interface TimelineItem {
+  year: string;
+  title: string;
+  description: string;
+}
+
+interface Props {
+  items: TimelineItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<InteractiveBoard className="timeline-board" title="Research & Technology Milestones" description="Explore the historical progression and key breakthroughs in this domain.">
+  <div class="timeline-interactive-container">
+    <div class="timeline-nav">
+      {items.map((item, index) => (
+        <button class={`timeline-tab ${index === 0 ? 'active' : ''}`} data-index={index}>
+          {item.year}
+        </button>
+      ))}
+    </div>
+    
+    <div class="timeline-content-area">
+      {items.map((item, index) => (
+        <div class={`timeline-panel ${index === 0 ? 'active' : ''}`} id={`timeline-panel-${index}`}>
+          <h4 class="timeline-title">{item.title}</h4>
+          <p class="timeline-description" set:html={item.description}></p>
+        </div>
+      ))}
+    </div>
+  </div>
+</InteractiveBoard>
+
+<style>
+  .timeline-interactive-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .timeline-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+  }
+  
+  .timeline-tab {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  .timeline-tab:hover {
+    background: #f1f5f9;
+    color: #334155;
+  }
+  
+  .timeline-tab.active {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 700;
+  }
+  
+  .timeline-content-area {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-height: 120px;
+  }
+  
+  .timeline-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .timeline-panel.active {
+    display: block;
+  }
+  
+  .timeline-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+    font-weight: 700;
+  }
+  
+  .timeline-description {
+    margin: 0;
+    color: #334155;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  const timelineContainers = document.querySelectorAll('.timeline-interactive-container');
+  
+  timelineContainers.forEach(container => {
+    const tabs = container.querySelectorAll('.timeline-tab');
+    const panels = container.querySelectorAll('.timeline-panel');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        const index = tab.getAttribute('data-index');
+        const activePanel = container.querySelector(`#timeline-panel-${index}`);
+        if (activePanel) {
+          activePanel.classList.add('active');
+        }
+      });
+    });
+  });
+</script>
