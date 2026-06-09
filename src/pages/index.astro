@@ -4,6 +4,8 @@ import ChandelierSchematic from '../components/ChandelierSchematic.astro';
 import Card from '../components/Card.astro';
 import Tag from '../components/Tag.astro';
 import Math from '../components/Math.astro';
+import InteractiveHero from '../components/InteractiveHero.astro';
+import TelemetryBanner from '../components/TelemetryBanner.astro';
 
 const layers = [
   {
@@ -181,7 +183,7 @@ const layers = [
       position: relative;
       width: 100%;
       min-height: calc(100vh - 80px);
-      padding: 2.5rem 2rem 5rem;
+      padding: 2.5rem 1rem 5rem;
       max-width: 100%;
       margin: 0 auto;
       z-index: 1;
@@ -294,124 +296,59 @@ const layers = [
       animation: pulseIndicator 1.5s infinite alternate;
     }
 
-    /* Dashboard Layout */
+    /* Layout Sections */
+    .hero-section {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .schematic-section {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .schematic-hint {
+      margin-top: 1rem;
+      font-size: 0.73rem;
+      color: var(--text-light);
+      font-style: italic;
+      text-align: center;
+    }
+
     .quantum-dashboard {
       display: grid;
       grid-template-columns: 1fr;
       gap: 2.5rem;
       align-items: start;
+      margin-top: 2rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--border);
     }
 
     @media (min-width: 1200px) {
       .quantum-dashboard {
-        display: flex;
-        flex-direction: column;
-        max-width: 1800px;
-        margin: 0 auto;
-        gap: 3rem;
-      }
-      .fridge-col {
-        position: relative;
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 2rem;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
       }
       .stack-layers {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.75rem;
       }
     }
 
-    /* Dilution Refrigerator Schematic Blueprint Panel */
-    .fridge-card {
-      background: var(--surface-alt);
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      position: relative;
-    }
-    .fridge-card-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      border-bottom: 1px solid rgba(37, 99, 235, 0.15);
-      padding-bottom: 0.5rem;
-      text-shadow: none;
-    }
-    .fridge-svg-container {
-      width: 100%;
-      max-height: 800px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    /* Interactive Fridge SVG Elements */
-    .fridge-stage {
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    .fridge-stage-detector {
-      fill: transparent;
-      pointer-events: all;
-    }
-    .fridge-stage:hover .fridge-stage-detector,
-    .fridge-stage.active .fridge-stage-detector {
-      fill: rgba(37, 99, 235, 0.06);
+    @media (min-width: 1600px) {
+      .stack-layers {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
 
-    .fridge-plate {
-      transition: fill 0.15s, filter 0.15s;
-    }
-    .fridge-stage:hover .fridge-plate,
-    .fridge-stage.active .fridge-plate {
-      filter: drop-shadow(0 0 6px var(--glow-color));
-    }
-
-    .fridge-label {
-      font-family: 'Fira Code', monospace;
-      font-size: 10px;
-      fill: #4b5563;
-      transition: fill 0.15s;
-    }
-    .fridge-stage:hover .fridge-label,
-    .fridge-stage.active .fridge-label {
-      fill: var(--glow-color) !important;
-      font-weight: bold;
-    }
-
-    .fridge-temp {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
-      fill: #6b7085;
-      transition: fill 0.15s;
-    }
-    .fridge-stage:hover .fridge-temp,
-    .fridge-stage.active .fridge-temp {
-      fill: var(--ink) !important;
-    }
-
-    .coax-cable {
-      stroke-dasharray: 6 10;
-      animation: pulseCable 0.6s linear infinite;
-    }
-    @keyframes pulseCable {
-      from { stroke-dashoffset: 0; }
-      to { stroke-dashoffset: -16; }
-    }
-
-    .fridge-hint {
-      margin-top: 1rem;
-      font-size: 0.73rem;
-      color: var(--text-light);
-      font-style: italic;
-    }
+    /* 19-inch Hardware Rack cabinet */
 
     /* 19-inch Hardware Rack cabinet */
     .rack-cabinet {
@@ -920,81 +857,180 @@ const layers = [
       100% { opacity: 0.1; transform: translateY(-100px) rotate(360deg); }
     }
 
-    /* Blueprint visual decorations */
-    .fridge-svg-container line,
-    .fridge-svg-container path {
-      vector-effect: non-scaling-stroke;
+    /* --- Refined Academic Hero Styles --- */
+    .hero-academic {
+      position: relative;
+      margin-bottom: 4rem;
+      padding: 2rem 0;
     }
-    .blueprint-grid-accent {
-      stroke: rgba(37, 99, 235, 0.04);
-      stroke-dasharray: 2 6;
+    .meta-badge {
+      display: inline-block;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.25rem;
     }
-    .blueprint-dim line {
-      stroke: var(--border);
+    .hero-title {
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 4.2rem;
+      line-height: 1.05;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
     }
-    .blueprint-dim text {
+    .hero-title .accent-text {
+      color: var(--accent);
+      font-family: 'Georgia', serif;
+      font-style: italic;
+      font-weight: 700;
+    }
+    .hero-subtitle-academic {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: var(--text-light);
+      max-width: 900px;
+      margin-bottom: 3.5rem;
+      font-family: 'Lora', Georgia, serif;
+    }
+    .hero-subtitle-academic strong {
+      color: var(--text-main);
       font-weight: 600;
     }
+    .highlight-text {
+      background: var(--accent-muted);
+      color: var(--accent-dark);
+      padding: 0 0.3rem;
+      border-radius: 2px;
+    }
+    
+    .academic-callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent-red);
+      padding: 2.5rem;
+      margin-bottom: 4rem;
+      box-shadow: var(--shadow-md);
+      border-radius: 4px;
+    }
+    .callout-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .icon-warning-classic svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--accent-red);
+    }
+    .callout-header h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      color: var(--accent-red);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+      font-weight: 700;
+    }
+    .callout-body p {
+      font-family: 'Lora', Georgia, serif;
+      line-height: 1.8;
+      color: var(--text-main);
+      margin: 0 0 1.25rem 0;
+      font-size: 1.1rem;
+    }
+    .callout-body p:last-child {
+      margin-bottom: 0;
+    }
+    .text-red-classic {
+      color: var(--accent-red);
+      font-weight: 700;
+    }
+    .highlight-red-classic {
+      background: rgba(122, 31, 31, 0.05);
+      color: var(--accent-red);
+      padding: 0.1rem 0.3rem;
+      border-radius: 2px;
+    }
+    
+    .telemetry-classic {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .telemetry-node-classic {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .node-label-classic {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-light);
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      align-items: center;
+    }
+    .node-value-classic {
+      font-size: 1.4rem;
+      font-family: 'Source Code Pro', monospace;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+    .node-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    .bg-green { background: var(--accent-green); }
+    .bg-cyan { background: var(--accent-cyan); }
+    .bg-purple { background: var(--accent-purple); }
+    .bg-orange { background: var(--accent-orange); }
   </style>
 
   <div class="quantum-workspace">
     <!-- Canvas for floating background symbols -->
     <canvas id="quantum-bg"></canvas>
 
-    <!-- Stack overview header -->
-    <div class="hero">
-      <div class="paper-meta">
-        <span>ECDSA Fail</span> &bull; <span>secp256k1 Quantum Stack</span>
-      </div>
-      <h1>The Quantum Computing <span class="text-cyan">Stack</span></h1>
-      <p class="hero-subtitle">
-        Shor's algorithm doesn't just theorize the end of modern cryptography—it provides the exact mathematical blueprint to shatter <strong>secp256k1</strong> elliptic-curve encryption. By computing discrete logarithms in polynomial time, it reduces an impossibly hard classical task into a tractable quantum operation. However, the true quantum cost isn't dominated by the overall algorithm, but by a single, demanding primitive repeated roughly 2,300 times: <strong>reversible affine point addition</strong>. Below, we document the critical compilation and physical layers required to execute this circuit on a fault-tolerant transmon processor. We will trace this journey from the high-level Dialog-GCD inversion loop down to the stark, frozen reality of the 15 mK mixing chamber.
-      </p>
+    <TelemetryBanner />
 
-      <div class="universal-challenge" style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(220, 38, 38, 0.05); border-left: 4px solid #ef4444; border-radius: 4px; font-family: 'Lora', Georgia, serif; line-height: 1.6; color: var(--text-main);">
-        <h3 style="color: #ef4444; margin-top: 0; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">The Foundational Challenge: The Cryogenic Toll</h3>
-        <p style="margin: 0; margin-bottom: 1rem;">
-          The universal truth of quantum computing is that coherence is fundamentally incompatible with entropy. To build a scalable quantum computer, you must brutally isolate the system from the environment. Whether you use <strong>Superconducting Microwaves</strong> (requiring 15mK dilution refrigerators to survive ambient thermal noise), <strong>Optical Photons</strong> (requiring 1K cryostats to detect single-photon signals), or <strong>Trapped Ions</strong> (requiring 4K to freeze out anomalous heating), the foundational block cannot be stripped away: <strong>You must pay the cryogenic toll.</strong>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <InteractiveHero>
+        <p class="hero-subtitle-academic" style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
+          Shor's algorithm doesn't just theorize the end of modern cryptography—it provides the exact mathematical blueprint to shatter <strong>secp256k1</strong> elliptic-curve encryption. By computing discrete logarithms in polynomial time, it reduces an impossibly hard classical task into a tractable quantum operation. However, the true quantum cost isn't dominated by the overall algorithm, but by a single, demanding primitive repeated roughly 2,300 times: <span style="background: var(--surface); padding: 2px 6px; border-radius: 4px; color: var(--accent);">reversible affine point addition</span>. Below, we document the critical compilation and physical layers required to execute this circuit on a fault-tolerant transmon processor. We will trace this journey from the high-level Dialog-GCD inversion loop down to the stark, frozen reality of the 15 mK mixing chamber.
         </p>
-        <p style="margin: 0;">
-          <strong>Why is this toll theoretically impossible to bypass?</strong> Because temperature is just atomic motion. In a warm environment, vibrating atoms constantly radiate thermal photons and phonons. To a qubit, these stray thermal emissions act as unwanted "measurements," instantly collapsing fragile quantum superpositions (a process called <em>decoherence</em>) before any meaningful computation can finish. The laws of quantum mechanics dictate that coherent information cannot survive in a noisy, high-entropy environment. If there is heat, there is entropy; if there is entropy, your quantum state collapses. The engineering stack below deconstructs how we attempt to "bend" these uncompromising physical limitations.
-        </p>
-      </div>
-      
-      <!-- Stack summary bar -->
-      <div class="telemetry-row">
-        <div class="telemetry-item">
-          <span class="telemetry-indicator pulsing"></span>
-          <span>CURVE: <strong>secp256k1</strong></span>
+
+        <div class="academic-callout" style="background: rgba(0,0,0,0.4); border-left: 3px solid var(--accent-red, #ef4444); padding: 1.5rem; border-radius: 4px; margin-top: 2rem;">
+          <h3 style="color: var(--text-main); margin-bottom: 1rem; font-size: 1.2rem;">The Foundational Challenge: The Cryogenic Toll</h3>
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">
+            The universal truth of quantum computing is that coherence is fundamentally incompatible with entropy. To build a scalable quantum computer, you must brutally isolate the system from the environment. Whether you use <strong>Superconducting Microwaves</strong>, <strong>Optical Photons</strong>, or <strong>Trapped Ions</strong>, the foundational block cannot be stripped away: <span style="color: var(--accent-red, #ef4444);">You must pay the cryogenic toll.</span>
+          </p>
+          <p style="color: var(--text-muted);">
+            <strong>Why is this toll theoretically impossible to bypass?</strong> Because temperature is just atomic motion. In a warm environment, vibrating atoms constantly radiate thermal photons and phonons. To a qubit, these stray thermal emissions act as unwanted "measurements," instantly collapsing fragile quantum superpositions before any meaningful computation can finish. <span style="color: var(--accent-red, #ef4444);">If there is heat, there is entropy; if there is entropy, your quantum state collapses.</span>
+          </p>
         </div>
-        <div class="telemetry-item">
-          <span>PEAK QUBITS: <strong id="live-qubits">1,297</strong></span>
-        </div>
-        <div class="telemetry-item">
-          <span>TOFFOLI / ADD: <strong id="live-toffoli">~1.39M</strong></span>
-        </div>
-        <div class="telemetry-item">
-          <span>POINT ADDS FOR ECDLP: <strong>~2,300</strong></span>
-        </div>
-      </div>
-    </div>
+      </InteractiveHero>
+    </section>
 
     <div class="quantum-dashboard">
-      <!-- Left Panel: Dilution Refrigerator SVG Visualizer -->
-      <div class="fridge-col">
-        <div class="fridge-card">
-          <div class="fridge-card-title">Interactive Dilution Refrigerator Schematic</div>
-          <ChandelierSchematic />
-          <div class="fridge-hint">Hover stages of the chandelier to isolate coupled physical stack layers.</div>
-        </div>
-      </div>
-
-      <!-- Right Panel: Stack Layers mounted inside 19-inch steel rack cabinet -->
+      <!-- Stack Layers mounted inside 19-inch steel rack cabinet -->
       <div class="stack-col rack-cabinet">
         <div class="stack-layers">
           {layers.map((layer) => (
             <div class="layer-wrapper" data-layer-id={layer.id}>
-              
+
               <!-- Virtual Rack ears for industrial hardware mounting -->
               <div class="rack-ear-left"><div class="screw"></div></div>
               <div class="rack-ear-right"><div class="screw"></div></div>
@@ -1016,7 +1052,7 @@ const layers = [
                     </div>
                     <div class="layer-funny">{layer.funny}</div>
                     <div class="layer-challenge"><strong>Critical Bottleneck:</strong> {layer.challenge}</div>
-                    
+
                     <div class="layer-chips-row">
                       <div class="chips" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                         {layer.chips.map((chip) => (
@@ -1033,6 +1069,11 @@ const layers = [
       </div>
     </div>
 
+    <!-- Schematic Section — bottom reference diagram -->
+    <section class="schematic-section">
+      <ChandelierSchematic />
+      <div class="schematic-hint">Hover thermal stages to highlight coupled system layers above.</div>
+    </section>
 
   </div>
 
@@ -1097,7 +1138,7 @@ const layers = [
     // Bidirectional Fridge SVG & Card highlights
     // -------------------------------------------------------------
     const stages = document.querySelectorAll('.fridge-stage');
-    const cards = document.querySelectorAll('.layer-card');
+    const cards = document.querySelectorAll('.layer-wrapper');
 
     function highlightCards(stageId, active) {
       let layerIds = [];
@@ -1160,28 +1201,5 @@ const layers = [
       });
     });
 
-    // -------------------------------------------------------------
-    // Live update telemetry from ecdsa.fail API
-    async function updateTelemetry() {
-      try {
-        const res = await fetch('https://www.ecdsa.fail/api/benchmarks');
-        if (!res.ok) return;
-        const data = await res.json();
-        const benchmark = data.benchmarks?.find((b) => b.name === 'gpsanant/ecdsafail-challenge');
-        if (benchmark && benchmark.currentBestMetrics) {
-          const { qubits, toffoli } = benchmark.currentBestMetrics;
-          const qEl = document.getElementById('live-qubits');
-          const tEl = document.getElementById('live-toffoli');
-          
-          if (qEl) qEl.textContent = qubits.toLocaleString();
-          if (tEl) tEl.textContent = '~' + (toffoli / 1000000).toFixed(2) + 'M';
-        }
-      } catch (err) {
-        console.error('Failed to fetch benchmarks:', err);
-      }
-    }
-    
-    updateTelemetry();
-    document.addEventListener('astro:page-load', updateTelemetry);
   </script>
 </Base>
