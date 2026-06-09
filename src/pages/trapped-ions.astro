@@ -7,6 +7,30 @@ import SkepticismPanel from '../components/SkepticismPanel.astro';
 import Card from '../components/Card.astro';
 import ReferenceList from '../components/ReferenceList.astro';
 import Math from '../components/Math.astro';
+import ChronologyTimeline from '../components/ChronologyTimeline.astro';
+
+const timelineEvents = [
+  {
+    year: '1995',
+    title: 'The First Quantum Logic Gate',
+    description: 'Cirac and Zoller propose the first realistic scheme for a quantum computer using trapped ions. Monroe et al. at NIST demonstrate the first CNOT gate shortly after.'
+  },
+  {
+    year: '1999',
+    title: 'The Mølmer-Sørensen Gate',
+    description: 'Mølmer and Sørensen propose a new entangling gate that is insensitive to the initial vibrational state (temperature) of the ion chain, becoming the industry standard.'
+  },
+  {
+    year: '2002',
+    title: 'The QCCD Architecture',
+    description: 'Kielpinski, Monroe, and Wineland propose the Quantum Charge-Coupled Device (QCCD), a scalable architecture based on multiplexed 2D trap arrays and ion shuttling.'
+  },
+  {
+    year: '2024',
+    title: 'High-Fidelity Logical Qubits',
+    description: 'Quantinuum demonstrates logical qubits with error rates below their physical constituents using the Steane code on a commercial QCCD device, albeit with limited qubit numbers and slow clock speeds.'
+  }
+];
 ---
 
 <Base title="Trapped Ion Quantum Computing" activeNav="/trapped-ions" mathjax>
@@ -66,28 +90,7 @@ import Math from '../components/Math.astro';
     </ContentSection>
 
     <ContentSection title="Chronology of Trapped Ion Milestones">
-      <div style="border-left: 2px solid var(--border); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">1995</strong>
-          <h4 style="margin: 0.25rem 0;">The First Quantum Logic Gate</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Cirac and Zoller propose the first realistic scheme for a quantum computer using trapped ions. Monroe et al. at NIST demonstrate the first CNOT gate shortly after.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">1999</strong>
-          <h4 style="margin: 0.25rem 0;">The Mølmer-Sørensen Gate</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Mølmer and Sørensen propose a new entangling gate that is insensitive to the initial vibrational state (temperature) of the ion chain, becoming the industry standard.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2002</strong>
-          <h4 style="margin: 0.25rem 0;">The QCCD Architecture</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Kielpinski, Monroe, and Wineland propose the Quantum Charge-Coupled Device (QCCD), a scalable architecture based on multiplexed 2D trap arrays and ion shuttling.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2024</strong>
-          <h4 style="margin: 0.25rem 0;">High-Fidelity Logical Qubits</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Quantinuum demonstrates logical qubits with error rates below their physical constituents using the Steane code on a commercial QCCD device, albeit with limited qubit numbers and slow clock speeds.</p>
-        </div>
-      </div>
+      <ChronologyTimeline events={timelineEvents} />
     </ContentSection>
 
     <SkepticismPanel>

@@ -8,6 +8,40 @@ import ReferenceList from '../components/ReferenceList.astro';
 import Card from '../components/Card.astro';
 import Math from '../components/Math.astro';
 import InteractiveQECBypass from '../components/InteractiveQECBypass.astro';
+import ChronologyTimeline from '../components/ChronologyTimeline.astro';
+
+const timelineEvents = [
+  {
+    year: '1997',
+    title: 'The Toric Code & Anyon Proposals',
+    description: 'Alexei Kitaev proposes fault-tolerant quantum computation using anyons on a torus and introduces the 1D Majorana wire model, laying the mathematical foundation.'
+  },
+  {
+    year: '2010',
+    title: 'Semiconducting Nanowire Schemes',
+    description: 'Lutchyn et al. and Oreg et al. independently propose realizing Majorana zero modes at the ends of spin-orbit coupled semiconducting nanowires proximitized by s-wave superconductors.'
+  },
+  {
+    year: '2012',
+    title: 'First Majorana Conductance Signatures',
+    description: 'The Kouwenhoven group at TU Delft reports the first observation of a zero-bias conductance peak in nanowires, providing preliminary experimental signatures of Majorana zero modes.'
+  },
+  {
+    year: '2018',
+    title: 'The Retracted Quantized Peak Paper',
+    description: 'A high-profile paper reporting quantized conductance peaks (the smoking gun of Majoranas) is published in *Nature*, but is retracted in 2021 due to raw data selection errors and lack of reproducibility.'
+  },
+  {
+    year: '2023',
+    title: 'Topological Gap Protocol (Majorana 1)',
+    description: 'Microsoft publishes results demonstrating signatures consistent with Majorana Zero Modes using a rigorous "Topological Gap Protocol", though still below the threshold for qubit logic.'
+  },
+  {
+    year: '2026 (June)',
+    title: 'Majorana 2 Lead-Based Qubit Chip',
+    description: 'Microsoft announces the Majorana 2 chip, shifting to a lead-based materials stack. Qubits achieve 20-second average coherence times, halving their commercial fault-tolerant roadmap target to 2029.'
+  }
+];
 ---
 
 <Base title="Topological Qubits" activeNav="/topological-qubits" mathjax>
@@ -80,38 +114,7 @@ import InteractiveQECBypass from '../components/InteractiveQECBypass.astro';
     </ContentSection>
 
     <ContentSection title="Chronology of Topological Computing Milestones">
-      <div style="border-left: 2px solid var(--border); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">1997</strong>
-          <h4 style="margin: 0.25rem 0;">The Toric Code & Anyon Proposals</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Alexei Kitaev proposes fault-tolerant quantum computation using anyons on a torus and introduces the 1D Majorana wire model, laying the mathematical foundation.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2010</strong>
-          <h4 style="margin: 0.25rem 0;">Semiconducting Nanowire Schemes</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Lutchyn et al. and Oreg et al. independently propose realizing Majorana zero modes at the ends of spin-orbit coupled semiconducting nanowires proximitized by s-wave superconductors.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2012</strong>
-          <h4 style="margin: 0.25rem 0;">First Majorana Conductance Signatures</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">The Kouwenhoven group at TU Delft reports the first observation of a zero-bias conductance peak in nanowires, providing preliminary experimental signatures of Majorana zero modes.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2018</strong>
-          <h4 style="margin: 0.25rem 0;">The Retracted Quantized Peak Paper</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">A high-profile paper reporting quantized conductance peaks (the smoking gun of Majoranas) is published in <em>Nature</em>, but is retracted in 2021 due to raw data selection errors and lack of reproducibility.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2023</strong>
-          <h4 style="margin: 0.25rem 0;">Topological Gap Protocol (Majorana 1)</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Microsoft publishes results demonstrating signatures consistent with Majorana Zero Modes using a rigorous "Topological Gap Protocol", though still below the threshold for qubit logic.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2026 (June)</strong>
-          <h4 style="margin: 0.25rem 0;">Majorana 2 Lead-Based Qubit Chip</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Microsoft announces the Majorana 2 chip, shifting to a lead-based materials stack. Qubits achieve 20-second average coherence times, halving their commercial fault-tolerant roadmap target to 2029.</p>
-        </div>
-      </div>
+      <ChronologyTimeline events={timelineEvents} />
     </ContentSection>
 
     <SkepticismPanel>

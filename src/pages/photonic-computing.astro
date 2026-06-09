@@ -9,6 +9,35 @@ import Math from '../components/Math.astro';
 import Card from '../components/Card.astro';
 import InteractiveHongOuMandel from '../components/InteractiveHongOuMandel.astro';
 import InteractiveFBQC from '../components/InteractiveFBQC.astro';
+import ChronologyTimeline from '../components/ChronologyTimeline.astro';
+
+const timelineEvents = [
+  {
+    year: '1987',
+    title: 'The Hong-Ou-Mandel Effect',
+    description: 'Hong, Ou, and Mandel demonstrate two-photon quantum interference using a beam splitter, proving photons can "bunch" and interact purely via quantum statistics.'
+  },
+  {
+    year: '2001',
+    title: 'The KLM Protocol',
+    description: 'E. Knill, R. Laflamme, and G. Milburn publish their foundational *Nature* paper proving that universal quantum computing is possible using only linear optics, single-photon sources, and photodetectors.'
+  },
+  {
+    year: '2006',
+    title: 'Measurement-Based Quantum Computing (MBQC)',
+    description: 'Raussendorf establishes the Cluster State model, allowing probabilistic optical logic to be replaced by deterministic single-photon measurements on a pre-entangled grid.'
+  },
+  {
+    year: '2021',
+    title: 'Fusion-Based Quantum Computing (FBQC)',
+    description: 'PsiQuantum publishes the FBQC architecture, proposing a scalable pathway by fusing small 6-photon resource states rather than generating monolithic cluster states.'
+  },
+  {
+    year: '2024',
+    title: 'Integrated Silicon Photonics & GKP States',
+    description: 'Startups pivot heavily to commercial semiconductor foundries (GlobalFoundries, TSMC) to etch millions of optical components, focusing on GKP (Gottesman-Kitaev-Preskill) continuous-variable states to natively combat photon loss.'
+  }
+];
 ---
 
 <Base title="Photonic Quantum Computing" activeNav="/photonic-computing" mathjax>
@@ -90,33 +119,7 @@ import InteractiveFBQC from '../components/InteractiveFBQC.astro';
     </ContentSection>
 
     <ContentSection title="Chronology of Photonic Quantum Milestones">
-      <div style="border-left: 2px solid var(--border); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">1987</strong>
-          <h4 style="margin: 0.25rem 0;">The Hong-Ou-Mandel Effect</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Hong, Ou, and Mandel demonstrate two-photon quantum interference using a beam splitter, proving photons can "bunch" and interact purely via quantum statistics.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2001</strong>
-          <h4 style="margin: 0.25rem 0;">The KLM Protocol</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">E. Knill, R. Laflamme, and G. Milburn publish their foundational <em>Nature</em> paper proving that universal quantum computing is possible using only linear optics, single-photon sources, and photodetectors.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2006</strong>
-          <h4 style="margin: 0.25rem 0;">Measurement-Based Quantum Computing (MBQC)</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Raussendorf establishes the Cluster State model, allowing probabilistic optical logic to be replaced by deterministic single-photon measurements on a pre-entangled grid.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2021</strong>
-          <h4 style="margin: 0.25rem 0;">Fusion-Based Quantum Computing (FBQC)</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">PsiQuantum publishes the FBQC architecture, proposing a scalable pathway by fusing small 6-photon resource states rather than generating monolithic cluster states.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2024</strong>
-          <h4 style="margin: 0.25rem 0;">Integrated Silicon Photonics & GKP States</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Startups pivot heavily to commercial semiconductor foundries (GlobalFoundries, TSMC) to etch millions of optical components, focusing on GKP (Gottesman-Kitaev-Preskill) continuous-variable states to natively combat photon loss.</p>
-        </div>
-      </div>
+      <ChronologyTimeline events={timelineEvents} />
     </ContentSection>
 
     <SkepticismPanel>

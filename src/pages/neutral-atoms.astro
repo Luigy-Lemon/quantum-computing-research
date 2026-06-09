@@ -7,6 +7,30 @@ import SkepticismPanel from '../components/SkepticismPanel.astro';
 import ReferenceList from '../components/ReferenceList.astro';
 import Card from '../components/Card.astro';
 import Math from '../components/Math.astro';
+import ChronologyTimeline from '../components/ChronologyTimeline.astro';
+
+const timelineEvents = [
+  {
+    year: '2000',
+    title: 'The Rydberg Blockade Proposal',
+    description: 'Jaksch et al. and Lukin et al. independently propose using the strong dipole-dipole interactions between Rydberg atoms to implement fast quantum logic gates.'
+  },
+  {
+    year: '2016',
+    title: 'Deterministic Defect-Free Arrays',
+    description: 'Researchers (Lukin group at Harvard, Browaeys group at Institut d\'Optique) demonstrate real-time atom sorting using optical tweezers to assemble defect-free 1D and 2D arrays of individual neutral atoms.'
+  },
+  {
+    year: '2022',
+    title: 'Dynamic Reconfiguration & Z-O Connectivity',
+    description: 'Bluvstein et al. execute non-local quantum circuits by dynamically shuttling entangled atoms across the array mid-computation, realizing zone-to-zone connectivity.'
+  },
+  {
+    year: '2024',
+    title: 'Logical Qubit Demonstrations',
+    description: 'Demonstrations of transversality and execution of multiple logical qubits with error detection, though often relying heavily on post-selection to discard runs with atom loss.'
+  }
+];
 ---
 
 <Base title="Neutral Atom Quantum Computing" activeNav="/neutral-atoms" mathjax>
@@ -70,28 +94,7 @@ import Math from '../components/Math.astro';
     </ContentSection>
 
     <ContentSection title="Chronology of Neutral Atom Milestones">
-      <div style="border-left: 2px solid var(--border); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2000</strong>
-          <h4 style="margin: 0.25rem 0;">The Rydberg Blockade Proposal</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Jaksch et al. and Lukin et al. independently propose using the strong dipole-dipole interactions between Rydberg atoms to implement fast quantum logic gates.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2016</strong>
-          <h4 style="margin: 0.25rem 0;">Deterministic Defect-Free Arrays</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Researchers (Lukin group at Harvard, Browaeys group at Institut d'Optique) demonstrate real-time atom sorting using optical tweezers to assemble defect-free 1D and 2D arrays of individual neutral atoms.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2022</strong>
-          <h4 style="margin: 0.25rem 0;">Dynamic Reconfiguration & Z-O Connectivity</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Bluvstein et al. execute non-local quantum circuits by dynamically shuttling entangled atoms across the array mid-computation, realizing zone-to-zone connectivity.</p>
-        </div>
-        <div>
-          <strong style="color: var(--accent); font-family: 'Fira Code', monospace;">2024</strong>
-          <h4 style="margin: 0.25rem 0;">Logical Qubit Demonstrations</h4>
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-light);">Demonstrations of transversality and execution of multiple logical qubits with error detection, though often relying heavily on post-selection to discard runs with atom loss.</p>
-        </div>
-      </div>
+      <ChronologyTimeline events={timelineEvents} />
     </ContentSection>
 
     <SkepticismPanel>

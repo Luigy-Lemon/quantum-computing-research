@@ -1,0 +1,86 @@
+---
+interface TimelineEvent {
+  year: string;
+  title: string;
+  description: string;
+}
+
+interface Props {
+  events: TimelineEvent[];
+}
+
+const { events } = Astro.props;
+---
+
+<div class="chronology-timeline">
+  {events.map((event) => (
+    <div class="chronology-item">
+      <div class="chronology-year">{event.year}</div>
+      <div class="chronology-details">
+        <h4 class="chronology-title">{event.title}</h4>
+        <p class="chronology-desc">{event.description}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .chronology-timeline {
+    border-left: 2px solid var(--border);
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .chronology-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: relative;
+  }
+  
+  /* Bullet point at intersection */
+  .chronology-item::before {
+    content: '';
+    position: absolute;
+    left: calc(-1.5rem - 6px);
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  
+  .chronology-year {
+    color: var(--accent);
+    font-family: 'Fira Code', 'Source Code Pro', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .chronology-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .chronology-title {
+    margin: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  
+  .chronology-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+</style>
