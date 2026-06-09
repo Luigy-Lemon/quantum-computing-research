@@ -5,15 +5,23 @@ import InteractiveBoard from './InteractiveBoard.astro';
 <InteractiveBoard
   className="qec-bypass-container"
   title="Active QEC Loop vs. Topological Braid Tracking"
-  description="Compare the high-speed active hardware feedback loop required for transmon processors with the material-level passive protection of topological qubits."
+  description="Click on the tabs or individual steps in the diagrams below to explore how error correction is fundamentally different between superconducting transmons and topological qubits."
 >
 
   <div class="bypass-controls">
-    <button id="btn-bypass-transmon" class="bypass-tab-btn active">
+    <button 
+      id="btn-bypass-transmon" 
+      class="bypass-tab-btn active"
+      data-explanation="The active QEC loop for superconducting qubits is a race against time. Because a transmon dephases in ~100 µs, syndromes must be measured and decoded via FPGAs, and microwave corrections applied, within a tight 1 µs budget. This constant active control generates immense thermal dissipation inside the dilution refrigerator."
+    >
       <span class="pulse-indicator transmon-color"></span>
       Superconducting Transmon Loop
     </button>
-    <button id="btn-bypass-topological" class="bypass-tab-btn">
+    <button 
+      id="btn-bypass-topological" 
+      class="bypass-tab-btn"
+      data-explanation="Topological protection operates passively at the materials level. The non-local state is immune to local noise, pushing coherence times from microseconds to seconds. Instead of a fast active feedback loop, anyon tracking is managed via software memory, drastically simplifying room-temperature control and cryogenic cabling."
+    >
       <span class="pulse-indicator topological-color"></span>
       Topological Qubit (Majorana 2)
     </button>
@@ -29,39 +37,39 @@ import InteractiveBoard from './InteractiveBoard.astro';
       </div>
       
       <div class="flow-diagram">
-        <div class="flow-node" data-step="1">
+        <div class="flow-node" data-step="1" data-explanation="1. Physical Qubit: The transmon qubit stores information as a superconducting charge state. Because this is a local degree of freedom, it is highly sensitive to background electric fields, charge noise, and quasiparticle poisoning.">
           <div class="node-num">1</div>
           <div class="node-title">Physical Qubit</div>
           <div class="node-desc">Transmon state in a superposition. Extremely fragile (T₂ ≈ 100 µs).</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 1;">➔</div>
         
-        <div class="flow-node error-node" data-step="2">
+        <div class="flow-node error-node" data-step="2" data-explanation="2. Environmental Noise: Stray thermal photons or cosmic ray impacts generate quasiparticles, which absorb energy from the qubit and collapse superpositions. Errors must be corrected before they cascade.">
           <div class="node-num">2</div>
           <div class="node-title">Environmental Noise</div>
           <div class="node-desc">Stray thermal photon or cosmic ray causes localized bit/phase flip.</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 2;">➔</div>
         
-        <div class="flow-node" data-step="3">
+        <div class="flow-node" data-step="3" data-explanation="3. Syndrome Readout: Syndrome measurement requires probing the qubit with a microwave pulse, amplifying the reflected signal via HEMT/TWPA amplifiers, and digitizing it using high-speed room-temperature ADCs.">
           <div class="node-num">3</div>
           <div class="node-title">Syndrome Readout</div>
           <div class="node-desc">Microwave probe pulses routed through HEMT + TWPA and digitized at 8 GSPS.</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 3;">➔</div>
         
-        <div class="flow-node" data-step="4">
+        <div class="flow-node" data-step="4" data-explanation="4. FPGA Decoder: A dedicated FPGA or Cryo-ASIC decoder runs minimum-weight perfect matching (MWPM) to process the digital syndrome stream and identify the error locations in less than 1 microsecond.">
           <div class="node-num">4</div>
           <div class="node-title">FPGA Decoder</div>
           <div class="node-desc">Decoder runs MWPM algorithm to locate errors in &lt; 1 µs.</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 4;">➔</div>
         
-        <div class="flow-node" data-step="5">
+        <div class="flow-node" data-step="5" data-explanation="5. Correction Pulse: Based on the decoder's solution, the classical controller synthesizes a microwave pulse to flip the physical qubit back to its correct state, completing the active loop.">
           <div class="node-num">5</div>
           <div class="node-title">Correction Pulse</div>
           <div class="node-desc">RF generators synthesize microwave pulse to flip the qubit back.</div>
@@ -82,31 +90,31 @@ import InteractiveBoard from './InteractiveBoard.astro';
       </div>
       
       <div class="flow-diagram">
-        <div class="flow-node" data-step="1">
+        <div class="flow-node" data-step="1" data-explanation="1. Braided Anyons: Information is stored in the non-local braid pattern of Majorana Zero Modes at the ends of lead-coated nanowires. The state cannot be read or modified by probing any single, local point.">
           <div class="node-num">1</div>
           <div class="node-title">Braided Anyons</div>
           <div class="node-desc">Qubit state exists non-locally in the braid pattern of Majorana Zero Modes (MZM).</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 1;">➔</div>
         
-        <div class="flow-node protected-node" data-step="2">
+        <div class="flow-node protected-node" data-step="2" data-explanation="2. Noise Deflected: Local thermal noise or magnetic impurities cannot alter the global topological braid. As long as the anyons are kept far apart, physical errors are suppressed exponentially.">
           <div class="node-num">2</div>
           <div class="node-title">Noise Deflected</div>
           <div class="node-desc">Local perturbations cannot undo the non-local braid. Errors drop exponentially as e^(-L/ξ).</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 2;">➔</div>
         
-        <div class="flow-node" data-step="3">
+        <div class="flow-node" data-step="3" data-explanation="3. Passive Tracking: Rather than correcting physical errors in real-time, the classical software simply tracks the trajectories of the anyons in a digital log. Braid history is corrected in software.">
           <div class="node-num">3</div>
-          <div class="node-title">Passive tracking</div>
+          <div class="node-title">Passive Tracking</div>
           <div class="node-desc">Software keeps a history of anyon braid pathways. No real-time hardware loop.</div>
         </div>
         
-        <div class="flow-arrow">➔</div>
+        <div class="flow-arrow" style="--step: 3;">➔</div>
         
-        <div class="flow-node" data-step="4">
+        <div class="flow-node" data-step="4" data-explanation="4. Braiding Gate: Logical gates are executed by moving the anyons around each other. Because the gate angle is fixed by topology, there are no calibration drift errors typical of transmons.">
           <div class="node-num">4</div>
           <div class="node-title">Braiding Gate</div>
           <div class="node-desc">Gates are executed purely by moving MZMs around each other. Highly stable.</div>
@@ -156,19 +164,21 @@ import InteractiveBoard from './InteractiveBoard.astro';
     color: var(--text-main);
   }
 
+  /* Override InteractiveBoard active button color overrides */
   .bypass-tab-btn.active {
-    background: var(--surface);
-    color: var(--text-main);
-    box-shadow: var(--shadow-md);
+    background: var(--surface) !important;
+    color: var(--text-main) !important;
+    box-shadow: var(--shadow-md) !important;
   }
 
   .bypass-tab-btn#btn-bypass-transmon.active {
-    border-color: var(--accent-red, #7a1f1f);
+    border-color: var(--accent-red, #7a1f1f) !important;
+    color: var(--accent-red, #7a1f1f) !important;
   }
 
   .bypass-tab-btn#btn-bypass-topological.active {
-    border-color: #0d9488;
-    color: #0d9488;
+    border-color: #0f766e !important;
+    color: #0f766e !important;
   }
 
   .pulse-indicator {
@@ -179,7 +189,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
   }
 
   .transmon-color { background-color: var(--accent-red, #7a1f1f); }
-  .topological-color { background-color: #0d9488; }
+  .topological-color { background-color: #0f766e; }
 
   .bypass-content {
     background: var(--surface);
@@ -226,7 +236,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
 
   .badge.teal {
     background: rgba(13, 148, 136, 0.1);
-    color: #0d9488;
+    color: #0f766e;
   }
 
   .loop-timer {
@@ -267,6 +277,23 @@ import InteractiveBoard from './InteractiveBoard.astro';
     box-shadow: var(--shadow-sm);
   }
 
+  /* Node Selected Styles for Interactive Insights */
+  .flow-node.node-selected {
+    border-color: var(--accent) !important;
+    background: var(--surface-hover) !important;
+    box-shadow: 0 0 10px rgba(31, 72, 112, 0.12);
+  }
+
+  .flow-node.error-node.node-selected {
+    border-color: var(--accent-red, #7a1f1f) !important;
+    background: rgba(122, 31, 31, 0.05) !important;
+  }
+
+  .flow-node.protected-node.node-selected {
+    border-color: #0f766e !important;
+    background: rgba(13, 148, 136, 0.05) !important;
+  }
+
   .node-num {
     position: absolute;
     top: -10px;
@@ -294,12 +321,12 @@ import InteractiveBoard from './InteractiveBoard.astro';
   }
 
   .flow-node.protected-node {
-    border-color: #0d9488;
+    border-color: #0f766e;
     background: rgba(13, 148, 136, 0.02);
   }
 
   .flow-node.protected-node .node-num {
-    background: #0d9488;
+    background: #0f766e;
   }
 
   .node-title {
@@ -325,6 +352,20 @@ import InteractiveBoard from './InteractiveBoard.astro';
     .flow-arrow {
       transform: none;
     }
+  }
+
+  /* Glowing Flow Arrows */
+  .flow-view.active .flow-arrow {
+    animation: arrowGlow 2s infinite;
+  }
+  .flow-view.active .flow-arrow:nth-of-type(1) { animation-delay: 0s; }
+  .flow-view.active .flow-arrow:nth-of-type(2) { animation-delay: 0.4s; }
+  .flow-view.active .flow-arrow:nth-of-type(3) { animation-delay: 0.8s; }
+  .flow-view.active .flow-arrow:nth-of-type(4) { animation-delay: 1.2s; }
+
+  @keyframes arrowGlow {
+    0%, 100% { color: var(--border); text-shadow: none; }
+    50% { color: var(--accent); }
   }
 
   .loop-arrow-wrap {
@@ -353,6 +394,14 @@ import InteractiveBoard from './InteractiveBoard.astro';
     font-size: 0.75rem;
   }
 
+  .flow-view.active .loop-arrow-back {
+    animation: borderGlow 2s infinite;
+  }
+  @keyframes borderGlow {
+    0%, 100% { border-color: var(--border); }
+    50% { border-color: var(--accent-red, #7a1f1f); }
+  }
+
   .loop-label {
     margin-top: 0.5rem;
     font-size: 0.8rem;
@@ -364,12 +413,16 @@ import InteractiveBoard from './InteractiveBoard.astro';
   .feed-forward-banner {
     margin-top: 2rem;
     background: rgba(13, 148, 136, 0.05);
-    border: 1px dashed #0d9488;
+    border: 1px dashed #0f766e;
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
     font-size: 0.85rem;
     font-family: 'Space Grotesk', sans-serif;
+    color: var(--text-main);
+  }
+  .feed-forward-banner strong {
+    color: #0f766e;
   }
 
   @keyframes fadeIn {
@@ -385,12 +438,32 @@ import InteractiveBoard from './InteractiveBoard.astro';
     const flowTransmon = document.getElementById('flow-transmon');
     const flowTopological = document.getElementById('flow-topological');
 
+    const container = document.querySelector('.qec-bypass-container');
+    const guidePanel = container?.querySelector('.board-guide-panel') as HTMLElement;
+    const guideText = container?.querySelector('.guide-text') as HTMLElement;
+
+    function setExplanation(text: string) {
+      if (guideText && guidePanel) {
+        guideText.textContent = text;
+        guidePanel.style.display = 'block';
+        guidePanel.style.animation = 'none';
+        void guidePanel.offsetWidth; // Trigger reflow
+        guidePanel.style.animation = 'fadeInSlideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+      }
+    }
+
     if (btnTransmon && btnTopological && flowTransmon && flowTopological) {
       btnTransmon.addEventListener('click', () => {
         btnTransmon.classList.add('active');
         btnTopological.classList.remove('active');
         flowTransmon.classList.add('active');
         flowTopological.classList.remove('active');
+        
+        // Reset selected nodes
+        document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('node-selected'));
+        
+        const exp = btnTransmon.getAttribute('data-explanation');
+        if (exp) setExplanation(exp);
       });
 
       btnTopological.addEventListener('click', () => {
@@ -398,8 +471,26 @@ import InteractiveBoard from './InteractiveBoard.astro';
         btnTransmon.classList.remove('active');
         flowTopological.classList.add('active');
         flowTransmon.classList.remove('active');
+        
+        // Reset selected nodes
+        document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('node-selected'));
+
+        const exp = btnTopological.getAttribute('data-explanation');
+        if (exp) setExplanation(exp);
       });
     }
+
+    // Add click listeners to all flow-nodes to update physical insights panel
+    const nodes = document.querySelectorAll('.flow-node');
+    nodes.forEach(node => {
+      node.addEventListener('click', () => {
+        nodes.forEach(n => n.classList.remove('node-selected'));
+        node.classList.add('node-selected');
+        
+        const exp = node.getAttribute('data-explanation');
+        if (exp) setExplanation(exp);
+      });
+    });
   }
 
   // Handle Astro page transitions and standard loading
