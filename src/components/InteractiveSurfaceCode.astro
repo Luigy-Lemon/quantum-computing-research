@@ -14,7 +14,7 @@ import NarrativePanel from './NarrativePanel.astro';
     <button id="btn-decode" class="board-btn" style="color: #059669; border-color: #059669; font-weight: bold;">Decode & Correct (MWPM)</button>
   </div>
 
-  <div class="qec-layout">
+  <div class="qec-layout interactive-split-layout" style="--sidebar-width: 480px;">
     <div class="qec-lattice-container">
       <canvas id="surface-canvas" width="460" height="460"></canvas>
     </div>
@@ -40,18 +40,7 @@ import NarrativePanel from './NarrativePanel.astro';
 </InteractiveBoard>
 
 <style>
-  .qec-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin: 1.5rem 0;
-    align-items: center;
-  }
-  @media (min-width: 900px) {
-    .qec-layout {
-      grid-template-columns: 1.1fr 1fr;
-    }
-  }
+
   .qec-lattice-container {
     display: flex;
     justify-content: center;

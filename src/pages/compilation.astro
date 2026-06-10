@@ -100,7 +100,7 @@ const timelineItems = [
   <ContentSection title="3. Logical vs. Physical Metrics: The Space-Time Volume">
     <p>Standard quantum computer benchmarking uses the logical <strong>Space-Time Product</strong>: Peak Qubits multiplied by the logical gate count (typically Toffoli gates). While accurate in a binary layout, this metric becomes highly misleading when multi-state logic is unlocked:</p>
 
-    <div>
+    <div class="grid">
       <Card theme="pink" title="The Toffoli Illusion">
         <p>In standard binary layouts, a Toffoli gate is a massive, 6-CNOT composite gate. Unlocking the qutrit state collapses the Toffoli into exactly 3 microwave interactions. Counting logical Toffolis therefore tracks an arbitrary software abstraction rather than the true physical cost on the control hardware.</p>
       </Card>
@@ -171,7 +171,7 @@ const timelineItems = [
 
   <ContentSection title="Current Bottlenecks & Unlocking Potential">
     <p>To scale compile pipelines and quantum ALUs to cryptographic levels, the following critical bottlenecks must be resolved:</p>
-    <div>
+    <div class="grid">
       <Card theme="red" title="1. Modular Exponentiation Depth">
         <p><strong>The Bottleneck:</strong> Elliptic curve point addition requires sequential field multiplications. Under binary compilers, modular multiplication depth scales as <Math formula="O(n^3)"  /> gates, resulting in <Math formula="\\approx 10^{10}"  /> logical gates for <code>secp256k1</code>.</p>
         <p><strong>Unlocking Potential:</strong> Implementing Windowed Multi-exponentiation and Carry-Save representation reduces circuit depth. Combined with qutrit carry absorption, it compresses logical depth by 90%, shortening execution time from weeks to hours and fitting within the physical coherence envelope of the hardware.</p>
@@ -240,7 +240,7 @@ const timelineItems = [
   </SkepticismPanel>
 
   <ContentSection title="Common Misconceptions">
-    <div>
+    <div class="grid">
       <Card theme="pink" title='Myth: "Testing All Keys at Once"'>
         <p>The most pervasive myth in popular science is that quantum computers test every possible private key simultaneously and "pick" the correct one. <strong>False.</strong> If it worked by brute force, Grover's algorithm would be the primary threat, which only halves the effective bit-length. Shor's breaks ECC by using the Quantum Fourier Transform to construct interference patterns that reveal the mathematical <em>period</em> of the curve, completely sidestepping brute force.</p>
       </Card>
@@ -252,7 +252,7 @@ const timelineItems = [
 
   <ContentSection title="Actionable Research Matters">
     <p>To bridge the gap between abstract algorithmic theory and the constraints of physical hardware, researchers should focus on the following actionable domains:</p>
-    <div>
+    <div class="grid">
       <Card theme="red" title="Next-Gen Error Correction">
         <p>The surface code requires an unsustainable 1,000:1 physical-to-logical ratio at current error rates. Research into <strong>Quantum Low-Density Parity-Check (qLDPC)</strong> codes promises to drastically lower this overhead, potentially reducing the physical footprint of a CRQC by an order of magnitude.</p>
       </Card>

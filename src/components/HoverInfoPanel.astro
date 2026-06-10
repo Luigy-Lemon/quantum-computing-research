@@ -1,4 +1,6 @@
 ---
+import NarrativePanel from './NarrativePanel.astro';
+
 interface Props {
   defaultText: string;
 }
@@ -6,24 +8,20 @@ interface Props {
 const { defaultText } = Astro.props;
 ---
 
-<div class="hover-info-panel">
+<NarrativePanel class="hover-info-panel">
   <div class="info-content">{defaultText}</div>
-</div>
+</NarrativePanel>
 
 <style>
   .hover-info-panel {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: rgba(37, 99, 235, 0.05);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 4px 4px 0;
-    min-height: 3rem;
+    min-height: 4.5rem;
     display: flex;
     align-items: center;
   }
   .info-content {
     font-size: 0.95rem;
     color: var(--text-main);
+    width: 100%;
   }
 </style>
 
@@ -34,12 +32,12 @@ const { defaultText } = Astro.props;
     const defaultText = content.textContent ?? '';
     panel.closest('.interactive-board-container')?.querySelectorAll('.hoverable').forEach(el => {
       el.addEventListener('mouseenter', () => {
-        content.textContent = el.getAttribute('data-info');
-        content.style.color = 'var(--accent-dark)';
+        content.textContent = el.getAttribute('data-info') || '';
+        (content as HTMLElement).style.color = 'var(--accent-dark)';
       });
       el.addEventListener('mouseleave', () => {
         content.textContent = defaultText;
-        content.style.color = 'var(--text-main)';
+        (content as HTMLElement).style.color = 'var(--text-main)';
       });
     });
   });

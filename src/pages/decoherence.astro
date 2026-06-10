@@ -224,24 +224,20 @@ const timelineItems = [
 
   <SkepticismPanel>
     <p>Despite steady progress, the field faces rigorous scrutiny. Is large-scale quantum computation truly viable, or will environmental noise always win?</p>
-    <Card theme="orange" title="The Skeptic's View">
-      <ul>
-        <li><strong>Fundamental Limits:</strong> Critics argue that there may be an insurmountable physical "noise floor" that prevents coherence times from ever reaching the threshold required for fault-tolerant error correction.</li>
-        <li><strong>Scalability and Crosstalk:</strong> As qubits are packed into denser arrays, control wiring and nearest-neighbor interactions introduce severe crosstalk and correlated errors.</li>
-        <li><strong>Non-Markovian Noise:</strong> Standard error correction theories assume uncorrelated, memoryless noise. Real-world devices often exhibit highly correlated or 1/f noise that can invalidate the fault-tolerance threshold theorems.</li>
-      </ul>
-    </Card>
-    <Card theme="red" title="The Counter-point">
-      <ul>
-        <li><strong>Empirical Progress:</strong> Coherence times have improved by orders of magnitude (from nanoseconds to hundreds of microseconds). There is no experimental proof of an absolute ceiling.</li>
-        <li><strong>Engineering over Physics:</strong> Many sources of decoherence (like TLS defects) are increasingly viewed as materials engineering problems, not fundamental quantum limits. Better fabrication yields better coherence.</li>
-        <li><strong>Architectural Adaptability:</strong> The field successfully pivoted from charge qubits to transmons to bypass early limits, suggesting that new architectures (e.g., fluxonium, dual-rail qubits) can circumvent current bottlenecks.</li>
-      </ul>
-    </Card>
+    <ul>
+      <li>
+        <strong>The Skeptic's View</strong>
+        <p>Critics argue that there may be an insurmountable physical "noise floor" that prevents coherence times from ever reaching the threshold required for fault-tolerant error correction. Additionally, as qubits are packed into denser arrays, control wiring and nearest-neighbor interactions introduce severe crosstalk and correlated errors. Finally, standard error correction theories assume uncorrelated, memoryless noise, whereas real-world devices often exhibit highly correlated or 1/f noise that can invalidate fault-tolerance threshold theorems.</p>
+      </li>
+      <li>
+        <strong>The Counter-point</strong>
+        <p>Coherence times have improved by orders of magnitude (from nanoseconds to hundreds of microseconds), with no experimental proof of an absolute physical ceiling. Many sources of decoherence (like TLS defects) are increasingly viewed as materials engineering problems, not fundamental physical limits. Furthermore, the field's successful pivot from charge qubits to transmons indicates that new architectures (e.g., fluxonium, dual-rail qubits) can continue to circumvent physical bottlenecks.</p>
+      </li>
+    </ul>
   </SkepticismPanel>
 
   <ContentSection title="Common Misconceptions">
-    <div>
+    <div class="grid">
       <Card theme="cyan" title="Decoherence must worsen as qubits are added">
         <p><strong>Reality:</strong> While scaling up increases wiring complexity, it doesn't mean coherence must inherently degrade. Modular architectures, 3D integration, and phononic routing aim to keep coherence stable even as system size grows.</p>
       </Card>
@@ -254,16 +250,20 @@ const timelineItems = [
     </div>
   </ContentSection>
 
-  <ContentSection title="Actionable Research Matters">
-    <p>To cross the threshold into fault tolerance, the global research community is targeting several high-leverage domains:</p>
-    <Card theme="red" title="Immediate Frontiers">
-      <ul>
-        <li><strong>Materials Co-Design:</strong> Identifying the exact microscopic origins of TLS defects through electron microscopy and transitioning to novel epitaxial materials (e.g., Tantalum) to push <Math formula="T_1"  /> past the millisecond mark.</li>
-        <li><strong>Hardware-Efficient QEC:</strong> Developing erasure-biased qubits (like dual-rail superconducting qubits) where errors are converted into detectable photon losses, drastically lowering the overhead for error correction.</li>
-        <li><strong>Cryogenic Microwave Routing:</strong> Designing 3D phononic crystals and flexible metamaterial layouts to isolate qubits from thermal noise and cross-talk while permitting dense control wiring.</li>
-        <li><strong>Multi-Objective Optimization:</strong> Balancing the inherent trade-offs between coherence times, fast gate execution, and high connectivity via AI-driven inverse design of the microwave packages.</li>
-      </ul>
-    </Card>
+    <div class="grid">
+      <Card theme="red" title="Materials Co-Design">
+        <p>Identifying the exact microscopic origins of TLS defects through electron microscopy and transitioning to novel epitaxial materials (e.g., Tantalum) to push <Math formula="T_1"  /> past the millisecond mark.</p>
+      </Card>
+      <Card theme="red" title="Hardware-Efficient QEC">
+        <p>Developing erasure-biased qubits (like dual-rail superconducting qubits) where errors are converted into detectable photon losses, drastically lowering the overhead for error correction.</p>
+      </Card>
+      <Card theme="red" title="Cryogenic Microwave Routing">
+        <p>Designing 3D phononic crystals and flexible metamaterial layouts to isolate qubits from thermal noise and cross-talk while permitting dense control wiring.</p>
+      </Card>
+      <Card theme="red" title="Multi-Objective Optimization">
+        <p>Balancing the inherent trade-offs between coherence times, fast gate execution, and high connectivity via AI-driven inverse design of the microwave packages.</p>
+      </Card>
+    </div>
   </ContentSection>
 
   <ReferenceList theme="purple">

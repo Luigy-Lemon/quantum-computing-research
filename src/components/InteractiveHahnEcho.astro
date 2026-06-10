@@ -1,5 +1,6 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard title="Hahn Echo (Spin Echo) Sequence" description="Watch how low-frequency noise dephases the qubit state over time, and how applying a $\pi$-pulse reverses the phase evolution to refocus the signal.">
   
@@ -37,10 +38,10 @@ import InteractiveBoard from './InteractiveBoard.astro';
     <button id="btn-run-echo" class="echo-btn active">Run Hahn Echo</button>
   </div>
 
-  <div class="echo-info">
+  <NarrativePanel class="echo-info">
     <strong id="echo-title" class="text-orange">Initialization:</strong>
     <span id="echo-desc">The qubit starts in the |0⟩ state. Click "Run Hahn Echo" to begin the sequence.</span>
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
@@ -177,14 +178,6 @@ import InteractiveBoard from './InteractiveBoard.astro';
     margin-top: 1.5rem;
   }
   
-  .echo-info {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--surface-hover);
-    border-radius: 4px;
-    border-left: 4px solid #f97316;
-    font-size: 0.95rem;
-  }
   .text-orange { color: #ea580c; }
 </style>
 

@@ -276,7 +276,7 @@ const timelineItems = [
   </SkepticismPanel>
 
   <ContentSection title="Common Misconceptions">
-    <div>
+    <div class="grid">
       <Card theme="orange" title="Misconception: Qudits are 'just bigger Qubits'">
         <p>Many believe operating a qudit is simply a matter of adding more microwave tones. In reality, the mathematical foundation shifts from <Math formula="SU(2)"  /> to <Math formula="SU(d)"  />. The universal gate set changes entirely, requiring a complete redesign of compilers, algorithms, and error correction codes. You cannot simply 'port' a qubit algorithm to a qudit processor without fundamental mathematical translation.</p>
       </Card>
@@ -287,18 +287,24 @@ const timelineItems = [
         <p>While utilizing the <Math formula="|2\\rangle"  /> state efficiently executes a Toffoli gate, it introduces non-computational leakage into the system. If not perfectly reversed, this leakage propagates through the circuit and completely blinds standard qubit-based error correction codes (like the Surface Code), which assume binary errors.</p>
       </Card>
     </div>
-
   </ContentSection>
 
   <ContentSection title="Actionable Research Matters">
     <p>To move qudit computing from theoretical promise to practical realization, the field must prioritize several critical research vectors:</p>
-    <ul>
-      <li><strong>Leakage-Reduction Codes:</strong> Developing lightweight Error Correction codes that can identify and purge leaked states (<Math formula="|2\\rangle, |3\\rangle"  />) back into the computational subspace without measuring the data directly.</li>
-      <li><strong>Machine Learning for Multiplexed Readout:</strong> Advancing ultra-low latency FPGA-based neural networks to dynamically classify <Math formula="d"  />-dimensional overlapping blobs in the IQ plane, compensating for real-time drift and <Math formula="T_1"  /> decay during the measurement window.</li>
-      <li><strong>Automated Calibration Protocols:</strong> Creating autonomous software routines capable of simultaneously tuning hundreds of inter-dependent frequencies and DRAG pulses across a qudit lattice, moving away from manual human-in-the-loop calibration.</li>
-      <li><strong>Hybrid Architectures:</strong> Exploring heterogeneous processors where stable binary qubits handle memory and error correction, while specific qudit nodes act as specialized co-processors for dense arithmetic routines (like Shor's modular exponentiation).</li>
-    </ul>
-
+    <div class="grid">
+      <Card theme="purple" title="Leakage-Reduction Codes">
+        <p>Developing lightweight Error Correction codes that can identify and purge leaked states (<Math formula="|2\\rangle, |3\\rangle"  />) back into the computational subspace without measuring the data directly.</p>
+      </Card>
+      <Card theme="purple" title="Machine Learning for Multiplexed Readout">
+        <p>Advancing ultra-low latency FPGA-based neural networks to dynamically classify <Math formula="d"  />-dimensional overlapping blobs in the IQ plane, compensating for real-time drift and <Math formula="T_1"  /> decay during the measurement window.</p>
+      </Card>
+      <Card theme="purple" title="Automated Calibration Protocols">
+        <p>Creating autonomous software routines capable of simultaneously tuning hundreds of inter-dependent frequencies and DRAG pulses across a qudit lattice, moving away from manual human-in-the-loop calibration.</p>
+      </Card>
+      <Card theme="purple" title="Hybrid Architectures">
+        <p>Exploring heterogeneous processors where stable binary qubits handle memory and error correction, while specific qudit nodes act as specialized co-processors for dense arithmetic routines (like Shor's modular exponentiation).</p>
+      </Card>
+    </div>
   </ContentSection>
 
   <ReferenceList theme="purple">

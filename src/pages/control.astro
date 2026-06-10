@@ -149,7 +149,7 @@ const timelineItems = [
 
   <ContentSection title="Current Bottlenecks & Unlocking Potential">
     <p>To orchestrate millions of highly coherent microwave pulses down to the dilution plate, the following control hardware bottlenecks must be resolved:</p>
-    <div>
+    <div class="grid">
       <Card theme="purple" title="1. Waveform Storage Wall (Memory Bandwidth)">
         <p><strong>The Bottleneck:</strong> Storing raw 16-bit voltage samples for the millions of custom GRAPE pulse waveforms required in Shor's algorithm exceeds the onboard SRAM capacity of standard FPGAs.</p>
         <p><strong>Unlocking Potential:</strong> Implementing real-time Parametric Compilation on the FPGA fabric allows synthesizing pulses on-the-fly from basic parameters (amplitude, duration, phase), slashing the waveform storage footprint by 99% and enabling continuous execution.</p>
@@ -239,7 +239,7 @@ const timelineItems = [
   </SkepticismPanel>
 
   <ContentSection title="Actionable Research Matters">
-    <div>
+    <div class="grid">
       <Card theme="cyan" title="Physics-Informed Neural Networks (PINNs) for Pulse Shaping">
         <p>Recent 2024–2025 frameworks replace pure GRAPE optimization with Physics-Informed Neural Networks (PINNs). By embedding the time-dependent Schrödinger or Lindblad master equation directly into the loss function, two-stage PINNs simultaneously maximize noise-averaged gate fidelity and minimize pulse duration. They learn the physical distortions of the cryostat wiring and DAC non-linearities, outputting robust pulse shapes in milliseconds rather than hours, making continuous recalibration viable.</p>
       </Card>
@@ -254,7 +254,7 @@ const timelineItems = [
   </ContentSection>
 
   <ContentSection title="Common Misconceptions">
-    <div>
+    <div class="grid">
       <Card theme="purple" title="Misconception: DRAG completely solves leakage">
         <p><strong>Reality:</strong> While DRAG is excellent at mitigating leakage to the <Math formula="|2\\rangle"  /> state caused by frequency crowding, it does not solve leakage caused by higher-frequency harmonics, drive-induced heating, or multi-photon transitions during high-power two-qubit gates.</p>
       </Card>

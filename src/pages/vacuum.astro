@@ -91,13 +91,14 @@ import Card from '../components/Card.astro';
     </ContentSection>
 
     <SkepticismPanel>
-      <p>
-        <strong>Optimistic View:</strong> Proponents argue that massive cryopumps and advanced multi-stage differential pumping will easily manage the gas load. Additionally, cryogenic metamaterials and novel sealing techniques will reduce the individual leak rate of feedthroughs to negligible levels.
-      </p>
-      <p>
-        <strong>The Skeptical Reality:</strong>
-        Cryopumping is precisely the problem: the qubit chip acts as the ultimate cryopump. Unless the chip is perfectly hermetically encapsulated (which introduces its own massive challenges regarding microwave coupling and thermalization), it will attract adsorbates. Differential pumping works for macroscopic leaks, but addressing millions of distributed, microscopic diffusion paths across massive flanges is a reliability nightmare. Furthermore, repeated thermal cycling from 300 K to 15 mK causes immense mechanical stress and differential thermal contraction, systematically degrading the integrity of the seals over time.
-      </p>
+      <ul>
+        <li>
+          <strong>Optimistic View:</strong> Proponents argue that massive cryopumps and advanced multi-stage differential pumping will easily manage the gas load. Additionally, cryogenic metamaterials and novel sealing techniques will reduce the individual leak rate of feedthroughs to negligible levels.
+        </li>
+        <li>
+          <strong>The Skeptical Reality:</strong> Cryopumping is precisely the problem: the qubit chip acts as the ultimate cryopump. Unless the chip is perfectly hermetically encapsulated (which introduces its own massive challenges regarding microwave coupling and thermalization), it will attract adsorbates. Differential pumping works for macroscopic leaks, but addressing millions of distributed, microscopic diffusion paths across massive flanges is a reliability nightmare. Furthermore, repeated thermal cycling from 300 K to 15 mK causes immense mechanical stress and differential thermal contraction, systematically degrading the integrity of the seals over time.
+        </li>
+      </ul>
     </SkepticismPanel>
 
     <ReferenceList theme="cyan">

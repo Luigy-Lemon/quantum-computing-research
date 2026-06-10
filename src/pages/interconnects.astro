@@ -6,7 +6,6 @@ import ContentSection from '../components/ContentSection.astro';
 import SkepticismPanel from '../components/SkepticismPanel.astro';
 import ReferenceList from '../components/ReferenceList.astro';
 import Math from '../components/Math.astro';
-import Card from '../components/Card.astro';
 ---
 
 <Base title="Optical Interconnects & Optical-to-Microwave Transduction" activeNav="/interconnects" mathjax>
@@ -78,17 +77,20 @@ import Card from '../components/Card.astro';
       <p>
         Several alternative architectures have been proposed in recent cutting-edge literature to bypass the coaxial cabling bottleneck. However, each introduces severe secondary complications:
       </p>
-      <Card theme="blue" title="1. Startup Hype vs. Physics (2025)">
-        <p>While recent commercial press releases claim "scalable optical links for quantum data centers," rigorous thermodynamic analyses (e.g., <em>Journal of Cryogenic Engineering</em>, 2025) demonstrate that active electro-optic modulation directly at the 15mK stage is unsustainable. The required pump powers exceed the cooling budget by orders of magnitude.</p>
-      </Card>
-
-      <Card theme="orange" title="2. Transduction Efficiency Limits (2024-2026)">
-        <p>Cutting-edge research into piezo-optomechanical transducers (<em>Nature Quantum Information</em>, 2026) shows that achieving >50% efficiency requires cavity geometries and Q-factors that are highly susceptible to parasitic heating. The added thermal noise completely ruins the quantum state transfer fidelity.</p>
-      </Card>
-
-      <Card theme="red" title="3. The 'Remote Pumping' Counter-point">
-        <p>Some architectures propose moving the active laser components to higher temperature stages (e.g., 4K) and using passive modulators at the 15mK stage. However, even passive routing of 1550nm light to the base plate introduces unacceptable thermal loads due to Rayleigh scattering and imperfect fiber coupling.</p>
-      </Card>
+      <ul>
+        <li>
+          <strong>1. Startup Hype vs. Physics (2025)</strong>
+          <p>While recent commercial press releases claim "scalable optical links for quantum data centers," rigorous thermodynamic analyses (e.g., <em>Journal of Cryogenic Engineering</em>, 2025) demonstrate that active electro-optic modulation directly at the 15mK stage is unsustainable. The required pump powers exceed the cooling budget by orders of magnitude.</p>
+        </li>
+        <li>
+          <strong>2. Transduction Efficiency Limits (2024-2026)</strong>
+          <p>Cutting-edge research into piezo-optomechanical transducers (<em>Nature Quantum Information</em>, 2026) shows that achieving >50% efficiency requires cavity geometries and Q-factors that are highly susceptible to parasitic heating. The added thermal noise completely ruins the quantum state transfer fidelity.</p>
+        </li>
+        <li>
+          <strong>3. The 'Remote Pumping' Counter-point</strong>
+          <p>Some architectures propose moving the active laser components to higher temperature stages (e.g., 4K) and using passive modulators at the 15mK stage. However, even passive routing of 1550nm light to the base plate introduces unacceptable thermal loads due to Rayleigh scattering and imperfect fiber coupling.</p>
+        </li>
+      </ul>
     </SkepticismPanel>
 
     <ReferenceList theme="purple">

@@ -1,5 +1,6 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard>
   <div class="stv-header">
@@ -12,7 +13,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
     <button class="stv-btn" data-type="qutrit">Qutrit Assisted (d=27)</button>
     <button class="stv-btn" data-type="noisy">High-Fidelity Gates (d=11)</button>
   </div>
-
+ 
   <div class="stv-visualizer">
     <div class="stv-cube-container">
       <div class="stv-cube" id="stv-cube">
@@ -41,10 +42,10 @@ import InteractiveBoard from './InteractiveBoard.astro';
     </div>
   </div>
 
-  <div class="stv-info">
+  <NarrativePanel class="stv-info">
     <strong id="stv-title" class="text-red">Standard Binary Execution:</strong>
     <span id="stv-desc">Using standard ripple-carry adders and binary Toffolis. The massive CNOT depth results in a long execution time, while the high d=27 surface code inflates the physical qubit footprint.</span>
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
@@ -109,14 +110,6 @@ import InteractiveBoard from './InteractiveBoard.astro';
   .stat-label { font-weight: bold; color: var(--text-main); }
   .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold; }
   
-  .stv-info {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--surface-hover);
-    border-radius: 4px;
-    border-left: 4px solid #f43f5e;
-    font-size: 0.95rem;
-  }
   .text-red { color: #e11d48; }
   .text-blue { color: #0284c7; }
   .text-purple { color: #7e22ce; }

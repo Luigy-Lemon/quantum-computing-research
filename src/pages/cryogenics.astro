@@ -152,7 +152,7 @@ const timelineItems = [
 
   <ContentSection title="Current Bottlenecks & Unlocking Potential">
     <p>To scale superconducting chips to cryptographic sizes without thermal runaway, the rigorous thermodynamic limits of the dilution unit must be navigated:</p>
-    <div>
+    <div class="grid">
       <Card theme="cyan" title="1. Mixing Chamber Thermodynamic Ceiling">
         <p><strong>The Bottleneck:</strong> The continuous enthalpy exchange between <Math formula="^3\\text{He}"  /> and <Math formula="^4\\text{He}"  /> isotopes limits standard mixing chambers to a severe cooling capacity of **1–30 µW at 100 mK** (and <Math formula="\\approx 20\\text{ µW}"  /> at <Math formula="15\\text{ mK}"  />). Passive thermal conduction and active drive dissipation from thousands of copper/NbTi lines rapidly violate this ceiling, driving system temperatures into thermal saturation and destroying coherence.</p>
         <p><strong>Unlocking Potential:</strong> Thermodynamic scaling demands radical interconnect overhauls. Moving to ultra-high-throughput <Math formula="^3\\text{He}"  /> circulation, paired with high-density flexible superconducting striplines, is critical to stay under the microwatt-level threshold.</p>
@@ -231,22 +231,27 @@ const timelineItems = [
   </ContentSection>
 
   <SkepticismPanel>
-    <Card theme="accent" title="Scalability of Dilution Refrigerators">
-      <p><strong>Claim:</strong> Dry dilution fridges can be arbitrarily scaled up to house millions of qubits.</p>
-      <p><strong>Counter-point:</strong> The cooling power of the 15mK stage scales poorly with increased volume. Larger systems require massive amounts of <Math formula="^3\\text{He}"  /> and enormous pumps, facing diminishing returns due to flow resistance, increased surface area for blackbody radiation, and structural resonances that induce vibrational heating.</p>
-    </Card>
-    <Card theme="accent" title="Cryo-CMOS as the Silver Bullet">
-      <p><strong>Claim:</strong> Moving control electronics (Cryo-CMOS) inside the fridge solves the wiring bottleneck.</p>
-      <p><strong>Counter-point:</strong> Active switching components at 4K or 100mK dissipate significant power. Even if the stage can handle the bulk heat, localized hot spots and thermal radiation can leak down to the 15mK stage. Furthermore, CMOS at cryogenic temperatures suffers from the "kink effect" and unpredictable threshold voltage shifts.</p>
-    </Card>
-    <Card theme="accent" title="Superconducting Flex Cables">
-      <p><strong>Claim:</strong> Lithographed flex cables will effortlessly replace all bulky coaxial lines.</p>
-      <p><strong>Counter-point:</strong> Flex cables struggle with impedance matching and high crosstalk compared to rigid 3D coaxial geometry. Impedance mismatches lead to microwave reflections, which severely distort the delicate pulse envelopes required for high-fidelity quantum gates.</p>
-    </Card>
+    <ul>
+      <li>
+        <strong>Scalability of Dilution Refrigerators</strong>
+        <p><strong>Claim:</strong> Dry dilution fridges can be arbitrarily scaled up to house millions of qubits.</p>
+        <p><strong>Counter-point:</strong> The cooling power of the 15mK stage scales poorly with increased volume. Larger systems require massive amounts of <Math formula="^3\\text{He}"  /> and enormous pumps, facing diminishing returns due to flow resistance, increased surface area for blackbody radiation, and structural resonances that induce vibrational heating.</p>
+      </li>
+      <li>
+        <strong>Cryo-CMOS as the Silver Bullet</strong>
+        <p><strong>Claim:</strong> Moving control electronics (Cryo-CMOS) inside the fridge solves the wiring bottleneck.</p>
+        <p><strong>Counter-point:</strong> Active switching components at 4K or 100mK dissipate significant power. Even if the stage can handle the bulk heat, localized hot spots and thermal radiation can leak down to the 15mK stage. Furthermore, CMOS at cryogenic temperatures suffers from the "kink effect" and unpredictable threshold voltage shifts.</p>
+      </li>
+      <li>
+        <strong>Superconducting Flex Cables</strong>
+        <p><strong>Claim:</strong> Lithographed flex cables will effortlessly replace all bulky coaxial lines.</p>
+        <p><strong>Counter-point:</strong> Flex cables struggle with impedance matching and high crosstalk compared to rigid 3D coaxial geometry. Impedance mismatches lead to microwave reflections, which severely distort the delicate pulse envelopes required for high-fidelity quantum gates.</p>
+      </li>
+    </ul>
   </SkepticismPanel>
 
   <ContentSection title="Actionable Research Matters">
-    <div>
+    <div class="grid">
       <Card theme="cyan" title="Electro-Optic & Piezoelectric Transduction">
         <p>Routing signals via optical fibers bypasses the massive conductive heat leak of metallic coaxial cables. A pivotal research frontier is developing ultra-efficient electro-optic and piezoelectric modulators at the 15mK boundary. These transducers must operate at superconducting voltage scales (millivolts) to convert incoming photons into microwave drive pulses without injecting residual optical heating into the mixing chamber.</p>
       </Card>
@@ -260,14 +265,14 @@ const timelineItems = [
   </ContentSection>
 
   <ContentSection title="Common Misconceptions">
-    <div>
+    <div class="grid">
       <Card theme="accent" title="Cooling Because Computing is Hot">
         <p><strong>Misconception:</strong> Quantum computers need extreme cooling to remove the immense heat generated by their calculations.</p>
         <p><strong>Reality:</strong> The actual quantum operations (unitary gates) are reversible and theoretically dissipate zero heat. The extreme cold is strictly to initialize the qubits into their ground state and isolate them from ambient environmental thermal noise (<Math formula="k_B T"  />) that would otherwise cause rapid decoherence.</p>
       </Card>
       <Card theme="accent" title="Absolute Zero is the Goal">
         <p><strong>Misconception:</strong> The colder the fridge, the better the quantum computer will perform, with 0 Kelvin being the ultimate goal.</p>
-        <p><strong>Reality:</strong> 15mK is a "Goldilocks zone." As temperature approaches 0K, the cooling power of a dilution refrigerator also drops to zero. At 15mK, the thermal photon population for a 5GHz qubit is already negligibly small (<Math formula="< 10^{-6}"  />), while still maintaining enough cooling power to absorb the heat from incoming microwave pulses.</p>
+        <p><strong>Reality:</strong> 15mK is a "Goldilocks zone." As temperature approaches 0K, the cooling power of a dilution refrigerator also drops to zero. At 15mK, the thermal photon population for a 5GHz qubit is already negligibly small (<Math formula="&lt; 10^{-6}"  />), while still maintaining enough cooling power to absorb the heat from incoming microwave pulses.</p>
       </Card>
       <Card theme="accent" title="Consuming Liquid Helium">
         <p><strong>Misconception:</strong> Quantum computers rapidly boil off and consume vast amounts of liquid helium.</p>

@@ -5,7 +5,6 @@ import PageHeader from '../components/PageHeader.astro';
 import ContentSection from '../components/ContentSection.astro';
 import SkepticismPanel from '../components/SkepticismPanel.astro';
 import ReferenceList from '../components/ReferenceList.astro';
-import Card from '../components/Card.astro';
 import Math from '../components/Math.astro';
 ---
 
@@ -87,20 +86,23 @@ import Math from '../components/Math.astro';
       <p>
         Several alternative architectures have been proposed in recent cutting-edge literature to bypass the coaxial cabling bottleneck. However, each introduces severe secondary complications:
       </p>
-      <Card theme="blue" title="1. Cryogenic CMOS (Cryo-CMOS)">
-        <p><em>Literature Context:</em> Move DACs/ADCs to the 4 K stage to multiplex signals digitally before routing analog tones to 10 mK (e.g., <em>Patra et al., 2025</em>).</p>
-        <p><strong>Skepticism:</strong> Current Cryo-CMOS dissipates <Math formula="\\sim 1-5" /> mW per qubit. Even at 4 K (which has slightly more cooling power, <Math formula="\\sim 1-2" /> W), a million qubits translates to kilowatts of localized heat generation. This remains fundamentally incompatible with practical He-3/He-4 dry fridges without boiling the coolant.</p>
-      </Card>
-
-      <Card theme="orange" title="2. Microwave-to-Optical Transduction">
-        <p><em>Literature Context:</em> Deliver signals via multiplexed optical fibers coupled to 10 mK electro-optic modulators, replacing massive coax bundles entirely (e.g., <em>Lecocq et al., 2024</em>).</p>
-        <p><strong>Skepticism:</strong> Optical fibers solve thermal conduction, but the electro-optic conversion efficiency at 10 mK remains notoriously low (<Math formula="\\sim 10^{-4}" />). The extreme optical pump power required generates stray infrared photons, breaking Cooper pairs and causing widespread quasiparticle poisoning across the quantum chip.</p>
-      </Card>
-
-      <Card theme="red" title="3. Superconducting Flux Quantum (SFQ) Logic">
-        <p><em>Literature Context:</em> Utilize classical superconducting digital logic at 20 mK to generate control pulses locally (e.g., <em>Holmes et al., 2026</em>).</p>
-        <p><strong>Skepticism:</strong> SFQ possesses strictly zero static dissipation. However, its dynamic power <Math formula="P_{\\text{dyn}} \\approx I_c \\Phi_0 f" /> scales linearly with clock frequency. Generating high-fidelity analog microwave envelopes (e.g., DRAG pulses) via digital-to-analog SFQ logic requires multi-gigahertz clock rates, pushing dynamic dissipation well beyond the 15 <Math formula="\\mu" />W limits of the mixing chamber.</p>
-      </Card>
+      <ul>
+        <li>
+          <strong>1. Cryogenic CMOS (Cryo-CMOS)</strong>
+          <p><em>Literature Context:</em> Move DACs/ADCs to the 4 K stage to multiplex signals digitally before routing analog tones to 10 mK (e.g., <em>Patra et al., 2025</em>).</p>
+          <p><strong>Skepticism:</strong> Current Cryo-CMOS dissipates <Math formula="\\sim 1-5" /> mW per qubit. Even at 4 K (which has slightly more cooling power, <Math formula="\\sim 1-2" /> W), a million qubits translates to kilowatts of localized heat generation. This remains fundamentally incompatible with practical He-3/He-4 dry fridges without boiling the coolant.</p>
+        </li>
+        <li>
+          <strong>2. Microwave-to-Optical Transduction</strong>
+          <p><em>Literature Context:</em> Deliver signals via multiplexed optical fibers coupled to 10 mK electro-optic modulators, replacing massive coax bundles entirely (e.g., <em>Lecocq et al., 2024</em>).</p>
+          <p><strong>Skepticism:</strong> Optical fibers solve thermal conduction, but the electro-optic conversion efficiency at 10 mK remains notoriously low (<Math formula="\\sim 10^{-4}" />). The extreme optical pump power required generates stray infrared photons, breaking Cooper pairs and causing widespread quasiparticle poisoning across the quantum chip.</p>
+        </li>
+        <li>
+          <strong>3. Superconducting Flux Quantum (SFQ) Logic</strong>
+          <p><em>Literature Context:</em> Utilize classical superconducting digital logic at 20 mK to generate control pulses locally (e.g., <em>Holmes et al., 2026</em>).</p>
+          <p><strong>Skepticism:</strong> SFQ possesses strictly zero static dissipation. However, its dynamic power <Math formula="P_{\\text{dyn}} \\approx I_c \\Phi_0 f" /> scales linearly with clock frequency. Generating high-fidelity analog microwave envelopes (e.g., DRAG pulses) via digital-to-analog SFQ logic requires multi-gigahertz clock rates, pushing dynamic dissipation well beyond the 15 <Math formula="\\mu" />W limits of the mixing chamber.</p>
+        </li>
+      </ul>
     </SkepticismPanel>
 
     <ReferenceList theme="blue">

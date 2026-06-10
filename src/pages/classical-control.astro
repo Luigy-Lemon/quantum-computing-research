@@ -80,26 +80,20 @@ import Math from '../components/Math.astro';
     </ContentSection>
 
     <SkepticismPanel>
-      <div>
-        <h3>Claim: Cryo-CMOS will eliminate the room-temperature bottleneck.</h3>
-        <p>
+      <ul>
+        <li>
+          <strong>Claim: Cryo-CMOS will eliminate the room-temperature bottleneck.</strong>
           <strong>Counter-point:</strong> Moving control chips into the 4 Kelvin stage of the cryostat solves the cabling density problem but creates an insurmountable thermodynamic one. Current Cryo-CMOS controllers dissipate around 10-20 milliwatts per qubit. A 1M qubit system would dump 10-20 kilowatts of heat at 4K. The cooling power of modern dilution refrigerators at 4K is typically a few watts. (See <em>Vandersypen et al., 2024; "Thermodynamic Limits of Cryogenic Control"</em>).
-        </p>
-      </div>
-
-      <div>
-        <h3>Claim: Frequency multiplexing will drastically reduce wire counts and bandwidth.</h3>
-        <p>
+        </li>
+        <li>
+          <strong>Claim: Frequency multiplexing will drastically reduce wire counts and bandwidth.</strong>
           <strong>Counter-point:</strong> While multiplexing 100-1000 qubits on a single line is theoretically possible, it requires driving RF amplifiers into non-linear regimes, introducing severe intermodulation distortion (IMD) and crosstalk. In fault-tolerant systems, any correlated noise across qubits severely suppresses the error-correcting threshold. Multiplexing trades wire density for qubit fidelity, a trade-off FTQC cannot afford. (<em>Reilly et al., 2025; "Crosstalk constraints in wideband multiplexed readout"</em>).
-        </p>
-      </div>
-      
-      <div>
-        <h3>Claim: Distributed AI/ML decoders on FPGAs will handle the exabyte syndrome data.</h3>
-        <p>
+        </li>
+        <li>
+          <strong>Claim: Distributed AI/ML decoders on FPGAs will handle the exabyte syndrome data.</strong>
           <strong>Counter-point:</strong> Neural network decoders are notoriously deterministic-latency-poor. Implementing them on distributed FPGA clusters introduces non-deterministic network jitter and serialization delays. By the time a distributed RFSoC cluster has agreed on an error syndrome, the qubits have already decohered. (<em>Gidney & Fowler, 2026; "Latency budgets in distributed surface code decoding"</em>).
-        </p>
-      </div>
+        </li>
+      </ul>
     </SkepticismPanel>
 
     <ReferenceList theme="red">

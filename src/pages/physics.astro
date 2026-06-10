@@ -204,34 +204,48 @@ const timelineItems = [
 
   <SkepticismPanel>
     <p>While the transmon is the workhorse of current superconducting quantum computers, several physical realities threaten its path to fault-tolerance:</p>
-    <Card theme="red" title="Cosmic Rays & Ionizing Radiation">
-      <p><strong>The Claim:</strong> Transmon coherence is purely limited by fabrication and materials.</p>
-      <p><strong>The Counter-point:</strong> Recent studies show ambient ionizing radiation and cosmic rays generate high-energy phonons that break Cooper pairs, causing sudden quasiparticle bursts. This leads to correlated errors across the chip, which conventional surface-code error correction cannot easily handle.</p>
-    </Card>
-    <Card theme="orange" title="The Anharmonicity Trap">
-      <p><strong>The Claim:</strong> We can keep scaling transmons indefinitely.</p>
-      <p><strong>The Counter-point:</strong> The mechanism that protects transmons from charge noise (a large shunt capacitor) inherently compresses their energy levels. In dense, scaled-up 2D grids, this low anharmonicity leads to severe frequency crowding, multi-level leakage, and the breakdown of standard dispersive measurement models.</p>
-    </Card>
-    <Card theme="red" title="The TLS Plateau">
-      <p><strong>The Claim:</strong> Better materials will eventually eliminate TLS noise.</p>
-      <p><strong>The Counter-point:</strong> Despite moving to Tantalum, stochastic Two-Level Systems (TLS) in amorphous oxide interfaces persist. Qubit coherence parameters (<Math formula="T_1"  />, <Math formula="T_2"  />) fluctuate unpredictably over hours or days, challenging the assumption that we can ever have static, perfectly calibrated physical qubits.</p>
-    </Card>
+    <ul>
+      <li>
+        <strong>Cosmic Rays & Ionizing Radiation</strong>
+        <p><strong>The Claim:</strong> Transmon coherence is purely limited by fabrication and materials.</p>
+        <p><strong>The Counter-point:</strong> Recent studies show ambient ionizing radiation and cosmic rays generate high-energy phonons that break Cooper pairs, causing sudden quasiparticle bursts. This leads to correlated errors across the chip, which conventional surface-code error correction cannot easily handle.</p>
+      </li>
+      <li>
+        <strong>The Anharmonicity Trap</strong>
+        <p><strong>The Claim:</strong> We can keep scaling transmons indefinitely.</p>
+        <p><strong>The Counter-point:</strong> The mechanism that protects transmons from charge noise (a large shunt capacitor) inherently compresses their energy levels. In dense, scaled-up 2D grids, this low anharmonicity leads to severe frequency crowding, multi-level leakage, and the breakdown of standard dispersive measurement models.</p>
+      </li>
+      <li>
+        <strong>The TLS Plateau</strong>
+        <p><strong>The Claim:</strong> Better materials will eventually eliminate TLS noise.</p>
+        <p><strong>The Counter-point:</strong> Despite moving to Tantalum, stochastic Two-Level Systems (TLS) in amorphous oxide interfaces persist. Qubit coherence parameters (<Math formula="T_1"  />, <Math formula="T_2"  />) fluctuate unpredictably over hours or days, challenging the assumption that we can ever have static, perfectly calibrated physical qubits.</p>
+      </li>
+    </ul>
   </SkepticismPanel>
 
   <ContentSection title="Actionable Research Matters">
-    <Card theme="accent" title="Strategic Hardware Research Areas">
-      <ul>
-        <li><strong>Phonon Trapping & Quasiparticle Mitigation:</strong> Designing on-chip structures (such as normal-metal "moats" or phononic crystals) to sink high-energy phonons from cosmic rays and mitigate quasiparticle bursts before they interact with the Josephson junctions.</li>
-        <li><strong>Alternative Superconductors:</strong> Moving beyond Niobium and Tantalum to explore materials like Titanium Nitride (TiN) or epitaxial superconducting films that form fewer lossy native oxides.</li>
-        <li><strong>Tunable Hybrid Junctions:</strong> Developing Sn-InAs nanowire Josephson elements with tunable weak-link transparency, enabling voltage-controlled anharmonicity directly at the qubit level.</li>
-        <li><strong>High-Anharmonicity Architectures:</strong> Shifting focus to Unimon or Fluxonium architectures that break the standard <Math formula="E_J/E_C"  /> trade-off constraint, cleanly separating computational states from leakage channels.</li>
-        <li><strong>Surface Chemistry Correlation:</strong> Using atomic-resolution techniques (TEM/EELS) to map specific chemical bonding states at the metal-air interface and correlate them directly to measured TLS loss.</li>
-      </ul>
-    </Card>
+    <p>To scale superconducting qubits beyond current coherence ceilings, research must focus on these strategic hardware areas:</p>
+    <div class="grid">
+      <Card theme="accent" title="Phonon Trapping & Quasiparticle Mitigation">
+        <p>Designing on-chip structures (such as normal-metal "moats" or phononic crystals) to sink high-energy phonons from cosmic rays and mitigate quasiparticle bursts before they interact with the Josephson junctions.</p>
+      </Card>
+      <Card theme="accent" title="Alternative Superconductors">
+        <p>Moving beyond Niobium and Tantalum to explore materials like Titanium Nitride (TiN) or epitaxial superconducting films that form fewer lossy native oxides.</p>
+      </Card>
+      <Card theme="accent" title="Tunable Hybrid Junctions">
+        <p>Developing Sn-InAs nanowire Josephson elements with tunable weak-link transparency, enabling voltage-controlled anharmonicity directly at the qubit level.</p>
+      </Card>
+      <Card theme="accent" title="High-Anharmonicity Architectures">
+        <p>Shifting focus to Unimon or Fluxonium architectures that break the standard <Math formula="E_J/E_C"  /> trade-off constraint, cleanly separating computational states from leakage channels.</p>
+      </Card>
+      <Card theme="accent" title="Surface Chemistry Correlation">
+        <p>Using atomic-resolution techniques (TEM/EELS) to map specific chemical bonding states at the metal-air interface and correlate them directly to measured TLS loss.</p>
+      </Card>
+    </div>
   </ContentSection>
 
   <ContentSection title="Common Misconceptions">
-    <div>
+    <div class="grid">
       <Card theme="cyan" title="Transmons are Harmonic">
         <p><strong>Misconception:</strong> A transmon is just a linear LC circuit.</p>
         <p><strong>Reality:</strong> It is fundamentally a non-linear <em>Duffing oscillator</em>. Without the non-linear inductance provided by the Josephson junction, all energy transitions would be degenerate, making it impossible to isolate a two-level qubit without leaking into higher states.</p>

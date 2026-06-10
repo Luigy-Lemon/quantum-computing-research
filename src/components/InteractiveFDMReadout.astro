@@ -1,5 +1,6 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard title="Frequency-Division Multiplexed (FDM) Readout" description="Watch how a single broadband microwave pulse can simultaneously read out multiple qubits by querying different resonant frequencies.">
   
@@ -45,10 +46,10 @@ import InteractiveBoard from './InteractiveBoard.astro';
     <button id="btn-pulse" class="fdm-btn active">Send Readout Pulse</button>
   </div>
 
-  <div class="fdm-info">
+  <NarrativePanel class="fdm-info">
     <strong id="fdm-title" class="text-cyan">Composite Pulse:</strong>
     <span id="fdm-desc">A single coaxial cable carries a composite wave containing tones at 6.1, 6.2, 6.3, and 6.4 GHz. Each resonator only absorbs and reflects its specific frequency, shifting the phase based on the qubit's state.</span>
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
@@ -162,14 +163,6 @@ import InteractiveBoard from './InteractiveBoard.astro';
   }
   .text-pink { color: #db2777; }
   
-  .fdm-info {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--surface-hover);
-    border-radius: 4px;
-    border-left: 4px solid #0ea5e9;
-    font-size: 0.95rem;
-  }
   .text-cyan { color: #0284c7; }
   
   @keyframes moveRight {
