@@ -61,17 +61,30 @@ const timelineEvents = [
       </p>
     </ContentSection>
 
-    <ContentSection title="The Quantum Foundation: The Hong-Ou-Mandel Effect">
+    <ContentSection title="The Quantum Foundation: HOM Interference & CV Squeezing">
       <p>
-        The only way to make photons "interact" is to exploit their bosonic nature through quantum interference. The <strong>Hong-Ou-Mandel (HOM) effect</strong> occurs when two perfectly identical photons enter a 50:50 beam splitter at the exact same time. The probability amplitudes of them both passing through or both reflecting exactly cancel each other out due to destructive interference.
+        Because photons do not carry charge or rest mass, they do not interact directly. Instead, photonic quantum logic relies on two distinct physics paradigms: <strong>Discrete Variable (DV)</strong> single-photon interference and <strong>Continuous Variable (CV)</strong> squeezed states.
+      </p>
+
+      <h3 style="color: var(--text-main); margin: 1.5rem 0 0.5rem; font-size: 1.15rem;">1. Discrete Variable: The Hong-Ou-Mandel Effect</h3>
+      <p>
+        The only way to make discrete photons "interact" is to exploit their bosonic nature. The <strong>Hong-Ou-Mandel (HOM) effect</strong> occurs when two perfectly identical, indistinguishable photons enter a 50:50 beam splitter simultaneously. The bosonic path amplitudes cancel, forcing both photons to bunch:
       </p>
       <Math formula="\\hat{a}_{in}^\\dagger \\hat{b}_{in}^\\dagger |0,0\\rangle \\rightarrow \\frac{1}{2} \\left( (\\hat{a}_{out}^\\dagger + i\\hat{b}_{out}^\\dagger)(i\\hat{a}_{out}^\\dagger + \\hat{b}_{out}^\\dagger) \\right) |0,0\\rangle = \\frac{i}{2} \\left( (\\hat{a}_{out}^\\dagger)^2 + (\\hat{b}_{out}^\\dagger)^2 \\right) |0,0\\rangle" />
       <p>
-        The cross terms (one photon in each output port) vanish. Consequently, both photons "bunch" and exit together from the same random port. This interference is the bedrock mechanism for entangling photonic qubits.
+        This cancelation of cross-terms is the physical bedrock for linear-optics entangling gates (KLM protocol).
       </p>
       
       <InteractiveHongOuMandel />
 
+      <h3 style="color: var(--text-main); margin: 1.5rem 0 0.5rem; font-size: 1.15rem;">2. Continuous Variable: Squeezed Light Operators</h3>
+      <p>
+        Rather than counting individual photons, CV architectures use the continuous field quadrature amplitudes (like position and momentum coordinates). By shrinking the uncertainty of one quadrature below the vacuum limit (squeezing), we create resource states for fault-tolerant GKP codes. The squeezing operator <Math formula="\\hat{S}(\\xi)" inline={true} /> is defined as:
+      </p>
+      <Math formula="\\hat{S}(\\xi) = \\exp\\left( \\frac{1}{2} (\\xi^* \\hat{a}^2 - \\xi (\\hat{a}^\\dagger)^2) \\right)" />
+      <p>
+        Where <Math formula="\\xi = r e^{i\\theta}" inline={true} /> is the complex squeezing parameter. Applying this to the vacuum state reduces noise in one quadrature by factor <Math formula="e^{-r}" inline={true} /> while amplifying the other by <Math formula="e^{r}" inline={true} />, satisfying the Heisenberg uncertainty principle.
+      </p>
     </ContentSection>
 
     <ContentSection title="Deconstructing the All-Optical Stack">
@@ -79,32 +92,81 @@ const timelineEvents = [
         Because we cannot build a simple optical "transistor" or deterministic 2-qubit gate, Photonic Quantum Computing relies on a radically different paradigm known as <strong>Measurement-Based Quantum Computing (MBQC)</strong>.
       </p>
 
-      <Card theme="blue" title="1. The Source: Spontaneous Parametric Down-Conversion (SPDC)">
-        <p>
-          You cannot use a standard laser, which outputs a "coherent state"—a statistical Poisson distribution of photons. Photonic computing requires deterministic Single-Photon Sources. We rely on non-linear crystals (like Lithium Niobate). When pumped by a high-energy laser, a tiny fraction of pump photons split into two entangled lower-energy photons (Signal and Idler) via SPDC. 
-        </p>
-        <p>
-          However, SPDC is probabilistic. Generating millions of perfectly identical, indistinguishable photons on demand remains a monumental engineering bottleneck. Modern architectures heavily multiplex thousands of SPDC sources with optical switches to "herald" and capture single photons when they randomly appear.
-        </p>
-      </Card>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <Card theme="blue" title="1. The Source: SPDC & Squeezed Resonators">
+          <p>
+            You cannot use a standard laser, which outputs a "coherent state"—a statistical Poisson distribution of photons. Photonic computing requires deterministic Single-Photon Sources. We rely on non-linear crystals (like Lithium Niobate) pumping out signal-idler pairs via SPDC. In CV architectures, squeezed light is generated using microscopic ring resonators or waveguides, which squeeze vacuum quadrature fluctuations.
+          </p>
+        </Card>
 
-      <Card theme="orange" title="2. The Logic: Cluster States & Interferometers">
-        <p>
-          Instead of wires and gates, the "CPU" of a photonic quantum computer is a massive silicon-photonics chip covered in millions of microscopic <strong>Mach-Zehnder Interferometers (MZIs)</strong>. According to the <strong>KLM protocol (2001)</strong>, you can achieve universal computing using only linear optics, provided you accept that gates only succeed probabilistically.
-        </p>
-        <p>
-          To make the computation deterministic, we use MBQC (Raussendorf & Briegel). We first weave a massive, highly entangled 3D lattice of photons called a "Cluster State". Computation is then performed simply by measuring specific photons in specific bases, carving a path of logic through the cluster state block.
-        </p>
-      </Card>
+        <Card theme="orange" title="2. The Logic: Cluster States & Interferometers">
+          <p>
+            Instead of wires and gates, the "CPU" of a photonic quantum computer is a massive silicon-photonics chip covered in millions of microscopic <strong>Mach-Zehnder Interferometers (MZIs)</strong>. According to the <strong>KLM protocol (2001)</strong>, you can achieve universal computing using only linear optics. To make the computation deterministic, we use MBQC, weaving a highly entangled 3D lattice of photons called a "Cluster State" and measuring photons in specific bases to execute logic gates.
+          </p>
+        </Card>
 
-      <Card theme="red" title="3. The Detectors: The Return to the Cryostat">
-        <p>
-          The most ironic part of "room-temperature" optical quantum computing is the readout. You must detect single photons with >99% efficiency to maintain fault tolerance. Standard room-temperature photodiodes or Avalanche Photodiodes (APDs) are too noisy. 
-        </p>
-        <p>
-          The only detectors capable of this are <strong>Superconducting Nanowire Single-Photon Detectors (SNSPDs)</strong>. Because SNSPDs are made of superconducting metals (like Niobium Nitride), they must be operated inside a cryostat at roughly <strong>1 to 4 Kelvin</strong>. Thus, a commercial optical quantum computer still requires a massive cryogenic infrastructure, proving that we can never truly escape the <em>cryogenic toll</em>.
-        </p>
-      </Card>
+        <Card theme="red" title="3. The Detectors: The Return to the Cryostat">
+          <p>
+            The most ironic part of "room-temperature" optical quantum computing is the readout. You must detect single photons with >99% efficiency to maintain fault tolerance. The only detectors capable of this are <strong>Superconducting Nanowire Single-Photon Detectors (SNSPDs)</strong>. Because SNSPDs are made of superconducting metals (like Niobium Nitride), they must be operated inside a cryostat at roughly <strong>1 to 4 Kelvin</strong>.
+          </p>
+        </Card>
+      </div>
+    </ContentSection>
+
+    <ContentSection title="Corporate Investment & Backing Landscape">
+      <p>
+        Silicon photonics has attracted substantial commercial backing due to its compatibility with existing telecommunications foundries. Startups have secured billions in venture funding and government subventions to secure commercial wafer lines.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin: 1.5rem 0 2.5rem;">
+        <Card theme="pink" title="PsiQuantum">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-pink);">DV / Fusion-Based (FBQC)</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$1.3B+ Funding</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Founded by Jeremy O'Brien, Terry Rudolph, Pete Shadbolt, and Mark Thompson. Backed by BlackRock, Temasek, and Microsoft's M12. Received a landmark $940M AUD commitment from the Australian and Queensland governments to build their first utility-scale system.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Strategic manufacturing partnership with **GlobalFoundries** to etch standard silicon-photonic wafers on commercial CMOS production lines.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Delivering a commercial, fault-tolerant 1 million physical qubit system in Brisbane, Australia by 2029.
+          </p>
+        </Card>
+
+        <Card theme="orange" title="Xanadu">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-orange);">CV / Squeezed Quad / GKP</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$250M+ Funding</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Founded by Christian Weedbrook. Developed **PennyLane**, the industry-standard software library for quantum machine learning. Focuses on continuous-variable (CV) squeezed states and GKP fault-tolerant codes.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Backed by Bessemer, BDC Capital, and the Canadian government. Partners with **IMEC** (Belgium) to fabricate ultra-low loss silicon nitride chips.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Scaling up squeezed light resonators connected to SNSPDs to deploy cloud-based, reconfigurable CV processors.
+          </p>
+        </Card>
+
+        <Card theme="red" title="Quandela">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-red);">DV / Quantum Dot Sources</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">€50M+ Funding</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Spun out of CNRS (Senellart). Fabricates high-efficiency single-photon sources using semiconductor quantum dots integrated into optical micropillar cavities.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> French cleanrooms (C2N/CNRS). Receives substantial backing from Bpifrance, the European Innovation Council (EIC), and European space/defense agencies.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Shipping rack-mounted "MosaiQ" linear optical processors to international supercomputing centers (e.g. Exascale systems).
+          </p>
+        </Card>
+      </div>
     </ContentSection>
 
     <ContentSection title="Fusion-Based Quantum Computing (FBQC)">

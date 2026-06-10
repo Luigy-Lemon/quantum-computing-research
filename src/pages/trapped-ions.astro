@@ -38,9 +38,7 @@ const timelineEvents = [
     <PageHeader meta="ALTERNATIVE MODALITIES" 
       title="Trapped Ion Computing: Deconstructing the Paul Trap Architecture"
       description="Trapped ions are the oldest, most naturally perfect qubits, boasting world-record fidelities. But what are the deep physical engineering bottlenecks preventing the Quantum Charge-Coupled Device (QCCD) from scaling infinitely?"
-    />
-
-    <ContentSection title="The Illusion of Infinite Scalability">
+        <ContentSection title="The Illusion of Infinite Scalability">
       <p>
         If trapped atomic ions are perfectly identical natural qubits, isolated in a vacuum, with coherence times measured in hours or even days, why hasn't this architecture scaled past a few dozen qubits? Why do we still build massive superconducting dil-fridges?
       </p>
@@ -52,16 +50,20 @@ const timelineEvents = [
       </p>
     </ContentSection>
 
-    <ContentSection title="The Quantum Foundation: The Mølmer-Sørensen Gate">
+    <ContentSection title="The Quantum Foundation: The Mølmer-Sørensen Interaction Hamiltonian">
       <p>
-        The only way to execute a 2-qubit entangling gate between two trapped ions is to use the shared motion of the ion crystal as a "data bus". The <strong>Mølmer-Sørensen (MS) gate</strong> is the industry standard for this operation.
+        The only way to execute a 2-qubit entangling gate between two trapped ions is to use the shared motion of the ion crystal as a "data bus". The <strong>Mølmer-Sørensen (MS) gate</strong> is the industry standard for this operation. Under bi-chromatic laser excitation detuned near the motional sidebands, the interaction Hamiltonian is:
+      </p>
+      <Math formula="\hat{H}_I = \hbar \Omega \sum_{j} \left( \hat{\sigma}_{+,j} e^{i(\eta (\hat{a} e^{-i \omega_m t} + \hat{a}^\dagger e^{i \omega_m t}) - \delta t)} + \text{h.c.} \right)" />
+      <p>
+        Where <Math formula="\Omega" inline={true} /> is the Rabi frequency, <Math formula="\eta = k \sqrt{\hbar / (2 M \omega_m)}" inline={true} /> is the Lamb-Dicke parameter coupling the photon momentum to the motional mode of mass <Math formula="M" inline={true} /> and frequency <Math formula="\omega_m" inline={true} />, <Math formula="\hat{a}^\dagger, \hat{a}" inline={true} /> are the creation/annihilation operators of the vibrational mode, and <Math formula="\delta" inline={true} /> is the detuning.
       </p>
       <p>
-        By shining two laser beams (or microwave fields) detuned near the red and blue motional sidebands of the ion trap, the internal electronic state of the ions becomes entangled with the vibrational state (phonons) of the entire chain.
+        By exciting virtual phonon states, the MS gate applies a state-dependent force that entangles the qubits:
       </p>
-      <Math formula="U_{\\text{MS}} = \\exp\\left( -i \\frac{\\pi}{4} \\sum_{i,j} \\sigma_x^{(i)} \\sigma_x^{(j)} \\right)" />
+      <Math formula="U_{\text{MS}} = \exp\left( -i \frac{\pi}{4} \sum_{i,j} \hat{\sigma}_x^{(i)} \hat{\sigma}_x^{(j)} \right)" />
       <p>
-        Crucially, the MS gate works simultaneously on the pair of ions, independent of their initial motional state. The phonon modes are virtually excited and then de-excited, leaving the two ions entangled. However, because we are coupling electronic states to slow physical vibrations, the gate speeds are painfully slow.
+        Crucially, this operation works independent of the initial motional state (temperature) of the ion chain. However, because we are coupling electronic states to physical vibrations, the gate speeds are slow, typically <Math formula="50 - 150 \; \mu\text{s}" inline={true} />.
       </p>
     </ContentSection>
 
@@ -70,24 +72,82 @@ const timelineEvents = [
         To solve the 1D chain instability, the industry proposed the <strong>Quantum Charge-Coupled Device (QCCD)</strong>, a microfabricated 2D trap array where ions are physically shuttled between discrete "storage" and "interaction" zones.
       </p>
 
-      <Card theme="blue" title="1. The Trap: Surface-Electrode Paul Traps">
-        <p>
-          Ions are confined using dynamic electromagnetic fields—the <strong>Paul trap</strong>. Modern architectures use lithographically defined surface-electrode traps. To scale QCCD arrays, the distance from the ion to the trap surface must shrink. However, electric field noise on the metal trap electrodes stochastically heats the motion of the ions, destroying phase coherence. This "anomalous heating" scales as <Math formula="1/d^4" inline={true} />, forcing modern surface traps back into <strong>4 Kelvin liquid-helium cryostats</strong> to freeze out surface fluctuations.
-        </p>
-      </Card>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <Card theme="blue" title="1. The Trap: Surface-Electrode Paul Traps">
+          <p>
+            Ions are confined using dynamic electromagnetic fields—the <strong>Paul trap</strong>. Modern architectures use lithographically defined surface-electrode traps. To scale QCCD arrays, the distance from the ion to the trap surface must shrink. However, electric field noise on the metal trap electrodes stochastically heats the motion of the ions, destroying phase coherence. This "anomalous heating" scales as <Math formula="1/d^4" inline={true} />, forcing modern surface traps back into <strong>4 Kelvin liquid-helium cryostats</strong> to freeze out surface fluctuations.
+          </p>
+        </Card>
 
-      <Card theme="orange" title="2. The Logic: Slow Entangling Operations">
-        <p>
-          Because of the weak coupling between the internal states and the trap's motion, MS gate times are extremely slow—typically taking <Math formula="\\tau_{\\text{gate}} \\approx 50 \\text{ to } 150 \\; \\mu\\text{s}" inline={true} />. Compare this to the 20 ns gates of transmons. If syndrome measurement and decoding in error correction take hundreds of microseconds, the background dephasing rate of unaddressed idle qubits quickly outpaces the QEC loop, causing threshold breakdown.
-        </p>
-      </Card>
+        <Card theme="orange" title="2. The Logic: Slow Entangling Operations">
+          <p>
+            Because of the weak coupling between the internal states and the trap's motion, MS gate times are extremely slow—typically taking <Math formula="\tau_{\text{gate}} \approx 50 \text{ to } 150 \; \mu\text{s}" inline={true} />. Compare this to the 20 ns gates of transmons. If syndrome measurement and decoding in error correction take hundreds of microseconds, the background dephasing rate of unaddressed idle qubits quickly outpaces the QEC loop, causing threshold breakdown.
+          </p>
+        </Card>
 
-      <Card theme="red" title="3. The Routing: Adiabatic Shuttling Latency">
-        <p>
-          In a QCCD grid, gates are performed by physically shuttling ions. Shuttling must be done <strong>adiabatically</strong> (slowly and smoothly) to prevent exciting the ion into higher motional states. Typical shuttling steps take <Math formula="\\approx 10 \\text{ to } 50 \\; \\mu\\text{s}" inline={true} />. In large algorithms, avoiding "traffic jams" requires hundreds of shuttling operations per logic step, compounding the latency. Furthermore, the RF and DC electrodes require millions of wire feedthroughs, creating a massive thermal and capacitive crosstalk load.
-        </p>
-      </Card>
+        <Card theme="red" title="3. The Routing: Adiabatic Shuttling Latency">
+          <p>
+            In a QCCD grid, gates are performed by physically shuttling ions. Shuttling must be done <strong>adiabatically</strong> (slowly and smoothly) to prevent exciting the ion into higher motional states. Typical shuttling steps take <Math formula="\approx 10 \text{ to } 50 \; \mu\text{s}" inline={true} />. In large algorithms, avoiding "traffic jams" requires hundreds of shuttling operations per logic step, compounding the latency. Furthermore, the RF and DC electrodes require millions of wire feedthroughs, creating a massive thermal and capacitive crosstalk load.
+          </p>
+        </Card>
+      </div>
     </ContentSection>
+
+    <ContentSection title="Corporate Investment & Backing Landscape">
+      <p>
+        Due to their exceptional gate fidelities (>99.9% 1-qubit, >99.8% 2-qubit), trapped ions have received substantial corporate backing, with several multi-hundred-million-dollar initiatives pushing QCCD chip production.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin: 1.5rem 0 2.5rem;">
+        <Card theme="cyan" title="Quantinuum">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">QCCD Surface Traps / H-Series</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$300M+ Funding</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Formed by the merger of Honeywell Quantum Solutions and Cambridge Quantum. Backed by Honeywell (parent) and JPMorgan Chase. Operates the H-series processors utilizing Ytterbium-171 qubits and Barium-138 cooling ions.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Fabricates custom surface-electrode traps using Honeywell's proprietary cleanroom and microfabrication facilities.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Targeting commercial fault-tolerant logical qubits with physical-to-logical code implementation on advanced planar traps.
+          </p>
+        </Card>
+
+        <Card theme="purple" title="IonQ">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-purple);">Linear Chains / Barium Shift</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Public (NYSE: IONQ)</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Spun out of Maryland (Monroe) and Duke (Kim). Backed by NEA, Google Ventures, Amazon, and Mubadala. Shifting from ytterbium to barium qubits to integrate with visible-light optical routing.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Outsources semiconductor trap fab to foundry partners. Packages and assemblies systems in their Seattle and Maryland facilities.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Targeting "AQ 64" (Algorithmic Qubits) and standard rack-mountable server systems.
+          </p>
+        </Card>
+
+        <Card theme="accent" title="Alpine Quantum Technologies (AQT)">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent);">Calcium-40 / 19-inch Racks</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">EU/Austrian Funded</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Spun out of Innsbruck (Blatt). Focuses on Calcium-40 linear chain traps housed in compact, 19-inch racks that operate at room temperature without liquid cryogens.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Leverages European microfabrication research foundries. Built and tested in Innsbruck, Austria.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Targeting modular, grid-compatible quantum computing units for integration in supercomputing datacenters.
+          </p>
+        </Card>
+      </div>
+    </ContentSection>ontentSection>
 
     <ContentSection title="Chronology of Trapped Ion Milestones">
       <ChronologyTimeline events={timelineEvents} />

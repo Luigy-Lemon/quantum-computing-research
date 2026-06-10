@@ -94,23 +94,65 @@ const timelineEvents = [
         To perform computation, a topological qubit stack must integrate nanoscale fabrication, precise magnetic field alignments, and software-level anyon tracking.
       </p>
 
-      <Card theme="blue" title="1. The Material: Lead-Superproximitized Nanowires">
-        <p>
-          The hardware core consists of an Indium Arsenide (InAs) semiconducting nanowire coated in a superconductor shell. In the **Majorana 2 chip (June 2026)**, Microsoft replaced the early aluminum shells with a **lead-based (Pb) superconductor stack**. Lead's higher critical temperature and magnetic field tolerance yield a larger topological gap <Math formula="\\Delta_{\\text{Pb}}" inline={true} />, boosting qubit lifetime to an average of **20 seconds** (with peak states surviving up to **60 seconds**). This design was optimized using the *Microsoft Discovery* AI agent platform.
-        </p>
-      </Card>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <Card theme="blue" title="1. The Material: Lead-Superproximitized Nanowires">
+          <p>
+            The hardware core consists of an Indium Arsenide (InAs) semiconducting nanowire coated in a superconductor shell. In the **Majorana 2 chip (June 2026)**, Microsoft replaced the early aluminum shells with a **lead-based (Pb) superconductor stack**. Lead's higher critical temperature and magnetic field tolerance yield a larger topological gap <Math formula="\Delta_{\text{Pb}}" inline={true} />, boosting qubit lifetime to an average of **20 seconds** (with peak states surviving up to **60 seconds**).
+          </p>
+        </Card>
 
-      <Card theme="orange" title="2. The Logic: Anyon Braiding & Clifford Gate Limits">
-        <p>
-          Unlike microwave gates on transmons, topological logic is performed by physically braiding anyons around each other. However, Majorana Zero Modes (which obey Ising non-Abelian statistics) can only generate **Clifford group gates** (CNOT, Hadamard, S) topologically. They are not universal on their own. To perform universal quantum algorithms (which require $T$-gates), Microsoft must implement a non-topological physical gate and rely on classical **Magic State Distillation**, bringing back active QEC overhead.
-        </p>
-      </Card>
+        <Card theme="orange" title="2. The Logic: Anyon Braiding & Clifford Gate Limits">
+          <p>
+            Unlike microwave gates on transmons, topological logic is performed by physically braiding anyons around each other. However, Majorana Zero Modes (which obey Ising non-Abelian statistics) can only generate **Clifford group gates** (CNOT, Hadamard, S) topologically. They are not universal on their own. To perform universal quantum algorithms (which require $T$-gates), Microsoft must implement a non-topological physical gate and rely on classical **Magic State Distillation**, bringing back active QEC overhead.
+          </p>
+        </Card>
 
-      <Card theme="red" title="3. The Readout: Charge Sensing & Fusion Metrics">
-        <p>
-          Readout is performed by bringing two anyons together (fusing them) and detecting their collective charge. If they fuse into a vacuum state, no charge is detected; if they fuse into a fermion, a single electron charge is detected. This microsecond readout requires high-sensitivity radio-frequency reflectometry or quantum dot charge sensors. However, electrical noise at the nanowire junctions can corrupt charge measurements, introducing readout errors that must be actively filtered out.
-        </p>
-      </Card>
+        <Card theme="red" title="3. The Readout: Charge Sensing & Fusion Metrics">
+          <p>
+            Readout is performed by bringing two anyons together (fusing them) and detecting their collective charge. If they fuse into a vacuum state, no charge is detected; if they fuse into a fermion, a single electron charge is detected. This microsecond readout requires high-sensitivity radio-frequency reflectometry or quantum dot charge sensors. However, electrical noise at the nanowire junctions can corrupt charge measurements, introducing readout errors.
+          </p>
+        </Card>
+      </div>
+    </ContentSection>
+
+    <ContentSection title="Corporate Investment & Backing Landscape">
+      <p>
+        Topological quantum computing is characterized by a high barrier to entry, requiring decades of sustained funding. Consequently, the field is dominated by massive technology conglomerates and institutional research labs.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin: 1.5rem 0 2.5rem;">
+        <Card theme="cyan" title="Microsoft Quantum">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Majorana Zero Modes / InAs-Pb</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$500M+ Est. Investment</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> The undisputed leader of the topological approach. Founded Station Q (Santa Barbara) in 2005 under mathematician Michael Freedman. Microsoft has funded research hubs globally to build a fault-tolerant nanowire qubit.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Operates dedicated cleanrooms and fabrication lines in partnership with TU Delft (Netherlands), Niels Bohr Institute (Copenhagen), and Sydney University (Australia).
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> The June 2026 Majorana 2 chip (lead superconductor shell) has pulled their target for a commercial, fault-tolerant topological computer forward to 2029.
+          </p>
+        </Card>
+
+        <Card theme="purple" title="Nokia Bell Labs">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-purple);">Foundational Condensed Matter</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Industrial Research</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Focuses on basic science contributions, particularly fractional quantum Hall states and topological insulators. Bell Labs researchers have pioneered mathematical descriptions of non-Abelian statistics.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Leverages collaborations with academic cleanrooms and materials synthesis laboratories worldwide.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Patents and licensing of topological hardware substrates, fiber-based qubit interconnects, and low-temperature control systems.
+          </p>
+        </Card>
+      </div>
     </ContentSection>
 
     <ContentSection title="Chronology of Topological Computing Milestones">

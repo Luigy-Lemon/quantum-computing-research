@@ -37,6 +37,21 @@ const breakthroughs = [
     description: "Resolves the low topological gap and short coherence times of early Majorana Zero Mode designs. Microsoft's June 2026 Majorana 2 chip uses lead (Pb) superconducting shells on InAs nanowires, extending topological qubit coherence times to 20 seconds and bringing the fault-tolerance roadmap target to 2029.",
   },
   {
+    title: "Tweezer-Based Rydberg Arrays",
+    domain: "Atomic & Optical Physics",
+    description: "Resolves dynamic routing and scaling limitations. Commercialized by QuEra (AWS Braket partnership), Pasqal (€140M funding), and Atom Computing (first to demonstrate 1,225 physical qubit arrays). Dynamic shuttling using Acousto-Optic Deflectors (AODs) allows transversal gate execution, though atom loss rates remain a bottleneck.",
+  },
+  {
+    title: "QCCD Trapped-Ion Processors",
+    domain: "Microfabrication & Cryogenics",
+    description: "Resolves 1D ion chain structural instabilities by shuttling ions through micro-Paul traps. Developed by Quantinuum ($300M+ funding, demonstrating logical qubits via the Steane code) and IonQ (NYSE listed, shifting to barium qubits for visible-light routing).",
+  },
+  {
+    title: "Fusion-Based Silicon Photonics",
+    domain: "Integrated Photonics & CMOS",
+    description: "Resolves probabilistic single-photon gate limits by continuously fusing small 6-photon rings. Led by PsiQuantum ($1.3B+ funding, building their utility-scale facility in Brisbane in partnership with GlobalFoundries) and Xanadu ($250M+ funding, focused on continuous-variable GKP states with IMEC).",
+  },
+  {
     title: "Optical-to-Microwave Transduction",
     domain: "Cryogenic & Electrical Engineering",
     description: "Resolves the I/O Bandwidth Wall & Cooling Power Ceiling. Replaces massive coaxial bundles with high-bandwidth, zero-heat-load optical fibers. Requires improving electro-optic transduction efficiency from 10⁻² to >50%.",
@@ -119,7 +134,7 @@ const domains = [
           <li>
             <strong>{b.title}</strong>
             <div style="margin: 0.5rem 0;">
-              <Tag text={b.domain} />
+              <Tag>{b.domain}</Tag>
             </div>
             <p>{b.description}</p>
           </li>
@@ -145,7 +160,7 @@ const domains = [
           <li>
             <strong>{d.title}</strong>
             <div style="margin: 0.5rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              {d.tags.map((tag) => <Tag text={tag} />)}
+              {d.tags.map((tag) => <Tag>{tag}</Tag>)}
             </div>
             <p>{d.focus}</p>
           </li>

@@ -45,23 +45,24 @@ const timelineEvents = [
         If neutral atoms can be trapped in ultra-high vacuum and moved around dynamically with lasers to interact with any other atom, why do we bother with static, hard-wired superconducting circuits? Why hasn't this "perfect" all-to-all connectivity already won the quantum race?
       </p>
       <p>
-        The answer lies in the harsh realities of atomic physics: <strong>Moving atoms in a vacuum is incredibly lossy, and forcing them to interact is painfully slow.</strong>
+        The answer lies in the harsh realities of atomic physics: <strong>Moving atoms in a vacuum is inherently lossy, and forcing them to interact is painfully slow.</strong>
       </p>
       <p>
         Neutral atoms do not inherently interact with each other at large distances because they have no net electrical charge. To perform computation, we must temporarily inflate their electron clouds to macroscopic sizes, creating giant "Rydberg atoms" that feel each other's presence.
       </p>
     </ContentSection>
 
-    <ContentSection title="The Quantum Foundation: The Rydberg Blockade">
+    <ContentSection title="The Quantum Foundation: The Rydberg Blockade Hamiltonian">
       <p>
-        The only way to execute a 2-qubit entangling gate between two neutral atoms is to exploit the <strong>Rydberg Blockade</strong> mechanism. A specialized laser excites the atoms from their ground state to a highly excited Rydberg state (typically principal quantum number <Math formula="n \\approx 70" inline={true} />).
+        The only way to execute a 2-qubit entangling gate between two neutral atoms is to exploit the <strong>Rydberg Blockade</strong> mechanism. A specialized laser excites the atoms from their ground state to a highly excited Rydberg state (typically principal quantum number <Math formula="n \approx 70" inline={true} />). The effective Hamiltonian governing a 1D array of neutral atoms driven by a coherent laser field is:
       </p>
+      <Math formula="\hat{H} = \sum_{i} \frac{\hbar \Omega_i}{2} \hat{\sigma}_x^{(i)} - \sum_{i} \hbar \Delta_i \hat{n}_i + \sum_{i < j} V_{ij} \hat{n}_i \hat{n}_j" />
       <p>
-        In this swollen state, the atom acts like a giant antenna. The strong van der Waals dipole-dipole interaction between two adjacent Rydberg atoms shifts their energy levels so dramatically that a single laser frequency cannot excite both atoms simultaneously.
+        Where <Math formula="\Omega_i" inline={true} /> represents the Rabi frequency (laser drive strength), <Math formula="\Delta_i" inline={true} /> is the laser detuning from the Rydberg transition, <Math formula="\hat{n}_i = |r\rangle\langle r|_i" inline={true} /> is the Rydberg state projector (occupancy), and <Math formula="V_{ij}" inline={true} /> is the long-range van der Waals interaction potential:
       </p>
-      <Math formula="\\Delta E \\propto \\frac{C_6}{R^6}" />
+      <Math formula="V_{ij} = \frac{C_6}{R_{ij}^6}" />
       <p>
-        Where <Math formula="R" inline={true} /> is the inter-atomic distance and <Math formula="C_6" inline={true} /> scales as <Math formula="n^{11}" inline={true} />. If Atom A is excited to the Rydberg state, Atom B is "blockaded" from being excited. This conditional logic is the physical foundation of the neutral atom CNOT/CZ gate.
+        Here, the dispersion coefficient <Math formula="C_6" inline={true} /> scales dramatically as <Math formula="n^{11}" inline={true} />. Within the blockade radius <Math formula="R_b = (C_6 / \Omega)^{1/6}" inline={true} />, the interaction energy <Math formula="V_{ij}" inline={true} /> exceeds the laser coupling strength <Math formula="\Omega" inline={true} />. Consequently, if Atom A is excited to the Rydberg state, Atom B is shifted completely out of resonance. This conditional blockade is the physical mechanism behind the CZ gate.
       </p>
     </ContentSection>
 
@@ -70,27 +71,98 @@ const timelineEvents = [
         To execute quantum algorithms, the neutral atom stack relies on an intricate dance of lasers, vacuum chambers, and real-time control.
       </p>
 
-      <Card theme="blue" title="1. The Trap: Optical Tweezers & Vacuum">
-        <p>
-          Atoms are loaded from a Magneto-Optical Trap (MOT) into an array of microscopic focused laser beams called <strong>Optical Tweezers</strong>. These tweezers hold the atoms in place using the dipole force. To prevent background air molecules from colliding with the trapped atoms and knocking them out of the array, the entire system must be housed in an Ultra-High Vacuum (UHV) chamber at pressures around <Math formula="10^{-11}" inline={true} /> Torr.
-        </p>
-      </Card>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <Card theme="blue" title="1. The Trap: Optical Tweezers & Vacuum">
+          <p>
+            Atoms are loaded from a Magneto-Optical Trap (MOT) into an array of microscopic focused laser beams called <strong>Optical Tweezers</strong>. These tweezers hold the atoms in place using the dipole force. To prevent background air molecules from colliding with the trapped atoms and knocking them out of the array, the entire system must be housed in an Ultra-High Vacuum (UHV) chamber at pressures around <Math formula="10^{-11}" inline={true} /> Torr.
+          </p>
+        </Card>
 
-      <Card theme="orange" title="2. The Interaction: Rydberg Excitation Lasers">
-        <p>
-          Unlike the 20-40 ns microwave pulses of superconducting qubits, Rydberg gates are driven by high-power, ultra-stable laser pulses. Because the coupling strength is relatively weak, these gates are slow—typically taking <Math formula="\\tau_{\\text{gate}} \\approx 1 \\text{ to } 5 \\; \\mu\\text{s}" inline={true} />. This ratio of gate time to coherence time limits the practical depth of a circuit before vacuum collisions and phase noise dephase the qubits.
-        </p>
-      </Card>
+        <Card theme="orange" title="2. The Logic: Rydberg Excitation Lasers">
+          <p>
+            Rydberg CNOT/CZ gates are driven by high-power, ultra-stable laser pulses. Because the coupling strength is relatively weak, these gates are slow—typically taking <Math formula="\tau_{\text{gate}} \approx 1 \text{ to } 5 \; \mu\text{s}" inline={true} /> (compared to 20 ns for superconducting transmons). This ratio of gate time to coherence time limits the practical depth of a circuit before vacuum collisions and phase noise dephase the qubits.
+          </p>
+        </Card>
 
-      <Card theme="red" title="3. The Routing: Dynamic Shuttling via AODs">
-        <p>
-          The processor's key feature is its ability to reconfigure. Atoms are shuttled across the array using Acousto-Optic Deflectors (AODs) steered by Radio Frequency (RF) signals. However, the probability of losing an atom during a shuttling step is roughly <Math formula="P_{\\text{loss}} \\approx 10^{-4}" inline={true} />. For algorithms requiring thousands of shuttles, the survival probability collapses:
-        </p>
-        <Math formula="P_{\\text{survival}} = (1 - P_{\\text{loss}})^{N_{\\text{atoms}} \\cdot N_{\\text{shuttles}}}" />
-        <p>
-          Re-loading atoms from the MOT mid-computation takes hundreds of milliseconds, crippling Error Correction cycles.
-        </p>
-      </Card>
+        <Card theme="red" title="3. The Routing: Dynamic Shuttling via AODs">
+          <p>
+            The processor's key feature is its ability to reconfigure. Atoms are shuttled across the array using Acousto-Optic Deflectors (AODs) steered by Radio Frequency (RF) signals. However, the probability of losing an atom during a shuttling step is roughly <Math formula="P_{\text{loss}} \approx 10^{-4}" inline={true} />. For algorithms requiring thousands of shuttles, the survival probability collapses:
+          </p>
+          <Math formula="P_{\text{survival}} = (1 - P_{\text{loss}})^{N_{\text{atoms}} \cdot N_{\text{shuttles}}}" />
+        </Card>
+      </div>
+    </ContentSection>
+
+    <ContentSection title="Corporate Investment & Backing Landscape">
+      <p>
+        The commercialization of neutral atom processors has accelerated, drawing hundreds of millions in venture capital and government research grants. Because these systems run at room temperature (inside vacuum chambers), they avoid dilution refrigerators, attracting unique industrial backing.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin: 1.5rem 0 2.5rem;">
+        <Card theme="orange" title="QuEra Computing">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-orange);">Rubidium / Reconfigurable</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$47M+ Funding</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Spun out of Harvard/MIT (Lukin, Vuletić, Greiner). Developed the 256-qubit "Aquila" system available on AWS Braket. Pioneers in transversal logical gates via dynamic shuttling.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Internal optical assembly and stabilization cleanrooms. Partners with semiconductor fabrication lines to source custom spatial light modulators (SLMs).
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Targeting a 10,000+ qubit fault-tolerant system by 2026, heavily reliant on physical-to-logical QEC codes.
+          </p>
+        </Card>
+
+        <Card theme="green" title="Pasqal">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-green);">Rubidium / 3D Lattices</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">€140M+ Funding</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Spun out of Institut d'Optique (Browaeys). Focuses on combining analog simulation with digital quantum logic. Heavily backed by the European Innovation Council (EIC) and Temasek.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Headquartered in France. Internal production of high-stability optical modules and laser systems.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Deploying 1,000-qubit systems to CINECA and CEA supercomputing hubs, targeting a commercial, modular hybrid system.
+          </p>
+        </Card>
+
+        <Card theme="purple" title="Atom Computing">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-purple);">Ytterbium / Nuclear Spin</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$60M+ Series B</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Uses Ytterbium-171 (alkaline-earth metal), which has a nuclear spin-1/2 ground state. This offers much longer coherence times and immunity to magnetic field fluctuations.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Backed by Venrock and Sutter Hill. Partnering with national security entities under the DARPA US2QC program.
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> First to demonstrate a 1,225-qubit array prototype. Targeting high-fidelity fault-tolerant logical gates.
+          </p>
+        </Card>
+
+        <Card theme="pink" title="Infleqtion">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-pink);">Cold Atoms / MOT Cells</span>
+            <span style="font-size: 0.72rem; font-family: 'Fira Code', monospace; background: var(--accent-muted); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$50M+ VC & Gov</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Core Strategy:</strong> Formerly ColdQuanta. Focuses on miniaturized cold-atom cells, MOT subsystems, and quantum sensors. Builds "Albert" quantum simulators for educational/defense research.
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+            <strong>Foundry / Fab:</strong> Internal precision glass cell manufacturing in Boulder, Colorado. Extensive defense contracts (DARPA, US Army).
+          </p>
+          <p style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>Roadmap:</strong> Scaling up room-temperature vacuum cell architectures for quantum clocks, sensors, and computing.
+          </p>
+        </Card>
+      </div>
     </ContentSection>
 
     <ContentSection title="Chronology of Neutral Atom Milestones">
