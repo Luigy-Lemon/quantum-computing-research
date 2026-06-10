@@ -1,5 +1,8 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import StatsGrid from './StatsGrid.astro';
+import StatCard from './StatCard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard className="surface-code-container" title="Topological Surface Code Architecture" description="Explore how stabilizers detect errors using a high-performance Canvas rendering engine. Select an error type, click on data qubits to inject errors, and run the matching decoder loop to locate and correct them.">
   
@@ -22,27 +25,18 @@ import InteractiveBoard from './InteractiveBoard.astro';
         Hover over a stabilizer node (X or Z) to inspect its quantum measurement loop.
       </div>
       
-      <div class="qec-stats">
-        <div class="qec-stat-card">
-          <div class="qec-stat-num text-magenta" id="qec-errors-val">0</div>
-          <div class="qec-stat-lbl">Active Syndromes</div>
-        </div>
-        <div class="qec-stat-card">
-          <div class="qec-stat-num text-cyan" id="qec-status-val">Nominal</div>
-          <div class="qec-stat-lbl">Code Status</div>
-        </div>
-        <div class="qec-stat-card">
-          <div class="qec-stat-num text-green" id="qec-cycles-val">0</div>
-          <div class="qec-stat-lbl">Correction Cycles</div>
-        </div>
-      </div>
+      <StatsGrid columns={3} class="qec-stats">
+        <StatCard id="qec-errors-val" label="Active Syndromes" value="0" color="text-magenta" />
+        <StatCard id="qec-status-val" label="Code Status" value="Nominal" color="text-cyan" />
+        <StatCard id="qec-cycles-val" label="Correction Cycles" value="0" color="text-green" />
+      </StatsGrid>
     </div>
   </div>
 
-  <div class="board-info" style="margin-top: 1rem;">
+  <NarrativePanel class="board-info" style="margin-top: 1rem;">
     <strong id="qec-title" class="text-green">Surface Code Lattice:</strong>
     <span id="qec-desc">This is a simplified 5x5 (Distance-3) grid of qubits. The grey <strong>Data qubits (D)</strong> hold your actual quantum information. The green/blue <strong>Measure qubits (X/Z)</strong> constantly check their 4 neighboring Data qubits for errors without destroying the quantum state. Try hovering over an X or Z node to see its connections!</span>
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
@@ -127,38 +121,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
     justify-content: center;
   }
 
-  .qec-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-  }
-  .qec-stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 0.6rem;
-    text-align: center;
-    border-radius: var(--radius);
-  }
-  .qec-stat-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.15rem;
-    font-weight: bold;
-    margin-bottom: 0.2rem;
-  }
-  .qec-stat-lbl {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-  }
 
-  .text-green { color: var(--accent-green); }
-  .text-blue { color: var(--accent); }
-  .text-red { color: var(--accent-red); }
-  .text-orange { color: var(--accent-orange); }
-  .text-magenta { color: var(--accent-pink); }
-  .text-cyan { color: var(--accent-cyan); }
 </style>
 
 <script>

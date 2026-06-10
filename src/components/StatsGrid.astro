@@ -1,0 +1,12 @@
+---
+interface Props {
+  columns?: number;
+  class?: string;
+}
+
+const { columns = 3, class: className = '' } = Astro.props;
+---
+
+<div class={`interactive-stats-grid ${className}`} style={`--stats-cols: ${columns};`}>
+  <slot />
+</div>

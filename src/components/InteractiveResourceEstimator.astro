@@ -1,53 +1,46 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import Slider from './Slider.astro';
+import StatsGrid from './StatsGrid.astro';
+import StatCard from './StatCard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard title="Shor's Resource Estimator & Chip Footprint" description="Adjust target cryptographic key size, physical gate error rate, and cycle time to dynamically compute logical/physical qubit overheads and estimate wall-clock execution time for breaking secp256k1.">
   
-  <div class="re-layout">
+  <div class="re-layout interactive-split-layout" style="--sidebar-width: 440px;">
     <div class="re-inputs-panel">
-      <div class="re-slider-group">
-        <label>
-          <span>Target Key Size (Bits):</span>
-          <span class="value-display"><span id="re-keysize-val">2048</span> bits</span>
-        </label>
-        <input type="range" id="re-keysize" min="128" max="4096" step="128" value="2048" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>128</span>
-          <span>1024</span>
-          <span>2048</span>
-          <span>3072</span>
-          <span>4096</span>
-        </div>
-      </div>
+      <Slider
+        id="re-keysize"
+        label="Target Key Size (Bits):"
+        min={128}
+        max={4096}
+        step={128}
+        value={2048}
+        unit="bits"
+        ticks={['128', '1024', '2048', '3072', '4096']}
+      />
 
-      <div class="re-slider-group">
-        <label>
-          <span>Physical Gate Error Rate (p<sub>phys</sub>):</span>
-          <span class="value-display"><span id="re-error-val">0.10</span>%</span>
-        </label>
-        <input type="range" id="re-error" min="0.01" max="1.50" step="0.01" value="0.10" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>0.01%</span>
-          <span>0.50%</span>
-          <span>1.00% (Threshold)</span>
-          <span>1.50%</span>
-        </div>
-      </div>
+      <Slider
+        id="re-error"
+        label="Physical Gate Error Rate (p<sub>phys</sub>):"
+        min={0.01}
+        max={1.50}
+        step={0.01}
+        value={0.10}
+        unit="%"
+        ticks={['0.01%', '0.50%', '1.00% (Threshold)', '1.50%']}
+      />
 
-      <div class="re-slider-group">
-        <label>
-          <span>Surface Code Cycle Time:</span>
-          <span class="value-display"><span id="re-cycle-val">1.0</span> μs</span>
-        </label>
-        <input type="range" id="re-cycle" min="0.1" max="2.0" step="0.1" value="1.0" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>100 ns</span>
-          <span>500 ns</span>
-          <span>1.0 μs</span>
-          <span>1.5 μs</span>
-          <span>2.0 μs</span>
-        </div>
-      </div>
+      <Slider
+        id="re-cycle"
+        label="Surface Code Cycle Time:"
+        min={0.1}
+        max={2.0}
+        step={0.1}
+        value={1.0}
+        unit="μs"
+        ticks={['100 ns', '500 ns', '1.0 μs', '1.5 μs', '2.0 μs']}
+      />
 
       <div class="re-row">
         <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.9rem;">T-Gate Distillation Strategy:</label>
@@ -58,24 +51,12 @@ import InteractiveBoard from './InteractiveBoard.astro';
         </div>
       </div>
 
-      <div class="re-stats-grid">
-        <div class="re-stat-card">
-          <div class="re-stat-num text-cyan" id="re-logical">4,100</div>
-          <div class="re-stat-lbl">Logical Qubits</div>
-        </div>
-        <div class="re-stat-card">
-          <div class="re-stat-num text-purple" id="re-distance">23</div>
-          <div class="re-stat-lbl">Code Distance (d)</div>
-        </div>
-        <div class="re-stat-card">
-          <div class="re-stat-num text-magenta" id="re-physical">4.3M</div>
-          <div class="re-stat-lbl">Physical Qubits</div>
-        </div>
-        <div class="re-stat-card">
-          <div class="re-stat-num text-orange" id="re-runtime">~18 Hours</div>
-          <div class="re-stat-lbl">Estimated Runtime</div>
-        </div>
-      </div>
+      <StatsGrid columns={2}>
+        <StatCard id="re-logical" label="Logical Qubits" value="4,100" color="text-cyan" />
+        <StatCard id="re-distance" label="Code Distance (d)" value="23" color="text-purple" />
+        <StatCard id="re-physical" label="Physical Qubits" value="4.3M" color="text-magenta" />
+        <StatCard id="re-runtime" label="Estimated Runtime" value="~18 Hours" color="text-orange" />
+      </StatsGrid>
     </div>
 
     <div class="re-visual-panel">
@@ -91,54 +72,13 @@ import InteractiveBoard from './InteractiveBoard.astro';
     </div>
   </div>
 
-  <div class="re-narrative" id="re-narrative">
+  <NarrativePanel id="re-narrative">
     Factoring a 2048-bit key requires 4,098 logical qubits. Under a surface code with 10^-3 error rate, we need 1,000 physical qubits per logical qubit to suppress errors below cryptographic threshold.
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
-  .re-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-top: 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .re-layout {
-      grid-template-columns: 1.2fr 1.1fr;
-    }
-  }
 
-  .re-inputs-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .re-slider-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .re-slider-group label {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    color: var(--text-main);
-    font-size: 0.9rem;
-  }
-  .value-display {
-    color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .slider-ticks {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-family: monospace;
-    padding: 0 0.2rem;
-  }
 
   .re-row {
     display: flex;
@@ -165,33 +105,6 @@ import InteractiveBoard from './InteractiveBoard.astro';
     border-color: var(--accent);
     color: #ffffff;
     background: var(--accent);
-  }
-
-  .re-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-  .re-stat-card {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    padding: 1rem;
-    text-align: center;
-    border-radius: var(--radius);
-  }
-  .re-stat-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.3rem;
-    font-weight: bold;
-    margin-bottom: 0.2rem;
-  }
-  .re-stat-lbl {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
   }
 
   .re-visual-panel {
@@ -253,45 +166,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
     overflow: hidden;
   }
 
-  .re-narrative {
-    margin-top: 1.5rem;
-    font-size: 0.88rem;
-    line-height: 1.6;
-    color: var(--text-main);
-    background: var(--surface-alt);
-    padding: 1rem 1.25rem;
-    border-left: 4px solid var(--accent);
-    border-radius: 0 var(--radius) var(--radius) 0;
-  }
 
-  .text-cyan { color: var(--accent-cyan); }
-  .text-purple { color: var(--accent-purple); }
-  .text-magenta { color: var(--accent-pink); }
-  .text-orange { color: var(--accent-orange); }
-
-  /* Input Range slider custom */
-  .neon-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    background: var(--border);
-    height: 6px;
-    border-radius: 3px;
-    outline: none;
-  }
-  .neon-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 0 6px var(--accent-muted);
-    transition: transform 0.1s;
-  }
-  .neon-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-  }
 </style>
 
 <script>

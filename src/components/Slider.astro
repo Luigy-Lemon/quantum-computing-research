@@ -1,0 +1,48 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  min: number;
+  max: number;
+  value: number | string;
+  step?: number;
+  unit?: string;
+  ticks?: string[];
+  class?: string;
+}
+
+const {
+  id,
+  label,
+  min,
+  max,
+  value,
+  step = 1,
+  unit = '',
+  ticks = [],
+  class: className = '',
+} = Astro.props;
+---
+
+<div class={`slider-group ${className}`}>
+  <label for={id}>
+    <span set:html={label}></span>
+    <span class="value-display">
+      <span id={`${id}-val`}>{value}</span>{unit ? ` ${unit}` : ''}
+    </span>
+  </label>
+  <input
+    type="range"
+    id={id}
+    min={min}
+    max={max}
+    step={step}
+    value={value}
+    class="neon-slider"
+  />
+  {ticks.length > 0 && (
+    <div class="slider-ticks">
+      {ticks.map(tick => <span>{tick}</span>)}
+    </div>
+  )}
+</div>

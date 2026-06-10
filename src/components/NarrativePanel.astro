@@ -1,0 +1,12 @@
+---
+interface Props {
+  id?: string;
+  class?: string;
+}
+
+const { id, class: className = '' } = Astro.props;
+---
+
+<div class={`interactive-narrative-panel ${className}`} id={id}>
+  <slot />
+</div>

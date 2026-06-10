@@ -1,53 +1,41 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import Slider from './Slider.astro';
+import StatsGrid from './StatsGrid.astro';
+import StatCard from './StatCard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard id="lab" title="QND Measurement Fidelity & HEMT Noise" description="Optimize measurement integration time and HEMT amplifier noise temperature to maximize readout state-discrimination fidelity and prevent T1 relaxation smearing.">
   
-  <div class="rf-layout">
+  <div class="rf-layout interactive-split-layout" style="--sidebar-width: 360px;">
     <div class="rf-inputs-panel">
-      <div class="rf-slider-group">
-        <label>
-          <span>Integration Measurement Time:</span>
-          <span class="value-display"><span id="rf-time-val">180</span> ns</span>
-        </label>
-        <input type="range" id="rf-time" min="40" max="600" step="10" value="180" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>40 ns</span>
-          <span>150 ns</span>
-          <span>300 ns</span>
-          <span>450 ns</span>
-          <span>600 ns</span>
-        </div>
-      </div>
+      <Slider
+        id="rf-time"
+        label="Integration Measurement Time:"
+        min={40}
+        max={600}
+        step={10}
+        value={180}
+        unit="ns"
+        ticks={['40 ns', '150 ns', '300 ns', '450 ns', '600 ns']}
+      />
 
-      <div class="rf-slider-group">
-        <label>
-          <span>HEMT Amplifier Noise Temp:</span>
-          <span class="value-display"><span id="rf-noise-val">0.30</span> K</span>
-        </label>
-        <input type="range" id="rf-noise" min="0.1" max="1.5" step="0.05" value="0.30" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>0.1 K</span>
-          <span>0.5 K</span>
-          <span>1.0 K</span>
-          <span>1.5 K</span>
-        </div>
-      </div>
+      <Slider
+        id="rf-noise"
+        label="HEMT Amplifier Noise Temp:"
+        min={0.1}
+        max={1.5}
+        step={0.05}
+        value={0.30}
+        unit="K"
+        ticks={['0.1 K', '0.5 K', '1.0 K', '1.5 K']}
+      />
 
-      <div class="rf-stats-grid">
-        <div class="rf-stat-card">
-          <div class="rf-stat-num text-cyan" id="rf-fidelity">99.1%</div>
-          <div class="rf-stat-lbl">Readout Fidelity</div>
-        </div>
-        <div class="rf-stat-card">
-          <div class="rf-stat-num text-magenta" id="rf-decay">0.9%</div>
-          <div class="rf-stat-lbl">T1 Decay Error</div>
-        </div>
-        <div class="rf-stat-card">
-          <div class="rf-stat-num text-green" id="rf-overlap">0.0%</div>
-          <div class="rf-stat-lbl">Thermal Overlap</div>
-        </div>
-      </div>
+      <StatsGrid columns={3}>
+        <StatCard id="rf-fidelity" label="Readout Fidelity" value="99.1%" color="text-cyan" />
+        <StatCard id="rf-decay" label="T1 Decay Error" value="0.9%" color="text-magenta" />
+        <StatCard id="rf-overlap" label="Thermal Overlap" value="0.0%" color="text-green" />
+      </StatsGrid>
     </div>
 
     <div class="rf-visual-panel">
@@ -60,161 +48,15 @@ import InteractiveBoard from './InteractiveBoard.astro';
     </div>
   </div>
 
-  <div class="rf-narrative" id="rf-narrative">
+  <NarrativePanel id="rf-narrative">
     Microwave readouts return I/Q signals. Shorter integration fails to separate blobs against HEMT noise (left overlaps). Longer integration risks the |1⟩ decaying to |0⟩ mid-measurement, smearing red into blue.
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
-  .rf-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-top: 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .rf-layout {
-      grid-template-columns: 1fr 1.2fr;
-    }
-  }
 
-  .rf-inputs-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
 
-  .rf-slider-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .rf-slider-group label {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    color: var(--text-main);
-    font-size: 0.9rem;
-  }
-  .value-display {
-    font-family: monospace;
-    color: var(--accent);
-  }
 
-  .slider-ticks {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-family: monospace;
-    padding: 0 4px;
-  }
-
-  .neon-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    outline: none;
-  }
-  .neon-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-    transition: transform 0.1s;
-  }
-  .neon-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-  }
-
-  .rf-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-
-  .rf-stat-card {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.75rem;
-    text-align: center;
-    box-shadow: none;
-  }
-
-  .rf-stat-num {
-    font-size: 1.25rem;
-    font-weight: 800;
-    font-family: monospace;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.25rem;
-  }
-  
-  .rf-stat-lbl {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .rf-visual-panel {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.25rem;
-  }
-  .rf-visual-panel h5 {
-    margin: 0 0 0.25rem 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-  .rf-visual-hint {
-    margin: 0 0 1rem 0;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    line-height: 1.3;
-  }
-
-  .rf-canvas-container {
-    width: 100%;
-    height: 200px;
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .rf-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-
-  .rf-narrative {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--surface-alt);
-    border-left: 4px solid var(--accent);
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: var(--text-main);
-    line-height: 1.4;
-  }
-
-  .text-cyan { color: #0891b2; }
-  .text-magenta { color: #c026d3; }
-  .text-green { color: #16a34a; }
 </style>
 
 <script>

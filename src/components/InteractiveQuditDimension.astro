@@ -1,9 +1,13 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import Slider from './Slider.astro';
+import StatsGrid from './StatsGrid.astro';
+import StatCard from './StatCard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard title="Qudit Dimensionality & Hilbert State-Space" description="Configure qudit dimension (d) and particle count (N) to observe the exponential expansion of the Hilbert state-space, gate depth optimization savings, and the corresponding leakage risk.">
   
-  <div class="qd-layout">
+  <div class="qd-layout interactive-split-layout" style="--sidebar-width: 440px;">
     <div class="qd-inputs-panel">
       <div class="qd-row">
         <label>Dimensionality (Qudits):</label>
@@ -14,38 +18,21 @@ import InteractiveBoard from './InteractiveBoard.astro';
         </div>
       </div>
 
-      <div class="qd-slider-group">
-        <label>
-          <span>Number of Particles (N):</span>
-          <span class="value-display"><span id="qd-particles-val">4</span> nodes</span>
-        </label>
-        <input type="range" id="qd-particles" min="1" max="8" value="4" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>1</span>
-          <span>2</span>
-          <span>3</span>
-          <span>4</span>
-          <span>5</span>
-          <span>6</span>
-          <span>7</span>
-          <span>8</span>
-        </div>
-      </div>
+      <Slider
+        id="qd-particles"
+        label="Number of Particles (N):"
+        min={1}
+        max={8}
+        value={4}
+        unit="nodes"
+        ticks={['1', '2', '3', '4', '5', '6', '7', '8']}
+      />
 
-      <div class="qd-stats-grid">
-        <div class="qd-stat-card">
-          <div class="qd-stat-num text-cyan" id="qd-states">16</div>
-          <div class="qd-stat-lbl">Hilbert Dimension</div>
-        </div>
-        <div class="qd-stat-card">
-          <div class="qd-stat-num text-green" id="qd-saved">0%</div>
-          <div class="qd-stat-lbl">Gate Depth Saving</div>
-        </div>
-        <div class="qd-stat-card">
-          <div class="qd-stat-num text-magenta" id="qd-leakage">Low</div>
-          <div class="qd-stat-lbl">Leakage Risk</div>
-        </div>
-      </div>
+      <StatsGrid columns={3}>
+        <StatCard id="qd-states" label="Hilbert Dimension" value="16" color="text-cyan" />
+        <StatCard id="qd-saved" label="Gate Depth Saving" value="0%" color="text-green" />
+        <StatCard id="qd-leakage" label="Leakage Risk" value="Low" color="text-magenta" />
+      </StatsGrid>
     </div>
 
     <div class="qd-visual-panel">
@@ -58,29 +45,13 @@ import InteractiveBoard from './InteractiveBoard.astro';
     </div>
   </div>
 
-  <div class="qd-narrative" id="qd-narrative">
+  <NarrativePanel id="qd-narrative">
     Standard binary qubit architecture. 4 qubits span 16 complex dimensions.
-  </div>
+  </NarrativePanel>
 </InteractiveBoard>
 
 <style>
-  .qd-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-top: 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .qd-layout {
-      grid-template-columns: 1.1fr 1.2fr;
-    }
-  }
 
-  .qd-inputs-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
 
   .qd-row {
     display: flex;
@@ -140,32 +111,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
     padding: 0 0.2rem;
   }
 
-  .qd-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-  .qd-stat-card {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    padding: 0.75rem;
-    text-align: center;
-    border-radius: var(--radius);
-  }
-  .qd-stat-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.15rem;
-    font-weight: bold;
-    margin-bottom: 0.2rem;
-  }
-  .qd-stat-lbl {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-  }
+
 
   .qd-visual-panel {
     background: var(--surface-alt);
@@ -206,46 +152,6 @@ import InteractiveBoard from './InteractiveBoard.astro';
     width: 100%;
     height: 100%;
     background: var(--surface);
-  }
-
-  .qd-narrative {
-    margin-top: 1.5rem;
-    font-size: 0.88rem;
-    line-height: 1.6;
-    color: var(--text-main);
-    background: var(--surface-alt);
-    padding: 1rem 1.25rem;
-    border-left: 4px solid var(--accent);
-    border-radius: 0 var(--radius) var(--radius) 0;
-  }
-
-  .text-cyan { color: var(--accent-cyan); }
-  .text-green { color: var(--accent-green); }
-  .text-magenta { color: var(--accent-pink); }
-  .text-amber { color: var(--accent-orange); }
-
-  /* Input Range slider custom */
-  .neon-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    background: var(--border);
-    height: 6px;
-    border-radius: 3px;
-    outline: none;
-  }
-  .neon-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 0 6px var(--accent-muted);
-    transition: transform 0.1s;
-  }
-  .neon-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
   }
 </style>
 

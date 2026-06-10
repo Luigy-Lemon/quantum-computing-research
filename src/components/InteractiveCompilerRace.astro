@@ -1,54 +1,43 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import Slider from './Slider.astro';
+import StatsGrid from './StatsGrid.astro';
+import StatCard from './StatCard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard id="lab" title="Decoherence Race: Compiler vs. Environmental Noise" description="Race a 1,000-gate quantum circuit compilation against exponential dephasing. Tune the qubit coherence time T1 and single-qubit gate speed to see if the circuit completes before the qubit collapses.">
   
-  <div class="cr-layout">
+  <div class="cr-layout interactive-split-layout" style="--sidebar-width: 360px;">
     <div class="cr-inputs-panel">
-      <div class="cr-slider-group">
-        <label>
-          <span>Qubit Coherence Time ($T_1$):</span>
-          <span class="value-display"><span id="cr-t1-val">80</span> μs</span>
-        </label>
-        <input type="range" id="cr-t1" min="10" max="250" value="80" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>10 μs (Noisy)</span>
-          <span>130 μs</span>
-          <span>250 μs (SOTA)</span>
-        </div>
-      </div>
+      <Slider
+        id="cr-t1"
+        label="Qubit Coherence Time ($T_1$):"
+        min={10}
+        max={250}
+        value={80}
+        unit="μs"
+        ticks={['10 μs (Noisy)', '130 μs', '250 μs (SOTA)']}
+      />
 
-      <div class="cr-slider-group">
-        <label>
-          <span>Single-Qubit Gate Speed:</span>
-          <span class="value-display"><span id="cr-speed-val">20</span> ns</span>
-        </label>
-        <input type="range" id="cr-speed" min="10" max="100" value="20" class="neon-slider" />
-        <div class="slider-ticks">
-          <span>10 ns (Fast)</span>
-          <span>55 ns</span>
-          <span>100 ns (Slow)</span>
-        </div>
-      </div>
+      <Slider
+        id="cr-speed"
+        label="Single-Qubit Gate Speed:"
+        min={10}
+        max={100}
+        value={20}
+        unit="ns"
+        ticks={['10 ns (Fast)', '55 ns', '100 ns (Slow)']}
+      />
 
       <div class="cr-button-row">
         <button class="cr-btn" id="cr-run">Run 1,000 Gates</button>
       </div>
 
-      <div class="cr-stats-grid">
-        <div class="cr-stat-card">
-          <div class="cr-stat-num text-cyan" id="cr-executed">0 / 1000</div>
-          <div class="cr-stat-lbl">Gates Executed</div>
-        </div>
-        <div class="cr-stat-card">
-          <div class="cr-stat-num text-magenta" id="cr-survival">100.0%</div>
-          <div class="cr-stat-lbl">Coherence Health</div>
-        </div>
-        <div class="cr-stat-card">
-          <div class="cr-stat-num text-green" id="cr-state">Ready</div>
-          <div class="cr-stat-lbl">Qubit State</div>
-        </div>
-      </div>
+      <StatsGrid columns={3}>
+        <StatCard id="cr-executed" label="Gates Executed" value="0 / 1000" color="text-cyan" />
+        <StatCard id="cr-survival" label="Coherence Health" value="100.0%" color="text-magenta" />
+        <StatCard id="cr-state" label="Qubit State" value="Ready" color="text-green" />
+      </StatsGrid>
     </div>
 
     <div class="cr-visual-panel">
@@ -85,74 +74,18 @@ import InteractiveBoard from './InteractiveBoard.astro';
         </div>
       </div>
 
-      <div class="cr-narrative" id="cr-narrative">
+      <NarrativePanel id="cr-narrative">
         The qubit state decays exponentially: P<sub>survival</sub> = e<sup>-t / T<sub>1</sub></sup>. Click "Run 1,000 Gates" to see if your compiled gates can outrun dephasing!
-      </div>
+      </NarrativePanel>
     </div>
   </div>
 </InteractiveBoard>
 
 <style>
-  .cr-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-top: 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .cr-layout {
-      grid-template-columns: 1fr 1.25fr;
-    }
-  }
-
   .cr-inputs-panel {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-  }
-
-  .cr-slider-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .cr-slider-group label {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    color: var(--text-main);
-    font-size: 0.9rem;
-  }
-  .value-display {
-    font-family: monospace;
-    color: var(--accent);
-  }
-
-  .slider-ticks {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-family: monospace;
-    padding: 0 4px;
-  }
-
-  .neon-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    background: rgba(226, 232, 240, 0.8);
-    border-radius: 2px;
-    outline: none;
-  }
-  .neon-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
   }
 
   .cr-button-row {
@@ -183,37 +116,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
     box-shadow: none;
   }
 
-  .cr-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-  }
 
-  .cr-stat-card {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.6rem;
-    text-align: center;
-    box-shadow: none;
-  }
-
-  .cr-stat-num {
-    font-size: 1.15rem;
-    font-weight: 800;
-    font-family: monospace;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.2rem;
-  }
-  
-  .cr-stat-lbl {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
 
   .cr-visual-panel {
     display: flex;
@@ -328,21 +231,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
   .fill-quasiparticle { background: #a855f7; }
   .fill-radiative { background: #f43f5e; }
 
-  .cr-narrative {
-    padding: 0.75rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
-    border-radius: 4px;
-    font-size: 0.88rem;
-    color: var(--text-main);
-    line-height: 1.45;
-    min-height: 60px;
-  }
 
-  .text-cyan { color: #0891b2; }
-  .text-magenta { color: #c026d3; }
-  .text-green { color: #16a34a; }
 </style>
 
 <script>

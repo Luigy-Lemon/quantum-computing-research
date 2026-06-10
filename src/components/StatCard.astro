@@ -1,0 +1,18 @@
+---
+interface Props {
+  id?: string;
+  label: string;
+  value: string;
+  color?: string;
+  class?: string;
+}
+
+const { id, label, value, color = '', class: className = '' } = Astro.props;
+---
+
+<div class={`interactive-stat-card ${className}`}>
+  <div class:list={["interactive-stat-num", color]} id={id}>
+    {value}
+  </div>
+  <div class="interactive-stat-label">{label}</div>
+</div>

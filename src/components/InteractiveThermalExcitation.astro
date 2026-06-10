@@ -1,12 +1,15 @@
 ---
 import InteractiveBoard from './InteractiveBoard.astro';
+import StatsGrid from './StatsGrid.astro';
+import StatCard from './StatCard.astro';
+import NarrativePanel from './NarrativePanel.astro';
 ---
 <InteractiveBoard 
   id="thermal-excitation" 
   title="Cosmic Ray Impact & Phonon Mitigation" 
   description="High-energy cosmic rays striking the substrate generate massive phonon cascades, which can break Cooper pairs into quasiparticles and poison the qubit. Toggle Normal Metal Phonon Traps to absorb these phonons before they reach the sensitive superconducting junction."
 >
-  <div class="te-layout">
+  <div class="te-layout interactive-split-layout" style="--sidebar-width: 320px;">
     <div class="te-controls">
       <button id="btn-impact" class="btn primary">
         ⚡ Trigger Cosmic Ray Impact
@@ -15,20 +18,14 @@ import InteractiveBoard from './InteractiveBoard.astro';
         🛡️ Normal Metal Phonon Traps: OFF
       </button>
       
-      <div class="te-stats">
-        <div class="stat-box">
-          <div class="stat-value text-blue" id="stat-cooper">100%</div>
-          <div class="stat-label">Cooper Pairs</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value text-red" id="stat-quasiparticles">0</div>
-          <div class="stat-label">Quasiparticles</div>
-        </div>
-      </div>
+      <StatsGrid columns={2}>
+        <StatCard id="stat-cooper" label="Cooper Pairs" value="100%" color="text-blue" />
+        <StatCard id="stat-quasiparticles" label="Quasiparticles" value="0" color="text-red" />
+      </StatsGrid>
       
-      <div class="te-narrative" id="te-narrative">
+      <NarrativePanel id="te-narrative">
         📘 <strong>Stable Ground State:</strong> The superconducting layer is cold and isolated. All electrons are bound into Cooper pairs, allowing dissipationless quantum operation.
-      </div>
+      </NarrativePanel>
     </div>
 
     <div class="te-canvas-container">
@@ -38,17 +35,7 @@ import InteractiveBoard from './InteractiveBoard.astro';
 </InteractiveBoard>
 
 <style>
-  .te-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .te-layout {
-      grid-template-columns: 320px 1fr;
-    }
-  }
+
 
   .te-controls {
     display: flex;
@@ -97,49 +84,6 @@ import InteractiveBoard from './InteractiveBoard.astro';
     border-color: #f59e0b;
     color: #ffffff;
     box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
-  }
-
-  .te-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-  .stat-box {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem 0.5rem;
-    text-align: center;
-    box-shadow: none;
-  }
-  .stat-value {
-    font-size: 1.75rem;
-    font-weight: 800;
-    font-family: monospace;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin-bottom: 0.4rem;
-  }
-  .text-blue { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
-  .text-red { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
-  
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .te-narrative {
-    padding: 1rem;
-    background: var(--surface-alt);
-    border-left: 4px solid #3b82f6;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: var(--text-main);
-    line-height: 1.5;
-    transition: border-color 0.3s;
   }
 
   .te-canvas-container {
