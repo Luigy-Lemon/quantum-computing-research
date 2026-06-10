@@ -263,7 +263,7 @@
           <span class="shield-icon">⬢</span> µ-METAL MAGNETIC SHIELDING
         </div>
         <div class="shield-inner">
-          <a href="/physics" class="hw-card hw-card--quantum">
+          <a href="/physics" class="hw-card hw-card--quantum card-transmon-only">
             <div class="card-rail card-rail--quantum"></div>
             <div class="card-header">
               <span class="card-id card-id--quantum">QPU-CORE</span>
@@ -274,6 +274,21 @@
               <div class="card-info">
                 <h4>Transmon Array</h4>
                 <p>Al/AlOx/Al · T₁ ~ 80µs · T₂ ~ 60µs</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/topological-qubits" class="hw-card hw-card--quantum card-topological-only">
+            <div class="card-rail card-rail--quantum"></div>
+            <div class="card-header">
+              <span class="card-id card-id--quantum">QPU-TOPO</span>
+              <span class="card-spec">Majorana 2</span>
+            </div>
+            <div class="card-body">
+              <div class="led anim-blink"></div>
+              <div class="card-info">
+                <h4>Majorana 2 Array</h4>
+                <p>InAs/Pb Nanowires · T_coh ~ 20s</p>
               </div>
             </div>
           </a>
@@ -851,5 +866,97 @@
     .stage-rule { max-width: 40px; }
 
     .hud-frame { display: none; }
+  }
+
+  /* ════════════════════════════════════════
+     TOPOLOGICAL MODALITY ADJUSTMENTS
+     ════════════════════════════════════════ */
+  .card-topological-only {
+    display: none !important;
+  }
+
+  :global(.modality-topological) .card-transmon-only {
+    display: none !important;
+  }
+
+  :global(.modality-topological) .card-topological-only {
+    display: grid !important;
+  }
+
+  @media (max-width: 640px) {
+    :global(.modality-topological) .card-topological-only {
+      display: block !important;
+    }
+  }
+
+  /* Topological aura & visual overrides for the 15 mK stage */
+  :global(.modality-topological) [data-stage="15mk"] {
+    --stage-color: #0d9488 !important;
+  }
+
+  :global(.modality-topological) .stage--quantum::after {
+    border-color: rgba(13, 148, 136, 0.15) !important;
+    background: radial-gradient(ellipse at center bottom, rgba(13, 148, 136, 0.08), transparent 70%) !important;
+    animation: topologicalPulse 4s ease-in-out infinite !important;
+  }
+
+  :global(.modality-topological) .stage--quantum::before {
+    background: #0d9488 !important;
+    box-shadow: 0 0 10px rgba(13, 148, 136, 0.6) !important;
+  }
+
+  :global(.modality-topological) .temp-value--cold {
+    color: #14b8a6 !important;
+    text-shadow: 0 0 18px rgba(20, 184, 166, 0.6) !important;
+  }
+
+  :global(.modality-topological) .temp-unit--cold {
+    color: rgba(20, 184, 166, 0.4) !important;
+  }
+
+  :global(.modality-topological) .stage-rule--cold {
+    background: linear-gradient(90deg, #0d9488, transparent 80%) !important;
+  }
+
+  :global(.modality-topological) .stage-label--cold {
+    color: rgba(20, 184, 166, 0.35) !important;
+  }
+
+  :global(.modality-topological) .mu-shield {
+    border-color: rgba(13, 148, 136, 0.25) !important;
+    background: linear-gradient(180deg, rgba(13, 148, 136, 0.02), rgba(0, 0, 0, 0.4)) !important;
+  }
+
+  :global(.modality-topological) .mu-shield::before {
+    background: repeating-linear-gradient(-45deg, rgba(13, 148, 136, 0.45) 0, rgba(13, 148, 136, 0.45) 4px, transparent 4px, transparent 8px) !important;
+  }
+
+  :global(.modality-topological) .shield-tag {
+    border-color: rgba(13, 148, 136, 0.35) !important;
+    color: rgba(20, 184, 166, 0.7) !important;
+  }
+
+  :global(.modality-topological) .card-rail--quantum {
+    background: #0d9488 !important;
+  }
+
+  :global(.modality-topological) .card-id--quantum {
+    color: #14b8a6 !important;
+  }
+
+  :global(.modality-topological) .hw-card--quantum {
+    border-color: rgba(13, 148, 136, 0.15) !important;
+    background: rgba(13, 148, 136, 0.02) !important;
+  }
+
+  :global(.modality-topological) .hw-card--quantum:hover {
+    border-color: rgba(13, 148, 136, 0.35) !important;
+    background: rgba(13, 148, 136, 0.05) !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(13, 148, 136, 0.08) !important;
+  }
+
+  @keyframes topologicalPulse {
+    0%, 100% { border-color: rgba(13, 148, 136, 0.15); }
+    50% { border-color: rgba(20, 184, 166, 0.4); }
   }
 </style>

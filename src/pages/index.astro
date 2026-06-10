@@ -1111,7 +1111,7 @@ const layers = [
     .topological-overlay-banner strong {
       color: #0d9488;
     }
-    .quantum-dashboard.modality-topological .topological-overlay-banner {
+    .quantum-workspace.modality-topological .topological-overlay-banner {
       display: flex;
       gap: 1rem;
       align-items: flex-start;
@@ -1127,21 +1127,48 @@ const layers = [
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Outer Workspace adjustments under topological modality */
+    .quantum-workspace {
+      transition: background-image 0.4s ease, background-size 0.4s ease;
+    }
+    .quantum-workspace::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(100, 180, 255, 0.03), transparent 50%);
+      pointer-events: none;
+      z-index: -2;
+      transition: background 0.5s ease;
+    }
+    .quantum-workspace.modality-topological {
+      --accent: #0d9488;
+      --accent-dark: #0f3a3a;
+      --accent-muted: rgba(13, 148, 136, 0.08);
+      --accent-secondary: #115e59;
+      --accent-cyan: #14b8a6;
+      background-image: radial-gradient(rgba(13, 148, 136, 0.08) 1.5px, transparent 1.5px) !important;
+      background-size: 24px 24px;
+    }
+    .quantum-workspace.modality-topological::before {
+      background: radial-gradient(circle at 80% 20%, rgba(13, 148, 136, 0.08), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.04), transparent 60%) !important;
+    }
+
     /* Collapsing functionality */
     .layer-wrapper[data-layer-id="topological_material"],
     .layer-wrapper[data-layer-id="qec_topological"] {
       display: none !important;
     }
     
-    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="shielding"],
-    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="physics"],
-    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="decoherence"],
-    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="qec"] {
+    .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="shielding"],
+    .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="physics"],
+    .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="decoherence"],
+    .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="qec"] {
       display: none !important;
     }
     
-    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="topological_material"],
-    .quantum-dashboard.modality-topological .layer-wrapper[data-layer-id="qec_topological"] {
+    .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="topological_material"],
+    .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="qec_topological"] {
       display: block !important;
     }
   </style>
@@ -1265,13 +1292,14 @@ const layers = [
         }
       });
 
-      const symbols = ['H', 'X', 'Z', 'S', 'T', 'CNOT', '|0⟩', '|1⟩', '|ψ⟩', '⊕'];
+      const transmonSymbols = ['H', 'X', 'Z', 'S', 'T', 'CNOT', '|0⟩', '|1⟩', '|ψ⟩', '⊕'];
+      const topologicalSymbols = ['σ₁', 'σ₂', 'σ₃', 'τ', 'F_ijk', 'R_ab', 'e⁻ᴸ/ᶳ', 'MZM', '|ψ_topo⟩', 'braid', '1', 'Pb/InAs'];
       const particles = [];
       for (let i = 0; i < 40; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          text: symbols[Math.floor(Math.random() * symbols.length)],
+          text: transmonSymbols[Math.floor(Math.random() * transmonSymbols.length)],
           size: Math.random() * 12 + 10,
           speedX: (Math.random() - 0.5) * 0.3,
           speedY: -Math.random() * 0.5 - 0.1,
@@ -1279,12 +1307,24 @@ const layers = [
         });
       }
 
+      window.updateQuantumBgSymbols = function(isTopological) {
+        const currentSymbols = isTopological ? topologicalSymbols : transmonSymbols;
+        particles.forEach(p => {
+          p.text = currentSymbols[Math.floor(Math.random() * currentSymbols.length)];
+        });
+      };
+
       function drawBG() {
         ctx.clearRect(0, 0, width, height);
+        const isTopological = document.querySelector('.quantum-workspace')?.classList.contains('modality-topological');
         particles.forEach(p => {
           ctx.save();
           ctx.globalAlpha = p.alpha;
-          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-cyan').trim() || '#0891b2';
+          if (isTopological) {
+            ctx.fillStyle = '#14b8a6';
+          } else {
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-cyan').trim() || '#0891b2';
+          }
           ctx.font = `${p.size}px "Fira Code", monospace`;
           ctx.fillText(p.text, p.x, p.y);
           ctx.restore();
@@ -1297,6 +1337,8 @@ const layers = [
           if (p.y < -30) {
             p.y = height + 30;
             p.x = Math.random() * width;
+            const currentSymbols = isTopological ? topologicalSymbols : transmonSymbols;
+            p.text = currentSymbols[Math.floor(Math.random() * currentSymbols.length)];
           }
         });
         requestAnimationFrame(drawBG);
@@ -1374,19 +1416,25 @@ const layers = [
     // Qubit Modality Toggle
     const toggleTransmon = document.getElementById('toggle-transmon');
     const toggleTopological = document.getElementById('toggle-topological');
-    const dashboard = document.querySelector('.quantum-dashboard');
+    const workspace = document.querySelector('.quantum-workspace');
 
-    if (toggleTransmon && toggleTopological && dashboard) {
+    if (toggleTransmon && toggleTopological && workspace) {
       toggleTransmon.addEventListener('click', () => {
         toggleTransmon.classList.add('active');
         toggleTopological.classList.remove('active');
-        dashboard.classList.remove('modality-topological');
+        workspace.classList.remove('modality-topological');
+        if (typeof window.updateQuantumBgSymbols === 'function') {
+          window.updateQuantumBgSymbols(false);
+        }
       });
 
       toggleTopological.addEventListener('click', () => {
         toggleTopological.classList.add('active');
         toggleTransmon.classList.remove('active');
-        dashboard.classList.add('modality-topological');
+        workspace.classList.add('modality-topological');
+        if (typeof window.updateQuantumBgSymbols === 'function') {
+          window.updateQuantumBgSymbols(true);
+        }
       });
     }
 
