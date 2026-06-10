@@ -82,6 +82,36 @@
           </div>
         </div>
       </a>
+
+      <a href="/neutral-atoms" class="hw-card card-neutral-only">
+        <div class="card-rail" style="background: var(--accent-orange, #d97706);"></div>
+        <div class="card-header">
+          <span class="card-id" style="color: var(--accent-orange, #d97706);">VAC-MOT</span>
+          <span class="card-spec">Rb-87 cell</span>
+        </div>
+        <div class="card-body">
+          <div class="led anim-blink" style="background: var(--accent-orange, #d97706); box-shadow: 0 0 8px var(--accent-orange, #d97706);"></div>
+          <div class="card-info">
+            <h4>Rydberg Vacuum Cell</h4>
+            <p>Optical tweezers array · 300K Chamber</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/photonic-computing" class="hw-card card-photonic-300k-only">
+        <div class="card-rail" style="background: var(--accent-pink, #db2777);"></div>
+        <div class="card-header">
+          <span class="card-id" style="color: var(--accent-pink, #db2777);">PH-MZI</span>
+          <span class="card-spec">SiN Fabric</span>
+        </div>
+        <div class="card-body">
+          <div class="led anim-pulse" style="background: var(--accent-pink, #db2777); box-shadow: 0 0 8px var(--accent-pink, #db2777);"></div>
+          <div class="card-info">
+            <h4>Silicon Nitride Waveguide MZI</h4>
+            <p>All-optical room-temperature logic</p>
+          </div>
+        </div>
+      </a>
     </div>
   </div>
 
@@ -164,6 +194,36 @@
           <div class="card-info">
             <h4>HEMT Amplifier</h4>
             <p>Low-noise cryo amp · T_n ≈ 2 K</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/trapped-ions" class="hw-card card-ion-only">
+        <div class="card-rail" style="background: var(--accent-cyan, #0891b2);"></div>
+        <div class="card-header">
+          <span class="card-id" style="color: var(--accent-cyan, #0891b2);">QCCD-ION</span>
+          <span class="card-spec">Yb-171 trap</span>
+        </div>
+        <div class="card-body">
+          <div class="led anim-blink" style="background: var(--accent-cyan, #0891b2); box-shadow: 0 0 8px var(--accent-cyan, #0891b2);"></div>
+          <div class="card-info">
+            <h4>QCCD Paul Trap Array</h4>
+            <p>4K Cryo-chamber · electrostatic controls</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/photonic-computing" class="hw-card card-photonic-4k-only">
+        <div class="card-rail" style="background: var(--accent-pink, #db2777);"></div>
+        <div class="card-header">
+          <span class="card-id" style="color: var(--accent-pink, #db2777);">DET-SNSPD</span>
+          <span class="card-spec">NbN Nanowire</span>
+        </div>
+        <div class="card-body">
+          <div class="led anim-blink" style="background: var(--accent-pink, #db2777); box-shadow: 0 0 8px var(--accent-pink, #db2777);"></div>
+          <div class="card-info">
+            <h4>SNSPD Detector Array</h4>
+            <p>1-4K Cryostat readout · &gt;99% efficiency</p>
           </div>
         </div>
       </a>
@@ -958,5 +1018,93 @@
   @keyframes topologicalPulse {
     0%, 100% { border-color: rgba(13, 148, 136, 0.15); }
     50% { border-color: rgba(20, 184, 166, 0.4); }
+  }
+
+  /* ─── Neutral Atom Modality ─── */
+  .card-neutral-only {
+    display: none !important;
+  }
+  :global(.modality-neutral) .card-neutral-only {
+    display: grid !important;
+  }
+  @media (max-width: 640px) {
+    :global(.modality-neutral) .card-neutral-only {
+      display: block !important;
+    }
+  }
+  :global(.modality-neutral) [data-stage="4k"],
+  :global(.modality-neutral) [data-stage="15mk"] {
+    opacity: 0.12 !important;
+    pointer-events: none;
+    filter: grayscale(85%);
+    transition: all 0.5s ease;
+  }
+  :global(.modality-neutral) .cooling-step {
+    opacity: 0.1 !important;
+    filter: grayscale(85%);
+    transition: all 0.5s ease;
+  }
+
+  /* ─── Trapped Ion Modality ─── */
+  .card-ion-only {
+    display: none !important;
+  }
+  :global(.modality-ion) .card-ion-only {
+    display: grid !important;
+  }
+  @media (max-width: 640px) {
+    :global(.modality-ion) .card-ion-only {
+      display: block !important;
+    }
+  }
+  :global(.modality-ion) [data-stage="15mk"] {
+    opacity: 0.12 !important;
+    pointer-events: none;
+    filter: grayscale(85%);
+    transition: all 0.5s ease;
+  }
+  :global(.modality-ion) .cooling-step:nth-of-type(n+4) {
+    opacity: 0.1 !important;
+    filter: grayscale(85%);
+    transition: all 0.5s ease;
+  }
+  :global(.modality-ion) [data-stage="4k"] {
+    --stage-color: #0891b2 !important;
+  }
+  :global(.modality-ion) [data-stage="4k"] .temp-value {
+    color: #06b6d4 !important;
+  }
+
+  /* ─── Photonic Modality ─── */
+  .card-photonic-300k-only,
+  .card-photonic-4k-only {
+    display: none !important;
+  }
+  :global(.modality-photonic) .card-photonic-300k-only,
+  :global(.modality-photonic) .card-photonic-4k-only {
+    display: grid !important;
+  }
+  @media (max-width: 640px) {
+    :global(.modality-photonic) .card-photonic-300k-only,
+    :global(.modality-photonic) .card-photonic-4k-only {
+      display: block !important;
+    }
+  }
+  :global(.modality-photonic) [data-stage="15mk"] {
+    opacity: 0.12 !important;
+    pointer-events: none;
+    filter: grayscale(85%);
+    transition: all 0.5s ease;
+  }
+  :global(.modality-photonic) .cooling-step:nth-of-type(n+4) {
+    opacity: 0.1 !important;
+    filter: grayscale(85%);
+    transition: all 0.5s ease;
+  }
+  :global(.modality-photonic) [data-stage="4k"] {
+    --stage-color: #db2777 !important;
+  }
+  :global(.modality-photonic) [data-stage="4k"] .temp-value {
+    color: #ec4899 !important;
   }
 </style>

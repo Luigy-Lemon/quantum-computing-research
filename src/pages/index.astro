@@ -177,6 +177,78 @@ const layers = [
     math: '\\Delta_{\\text{top}} = \\sqrt{E_Z^2 - \\Delta_{\\text{sc}}^2}'
   },
   {
+    id: 'neutral_qubit', num: '10-12', label: 'Qubit Array',
+    title: 'Laser-Trapped Atomic Array & Rydberg States',
+    funny: 'Who needs dilution refrigerators when you have lasers? Rubidium or Ytterbium atoms are suspended by light in an ultra-high vacuum cell. At room temperature! But if a background gas molecule hits one, it\'s gone. Poof.',
+    challenge: 'Atom loss rates (~10⁻⁴ per shuttling step) limit practical circuit depth, and loading new atoms takes hundreds of milliseconds.',
+    chips: ['Rb-87 / Yb-171', 'optical tweezer traps', 'Rydberg CNOT/CZ'],
+    theme: 'orange',
+    stage: '300k',
+    spec: 'Vacuum Cell Trap',
+    model: 'RYDBERG-ARRAY-1K',
+    math: '\\hat{H} = \\sum_{i} \\frac{\\hbar \\Omega_i}{2} \\hat{\\sigma}_x^{(i)} - \\sum_{i} \\hbar \\Delta_i \\hat{n}_i + \\sum_{i < j} V_{ij} \\hat{n}_i \\hat{n}_j'
+  },
+  {
+    id: 'neutral_control', num: '5-6', label: 'Control & Routing',
+    title: 'Acousto-Optic Tweezers & SLM Routing',
+    funny: 'You steer atoms using radio-frequency tones that deflect laser beams. It\'s like playing Pong with individual atoms using lasers. If the laser drifts by a nanometer, your qubit drops.',
+    challenge: 'Generating thousands of phase-coherent RF tones dissipates massive laser heat, causing thermal drift in lenses.',
+    chips: ['Acousto-Optic Deflectors', 'Spatial Light Modulators', 'RF tone generation'],
+    theme: 'orange',
+    stage: '300k',
+    spec: 'Laser Steering Rack',
+    model: 'AOD-ROUTE-RF',
+    math: '\\theta_{\\text{deflect}} \\propto f_{\\text{RF}}'
+  },
+  {
+    id: 'ion_qubit', num: '10-12', label: 'Qubit Array',
+    title: 'Surface-Electrode Paul Trap Array',
+    funny: 'Natural qubits, completely identical, with coherence times measured in hours. The ultimate pristine qubit. But they are electrically charged, so they repel each other. Moving them without heating them up is like running with a full cup of hot coffee.',
+    challenge: 'Micro-trap surfaces generate anomalous electric field noise that heats ion motion, requiring 4 Kelvin cryostats to freeze out surface fluctuations.',
+    chips: ['Yb-171 / Ba-138', 'micro-Paul trap', 'phonon data bus'],
+    theme: 'cyan',
+    stage: '4k',
+    spec: 'Surface Electrodes',
+    model: 'QCCD-PAUL-TRAP',
+    math: '\\hat{H}_I = \\hbar \\Omega \\sum_{j} \\left( \\hat{\\sigma}_{+,j} e^{i\\eta (\\hat{a} + \\hat{a}^\\dagger)} + \\text{h.c.} \\right)'
+  },
+  {
+    id: 'ion_cryo', num: 9, label: 'Cryogenics',
+    title: '4 Kelvin Closed-Loop Helium Cryostat',
+    funny: 'No 15 millikelvin dilution fridge needed, but we still cool the surface electrode trap to 4 Kelvin to freeze out metal surface noise and keep the ions still. It\'s cold, but not "deep space" cold.',
+    challenge: 'RF power dissipation on the planar surface trap substrate can overload the cryostat\'s cooling budget.',
+    chips: ['4K liquid helium', 'pulse tube cryocooler', 'thermal anchoring'],
+    theme: 'cyan',
+    stage: '4k',
+    spec: 'Cryo-Confinement',
+    model: 'CRYO-CHAMBER-4K',
+    math: '\\dot{Q} \\propto T^4 - T_{\\text{trap}}^4'
+  },
+  {
+    id: 'photonic_qubit', num: '10-12', label: 'Qubit & Logic',
+    title: 'Silicon-Photonics Waveguide MZI Processor',
+    funny: 'Photons travel at the speed of light at room temperature. Zero thermal decoherence! But they don\'t interact with each other. You must compile logic by forcing them to interfere probabilistically at beam splitters. If a photon gets absorbed, your computation vanishes.',
+    challenge: 'Waveguide propagation loss and fiber coupling loss are unforgiving; exceeding 1% loss ruins the error correction threshold.',
+    chips: ['Mach-Zehnder MZIs', 'squeezed light resonators', 'silicon nitride waveguides'],
+    theme: 'pink',
+    stage: '300k',
+    spec: 'Silicon Nitride Chip',
+    model: 'PSI-FAB-MZI',
+    math: '\\hat{S}(\\xi) = \\exp\\left( \\frac{1}{2} (\\xi^* \\hat{a}^2 - \\xi (\\hat{a}^\\dagger)^2) \\right)'
+  },
+  {
+    id: 'photonic_readout', num: 7, label: 'Readout Detectors',
+    title: 'Superconducting Nanowire Single-Photon Detectors (SNSPDs)',
+    funny: 'Photons themselves are immune to heat, but detecting them with >99% efficiency requires cooling nanowires until they superconduct. When a single photon hits, it breaks Cooper pairs, creating a measurable resistance. Yes, the optical computer still needs a cryostat.',
+    challenge: 'Maintaining high detector efficiency across millions of optical channels without boiling the liquid helium.',
+    chips: ['Niobium Nitride nanowires', '1.5 Kelvin cryostat', '99% heralding efficiency'],
+    theme: 'pink',
+    stage: '4k',
+    spec: 'Cryo-Readout Detectors',
+    model: 'SNSPD-READ-01',
+    math: 'I_c \\propto e^{-\\Delta_{\\text{gap}}/k_B T}'
+  },
+  {
     id: 'network', num: 13, label: 'Network',
     title: 'Quantum Interconnects & Transduction',
     funny: 'You ran out of space in the fridge. Now you need to entangle a qubit in this fridge with a qubit in the next fridge using a photon. Good luck converting microwaves to optical without adding noise.',
@@ -1083,6 +1155,18 @@ const layers = [
       border-color: #0d9488;
       color: #0d9488;
     }
+    #toggle-neutral.active {
+      border-color: var(--accent-orange);
+      color: var(--accent-orange);
+    }
+    #toggle-ion.active {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    #toggle-photonic.active {
+      border-color: var(--accent-pink);
+      color: var(--accent-pink);
+    }
     .bullet {
       width: 8px;
       height: 8px;
@@ -1094,11 +1178,11 @@ const layers = [
       opacity: 1;
     }
 
-    .topological-overlay-banner {
+    .modality-overlay-banner {
       display: none;
-      background: rgba(13, 148, 136, 0.06);
-      border: 1px dashed #0d9488;
-      border-left: 4px solid #0d9488;
+      background: var(--accent-muted);
+      border: 1px dashed var(--accent);
+      border-left: 4px solid var(--accent);
       border-radius: 8px;
       padding: 1.25rem;
       margin: -1rem auto 2.5rem;
@@ -1107,18 +1191,16 @@ const layers = [
       color: var(--text-main);
       max-width: 1000px;
       animation: fadeIn 0.4s ease-out;
-    }
-    .topological-overlay-banner strong {
-      color: #0d9488;
-    }
-    .quantum-workspace.modality-topological .topological-overlay-banner {
-      display: flex;
       gap: 1rem;
       align-items: flex-start;
+      transition: all 0.3s ease;
+    }
+    .modality-overlay-banner strong {
+      color: var(--accent);
     }
     .banner-icon {
       font-size: 1.25rem;
-      color: #0d9488;
+      color: var(--accent);
       line-height: 1;
     }
     
@@ -1127,7 +1209,14 @@ const layers = [
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Outer Workspace adjustments under topological modality */
+    .quantum-workspace.modality-topological #modality-overlay-banner,
+    .quantum-workspace.modality-neutral #modality-overlay-banner,
+    .quantum-workspace.modality-ion #modality-overlay-banner,
+    .quantum-workspace.modality-photonic #modality-overlay-banner {
+      display: flex !important;
+    }
+
+    /* Outer Workspace adjustments under alternative modalities */
     .quantum-workspace {
       transition: background-image 0.4s ease, background-size 0.4s ease;
     }
@@ -1140,6 +1229,7 @@ const layers = [
       z-index: -2;
       transition: background 0.5s ease;
     }
+
     .quantum-workspace.modality-topological {
       --accent: #0d9488;
       --accent-dark: #0f3a3a;
@@ -1154,21 +1244,112 @@ const layers = [
                   radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.04), transparent 60%) !important;
     }
 
+    .quantum-workspace.modality-neutral {
+      --accent: var(--accent-orange);
+      --accent-dark: #78350f;
+      --accent-muted: rgba(217, 119, 6, 0.08);
+      --accent-secondary: #92400e;
+      --accent-cyan: #f59e0b;
+      background-image: radial-gradient(rgba(217, 119, 6, 0.08) 1.5px, transparent 1.5px) !important;
+      background-size: 24px 24px;
+    }
+    .quantum-workspace.modality-neutral::before {
+      background: radial-gradient(circle at 80% 20%, rgba(217, 119, 6, 0.08), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(217, 119, 6, 0.04), transparent 60%) !important;
+    }
+
+    .quantum-workspace.modality-ion {
+      --accent: var(--accent-cyan);
+      --accent-dark: #155e75;
+      --accent-muted: rgba(8, 145, 178, 0.08);
+      --accent-secondary: #0e7490;
+      --accent-cyan: #06b6d4;
+      background-image: radial-gradient(rgba(8, 145, 178, 0.08) 1.5px, transparent 1.5px) !important;
+      background-size: 24px 24px;
+    }
+    .quantum-workspace.modality-ion::before {
+      background: radial-gradient(circle at 80% 20%, rgba(8, 145, 178, 0.08), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(8, 145, 178, 0.04), transparent 60%) !important;
+    }
+
+    .quantum-workspace.modality-photonic {
+      --accent: var(--accent-pink);
+      --accent-dark: #831843;
+      --accent-muted: rgba(219, 39, 119, 0.08);
+      --accent-secondary: #9d174d;
+      --accent-cyan: #ec4899;
+      background-image: radial-gradient(rgba(219, 39, 119, 0.08) 1.5px, transparent 1.5px) !important;
+      background-size: 24px 24px;
+    }
+    .quantum-workspace.modality-photonic::before {
+      background: radial-gradient(circle at 80% 20%, rgba(219, 39, 119, 0.08), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(219, 39, 119, 0.04), transparent 60%) !important;
+    }
+
     /* Collapsing functionality */
     .layer-wrapper[data-layer-id="topological_material"],
-    .layer-wrapper[data-layer-id="qec_topological"] {
+    .layer-wrapper[data-layer-id="qec_topological"],
+    .layer-wrapper[data-layer-id="neutral_qubit"],
+    .layer-wrapper[data-layer-id="neutral_control"],
+    .layer-wrapper[data-layer-id="ion_qubit"],
+    .layer-wrapper[data-layer-id="ion_cryo"],
+    .layer-wrapper[data-layer-id="photonic_qubit"],
+    .layer-wrapper[data-layer-id="photonic_readout"] {
       display: none !important;
     }
     
+    /* Topological */
     .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="shielding"],
     .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="physics"],
     .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="decoherence"],
     .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="qec"] {
       display: none !important;
     }
-    
     .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="topological_material"],
     .quantum-workspace.modality-topological .layer-wrapper[data-layer-id="qec_topological"] {
+      display: block !important;
+    }
+
+    /* Neutral Atoms */
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="control"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="microwave"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="cryogenics"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="shielding"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="physics"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="decoherence"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="qec_topological"] {
+      display: none !important;
+    }
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="neutral_qubit"],
+    .quantum-workspace.modality-neutral .layer-wrapper[data-layer-id="neutral_control"] {
+      display: block !important;
+    }
+
+    /* Trapped Ions */
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="cryogenics"],
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="shielding"],
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="physics"],
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="decoherence"],
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="qec_topological"] {
+      display: none !important;
+    }
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="ion_qubit"],
+    .quantum-workspace.modality-ion .layer-wrapper[data-layer-id="ion_cryo"] {
+      display: block !important;
+    }
+
+    /* Photonics */
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="microwave"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="readout"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="cryogenics"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="shielding"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="physics"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="decoherence"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="qec_topological"] {
+      display: none !important;
+    }
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="photonic_qubit"],
+    .quantum-workspace.modality-photonic .layer-wrapper[data-layer-id="photonic_readout"] {
       display: block !important;
     }
   </style>
@@ -1212,15 +1393,27 @@ const layers = [
             </button>
             <button class="toggle-btn" id="toggle-topological" data-modality="topological">
               <span class="bullet" style="color: #0d9488"></span>
-              Topological Qubit (Majorana 2)
+              Topological Majorana 2
+            </button>
+            <button class="toggle-btn" id="toggle-neutral" data-modality="neutral">
+              <span class="bullet" style="color: var(--accent-orange, #d97706)"></span>
+              Neutral Atom Arrays
+            </button>
+            <button class="toggle-btn" id="toggle-ion" data-modality="ion">
+              <span class="bullet" style="color: var(--accent-cyan, #06b6d4)"></span>
+              Trapped Ion QCCD
+            </button>
+            <button class="toggle-btn" id="toggle-photonic" data-modality="photonic">
+              <span class="bullet" style="color: var(--accent-pink, #ec4899)"></span>
+              Silicon Photonics
             </button>
           </div>
         </div>
 
-        <div class="topological-overlay-banner" id="topo-overlay-banner">
+        <div class="modality-overlay-banner" id="modality-overlay-banner">
           <div class="banner-icon">⚡</div>
-          <div class="banner-content">
-            <strong>Topological Modality Active (Majorana 2):</strong> Layers 10, 11, and 12 are collapsed into a single lead-based (Pb/InAs) material system. The active error correction loop (Layer 3) is bypassed in favor of passive software tracking of anyon braiding. Cryogenics (Layer 9) remains mandatory to cool the nanowires to 15 mK.
+          <div class="banner-content" id="modality-banner-content">
+            <strong>Topological Majorana 2 Active:</strong> Layers 10, 11, and 12 are collapsed into a single lead-based (Pb/InAs) material system. The active error correction loop (Layer 3) is bypassed in favor of passive software tracking of anyon braiding. Cryogenics (Layer 9) remains mandatory to cool the nanowires to 15 mK.
           </div>
         </div>
 
@@ -1292,14 +1485,41 @@ const layers = [
         }
       });
 
-      const transmonSymbols = ['H', 'X', 'Z', 'S', 'T', 'CNOT', '|0⟩', '|1⟩', '|ψ⟩', '⊕'];
-      const topologicalSymbols = ['σ₁', 'σ₂', 'σ₃', 'τ', 'F_ijk', 'R_ab', 'e⁻ᴸ/ᶳ', 'MZM', '|ψ_topo⟩', 'braid', '1', 'Pb/InAs'];
+      const symbolMap = {
+        transmon: ['H', 'X', 'Z', 'S', 'T', 'CNOT', '|0⟩', '|1⟩', '|ψ⟩', '⊕'],
+        topological: ['σ₁', 'σ₂', 'σ₃', 'τ', 'F_ijk', 'R_ab', 'e⁻ᴸ/ᶳ', 'MZM', '|ψ_topo⟩', 'braid', '1', 'Pb/InAs'],
+        neutral: ['Rb-87', 'Yb-171', 'AOD', 'SLM', 'laser', 'tweezer', 'blockade', 'Ω_i', 'R_b', '|g⟩', '|r⟩'],
+        ion: ['Yb-171', 'Ba-138', 'Ca-40', 'motion', 'phonon', 'Paul-trap', 'sideband', 'Lamb-Dicke', 'η', '|↓⟩', '|↑⟩'],
+        photonic: ['MZI', 'squeezing', 'photon', 'SNSPD', 'beam-splitter', 'HOM', 'fusion', 'FBQC', 'GKP', 'ψ_cat']
+      };
+
+      const colorMap = {
+        transmon: '#10b981',
+        topological: '#14b8a6',
+        neutral: '#f59e0b',
+        ion: '#06b6d4',
+        photonic: '#ec4899'
+      };
+
+      function getActiveModality() {
+        const ws = document.querySelector('.quantum-workspace');
+        if (!ws) return 'transmon';
+        if (ws.classList.contains('modality-topological')) return 'topological';
+        if (ws.classList.contains('modality-neutral')) return 'neutral';
+        if (ws.classList.contains('modality-ion')) return 'ion';
+        if (ws.classList.contains('modality-photonic')) return 'photonic';
+        return 'transmon';
+      }
+
       const particles = [];
+      const initialModality = getActiveModality();
+      const initialSymbols = symbolMap[initialModality] || symbolMap.transmon;
+      
       for (let i = 0; i < 40; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          text: transmonSymbols[Math.floor(Math.random() * transmonSymbols.length)],
+          text: initialSymbols[Math.floor(Math.random() * initialSymbols.length)],
           size: Math.random() * 12 + 10,
           speedX: (Math.random() - 0.5) * 0.3,
           speedY: -Math.random() * 0.5 - 0.1,
@@ -1307,8 +1527,8 @@ const layers = [
         });
       }
 
-      window.updateQuantumBgSymbols = function(isTopological) {
-        const currentSymbols = isTopological ? topologicalSymbols : transmonSymbols;
+      window.updateQuantumBgSymbols = function(modality) {
+        const currentSymbols = symbolMap[modality] || symbolMap.transmon;
         particles.forEach(p => {
           p.text = currentSymbols[Math.floor(Math.random() * currentSymbols.length)];
         });
@@ -1316,15 +1536,11 @@ const layers = [
 
       function drawBG() {
         ctx.clearRect(0, 0, width, height);
-        const isTopological = document.querySelector('.quantum-workspace')?.classList.contains('modality-topological');
+        const modality = getActiveModality();
         particles.forEach(p => {
           ctx.save();
           ctx.globalAlpha = p.alpha;
-          if (isTopological) {
-            ctx.fillStyle = '#14b8a6';
-          } else {
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-cyan').trim() || '#0891b2';
-          }
+          ctx.fillStyle = colorMap[modality] || '#10b981';
           ctx.font = `${p.size}px "Fira Code", monospace`;
           ctx.fillText(p.text, p.x, p.y);
           ctx.restore();
@@ -1337,7 +1553,7 @@ const layers = [
           if (p.y < -30) {
             p.y = height + 30;
             p.x = Math.random() * width;
-            const currentSymbols = isTopological ? topologicalSymbols : transmonSymbols;
+            const currentSymbols = symbolMap[modality] || symbolMap.transmon;
             p.text = currentSymbols[Math.floor(Math.random() * currentSymbols.length)];
           }
         });
@@ -1355,9 +1571,9 @@ const layers = [
     function highlightCards(stageId, active) {
       let layerIds = [];
       if (stageId === '300k') {
-        layerIds = ['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network'];
+        layerIds = ['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network', 'neutral_control', 'photonic_qubit'];
       } else if (stageId === '4k') {
-        layerIds = ['microwave', 'readout'];
+        layerIds = ['microwave', 'readout', 'ion_qubit', 'ion_cryo', 'photonic_readout'];
       } else if (stageId === '15mk') {
         layerIds = ['qec', 'qec_topological', 'physics', 'shielding', 'decoherence', 'cryogenics', 'topological_material'];
       }
@@ -1375,8 +1591,8 @@ const layers = [
     }
 
     function getStageFromCard(cardId) {
-      if (['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network'].includes(cardId)) return '300k';
-      if (['microwave', 'readout'].includes(cardId)) return '4k';
+      if (['compilation', 'qudits', 'control', 'classical_control', 'vacuum', 'network', 'neutral_control', 'photonic_qubit'].includes(cardId)) return '300k';
+      if (['microwave', 'readout', 'ion_qubit', 'ion_cryo', 'photonic_readout'].includes(cardId)) return '4k';
       if (['qec', 'qec_topological', 'physics', 'shielding', 'decoherence', 'cryogenics', 'topological_material'].includes(cardId)) return '15mk';
       return null;
     }
@@ -1413,30 +1629,47 @@ const layers = [
       });
     });
 
-    // Qubit Modality Toggle
-    const toggleTransmon = document.getElementById('toggle-transmon');
-    const toggleTopological = document.getElementById('toggle-topological');
+    // -------------------------------------------------------------
+    // Qubit Modality Toggle and Banner Updates
+    // -------------------------------------------------------------
+    const toggleButtons = document.querySelectorAll('.toggle-switch .toggle-btn');
     const workspace = document.querySelector('.quantum-workspace');
+    const bannerContent = document.getElementById('modality-banner-content');
 
-    if (toggleTransmon && toggleTopological && workspace) {
-      toggleTransmon.addEventListener('click', () => {
-        toggleTransmon.classList.add('active');
-        toggleTopological.classList.remove('active');
-        workspace.classList.remove('modality-topological');
-        if (typeof window.updateQuantumBgSymbols === 'function') {
-          window.updateQuantumBgSymbols(false);
-        }
-      });
+    const bannerDescriptions = {
+      transmon: "",
+      topological: "<strong>Topological Majorana 2 Active:</strong> Layers 10, 11, and 12 are collapsed into a single lead-based (Pb/InAs) material system. The active error correction loop (Layer 3) is bypassed in favor of passive software tracking of anyon braiding. Cryogenics (Layer 9) remains mandatory to cool the nanowires to 15 mK.",
+      neutral: "<strong>Neutral Atom Arrays Active:</strong> Layers 10, 11, and 12 are collapsed into a single room-temperature atomic array in a vacuum chamber. Cryogenics (Layer 9), Shielding (Layer 10), and Microwave Wiring (Layer 6) are completely bypassed. Room-temperature laser tweezers and Acousto-Optic Deflectors (Layer 5) are introduced to steer, position, and entangle the rubidium/ytterbium atoms using Rydberg blockades.",
+      ion: "<strong>Trapped Ion QCCD Active:</strong> Layers 10, 11, and 12 are replaced by a surface-electrode Paul trap array using Ytterbium or Barium ions. The dilution refrigerator is replaced by a 4 Kelvin cryostat (Layer 9) to freeze out electric field noise on the trap electrodes. State routing is performed by physically shuttling ions across the QCCD chip using RF electrode potentials, bypassing the standard 15 mK cryogenic stack.",
+      photonic: "<strong>Silicon Photonics Active:</strong> Layers 10, 11, and 12 are replaced by a room-temperature silicon-photonics waveguide processor. Gate logic is probabilistic and is compiled using Mach-Zehnder Interferometers (MZIs) and beam splitters. Microwave signals (Layer 6) are bypassed, but high-efficiency SNSPD readout detectors (Layer 7) require a 4 Kelvin cryostat to operate."
+    };
 
-      toggleTopological.addEventListener('click', () => {
-        toggleTopological.classList.add('active');
-        toggleTransmon.classList.remove('active');
-        workspace.classList.add('modality-topological');
-        if (typeof window.updateQuantumBgSymbols === 'function') {
-          window.updateQuantumBgSymbols(true);
-        }
+    if (toggleButtons && workspace) {
+      toggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const modality = btn.getAttribute('data-modality');
+          
+          // Update active button state
+          toggleButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          // Update workspace classes
+          workspace.classList.remove('modality-topological', 'modality-neutral', 'modality-ion', 'modality-photonic');
+          if (modality !== 'transmon') {
+            workspace.classList.add(`modality-${modality}`);
+          }
+
+          // Update banner description
+          if (bannerContent && bannerDescriptions[modality] !== undefined) {
+            bannerContent.innerHTML = bannerDescriptions[modality];
+          }
+
+          // Update background symbols
+          if (typeof window.updateQuantumBgSymbols === 'function') {
+            window.updateQuantumBgSymbols(modality);
+          }
+        });
       });
     }
-
   </script>
 </Base>
